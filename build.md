@@ -1,4 +1,4 @@
-YouTube-Extended: 19.09.37  
+YouTube-Extended: 19.07.40  
 Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) module to detach YouTube from Google Play  
 
 Changelog:  
