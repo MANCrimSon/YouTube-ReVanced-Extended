@@ -1,8 +1,13 @@
 [ {
-    "patchName": "Custom branding name YouTube",
-    "options": [ {
-      "key": "AppName",
-      "value": "YouTube"
+    "patchName" : "Custom branding name YouTube",
+    "options" : [ {
+      "key" : "AppName",
+      "value" : "YouTube"
     } ]
-} ]
-
+  }, {
+    "patchName" : "Tuck away preferences",
+    "options" : [ {
+      "key" : "SettingElements",
+      "value" : "Data saving, Video quality preferences, Watch on TV, Manage all history, Privacy, Try experimental new features, Purchases and memberships, Billing & payments, Connected apps, Live chat, Captions, About"
+    } ]
+  } ]
