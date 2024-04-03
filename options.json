@@ -10,4 +10,13 @@
       "key" : "SettingElements",
       "value" : "Data saving, Video quality preferences, Watch on TV, Manage all history, Privacy, Try experimental new features, Purchases and memberships, Billing & payments, Connected apps, Live chat, Captions, About"
     } ]
-  } ]
+  }, {
+    "patchName" : "Theme",
+    "options" : [ {
+      "key" : "DarkThemeBackgroundColor",
+      "value" : "Advanced Dark Color"
+    }, {
+      "key" : "LightThemeBackgroundColor",
+      "value" : "Advanced Light Color"
+    } ]
+} ]
