@@ -14,9 +14,9 @@
     "patchName" : "Theme",
     "options" : [ {
       "key" : "DarkThemeBackgroundColor",
-      "value" : "Advanced Dark Color"
+      "value" : "#FF252A3A"
     }, {
       "key" : "LightThemeBackgroundColor",
-      "value" : "Advanced Light Color"
+      "value" : "#FFF2F8FF"
     } ]
 } ]
