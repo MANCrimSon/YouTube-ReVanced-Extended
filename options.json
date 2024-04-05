@@ -4,13 +4,4 @@
       "key" : "AppName",
       "value" : "YouTube"
     } ]
-  }, {
-    "patchName" : "Theme",
-    "options" : [ {
-      "key" : "DarkThemeBackgroundColor",
-      "value" : "#@android:color/system_neutral1_900"
-    }, {
-      "key" : "LightThemeBackgroundColor",
-      "value" : "@android:color/system_neutral1_50"
-    } ]
 } ]
