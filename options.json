@@ -8,9 +8,9 @@
     "patchName" : "Theme",
     "options" : [ {
       "key" : "DarkThemeBackgroundColor",
-      "value" : "#FF181818"
+      "value" : "#@android:color/system_neutral1_900"
     }, {
       "key" : "LightThemeBackgroundColor",
-      "value" : "#FFF2F2F2"
+      "value" : "@android:color/system_neutral1_50"
     } ]
 } ]
