@@ -13,10 +13,4 @@
       "key" : "LightThemeBackgroundColor",
       "value" : "#FFF2F2F2"
     } ] 
-  }, {
-    "patchName" : "Tuck away preferences",
-    "options" : [ {
-      "key" : "SettingElements",
-      "value" : "Data saving, Manage all history, Privacy, Try experimental new features, Purchases and memberships, Billing and payments, Captions, Connected apps, Live chat, About"
-    } ]    
 } ]
