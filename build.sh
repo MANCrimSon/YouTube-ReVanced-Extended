@@ -168,7 +168,7 @@ wait
 rm -rf temp/tmp.*
 if [ -z "$(ls -A1 ${BUILD_DIR})" ]; then abort "All builds failed."; fi
 
-log "Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach root ReVanced YouTube"
+log "Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music from Play Store"
 log "\n[YouTube-ReVanced-Extended](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)"
 log "$(cat $TEMP_DIR/*-rv/changelog.md)"
 
