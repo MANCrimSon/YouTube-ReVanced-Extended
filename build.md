@@ -1,3 +1,5 @@
+YouTube-Music-Extended (arm-v7a): 6.48.51  
+YouTube-Music-Extended (arm64-v8a): 6.48.51  
 YouTube-Extended: 19.11.38  
 Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach root ReVanced YouTube  
 
