@@ -1,10 +1,4 @@
 [ {
-    "patchName" : "Custom branding name YouTube",
-    "options" : [ {
-      "key" : "AppName",
-      "value" : "YouTube"
-    } ]
-  }, {
     "patchName" : "Theme",
     "options" : [ {
       "key" : "DarkThemeBackgroundColor",
