@@ -18,7 +18,7 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube/"
 excluded-patches = "'Custom branding icon YouTube' 'Custom branding heading' 'Custom package name' 'Spoof player parameters' 'Hide fullscreen button' 'Hide voice search button'"
 included-patches = "'MaterialYou'"
 
-[Music]
+[YouTube-Music-Extended]
 app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
 patches-source = "anddea/revanced-patches"
@@ -26,5 +26,6 @@ integrations-source = "anddea/revanced-integrations"
 cli-source = "j-hc/revanced-cli"
 build-mode = "module"
 version = "6.48.51"
+apkmirror-arch = "arm64-v8a"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 excluded-patches = "'Custom branding name YouTube Music' 'Custom package name'"
