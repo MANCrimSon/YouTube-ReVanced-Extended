@@ -3,20 +3,20 @@ patches-version = "v4.7.1"
 integrations-version = "v1.8.2"
 patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
-parallel-jobs = 2
+
 # add 'enabled = false' for not patching a specific app or remove it from the config
 # see https://github.com/j-hc/revanced-magisk-module/blob/main/CONFIG.md for more detailed explanations
 
 # you can use rvmm-config-gen to generate a config
 
-[YouTube-Extended]
-app-name = "YouTube"
-rv-brand = "ReVanced Extended"
-cli-source = "j-hc/revanced-cli"
-build-mode = "module"
-version = "19.16.39"
-apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube/"
-excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
+#[YouTube-Extended]
+#app-name = "YouTube"
+#rv-brand = "ReVanced Extended"
+#cli-source = "j-hc/revanced-cli"
+#build-mode = "module"
+#version = "19.16.39"
+#apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube/"
+#excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
@@ -24,7 +24,7 @@ rv-brand = "ReVanced Extended"
 cli-source = "j-hc/revanced-cli"
 build-mode = "module"
 version = "6.50.51"
-arch = "both"
+arch = "arm64-v8a"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name'"
 
