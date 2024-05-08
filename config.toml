@@ -1,6 +1,6 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
-patches-version = "v2.225.0-dev.9"
-integrations-version = "v0.152.0-dev.6"
+patches-version = "v4.7.1"
+integrations-version = "v1.8.2"
 # add 'enabled = false' for not patching a specific app or remove it from the config
 # see https://github.com/j-hc/revanced-magisk-module/blob/main/CONFIG.md for more detailed explanations
 
@@ -9,14 +9,13 @@ integrations-version = "v0.152.0-dev.6"
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
-patches-source = "anddea/revanced-patches"
-integrations-source = "anddea/revanced-integrations"
+patches-source = "inotia00/revanced-patches"
+integrations-source = "inotia00/revanced-integrations"
 cli-source = "j-hc/revanced-cli"
 build-mode = "module"
-version = "19.16.38"
+version = "19.16.39"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube/"
-excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name' 'Spoof player parameters' 'Hide fullscreen button' 'Hide voice search button'"
-included-patches = "'Hide player buttons background'"
+excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
@@ -25,8 +24,8 @@ patches-source = "anddea/revanced-patches"
 integrations-source = "anddea/revanced-integrations"
 cli-source = "j-hc/revanced-cli"
 build-mode = "module"
-version = "6.29.58"
+version = "6.50.51"
 arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
-excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name' 'Amoled' 'Hide voice search button' 'Hide taste builder' 'Hide tap to update button'"
-included-patches = "'Enable old player background' 'Enable old player layout' 'Enable old style miniplayer' 'Enable color match player' 'Enable zen mode' 'Replace cast button'" 
+excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name'"
+
