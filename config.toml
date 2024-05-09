@@ -4,11 +4,6 @@ integrations-source = "inotia00/revanced-integrations"
 cli-source = "inotia00/revanced-cli"
 build-mode = "module"
 
-# add 'enabled = false' for not patching a specific app or remove it from the config
-# see https://github.com/j-hc/revanced-magisk-module/blob/main/CONFIG.md for more detailed explanations
-
-# you can use rvmm-config-gen to generate a config
-
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
@@ -21,4 +16,3 @@ rv-brand = "ReVanced Extended"
 arch = "both"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name'"
-
