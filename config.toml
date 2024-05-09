@@ -1,6 +1,4 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
-patches-version = "v4.8.0-dev.1"
-integrations-version = "v1.8.2"
 patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
 cli-source = "inotia00/revanced-cli"
@@ -14,14 +12,12 @@ build-mode = "module"
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
-version = "19.16.39"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
-version = "6.51.52"
 arch = "both"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name'"
