@@ -1,8 +1,10 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
-patches-version = "v4.7.1"
+patches-version = "v4.8.0-dev.1"
 integrations-version = "v1.8.2"
 patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
+cli-source = "inotia00/revanced-cli"
+build-mode = "module"
 
 # add 'enabled = false' for not patching a specific app or remove it from the config
 # see https://github.com/j-hc/revanced-magisk-module/blob/main/CONFIG.md for more detailed explanations
@@ -12,19 +14,15 @@ integrations-source = "inotia00/revanced-integrations"
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
-cli-source = "j-hc/revanced-cli"
-build-mode = "module"
 version = "19.16.39"
-apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube/"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
-cli-source = "j-hc/revanced-cli"
-build-mode = "module"
-version = "6.50.51"
+version = "6.51.52"
 arch = "both"
-apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon YouTube Music' 'Custom branding name YouTube Music' 'Custom package name'"
 
