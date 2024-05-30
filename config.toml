@@ -2,7 +2,7 @@ enable-magisk-update = true   # set this to false if you do not want to receive 
 patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
 cli-source = "inotia00/revanced-cli"
-parallel-jobs = 3
+parallel-jobs = 4
 
 patches-version = "v4.8.6"
 integrations-version = "v1.9.4"
