@@ -12,6 +12,7 @@ rv-brand = "ReVanced Extended"
 build-mode = "module"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 excluded-patches = "'Custom branding icon YouTube' 'Custom branding name YouTube' 'Custom branding heading' 'Custom package name'"
+included-patches = "'Visual preferences icons'"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
