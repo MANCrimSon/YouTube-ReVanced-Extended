@@ -3,8 +3,8 @@ patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
 cli-source = "inotia00/revanced-cli"
 
-patches-version = "v4.9.1-dev.1"
-integrations-version = "v1.10.1-dev.1"
+patches-version = "v4.9.1-dev.2"
+integrations-version = "v1.10.1-dev.2"
 
 [YouTube-Extended]
 app-name = "YouTube"
