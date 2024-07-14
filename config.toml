@@ -13,6 +13,7 @@ build-mode = "module"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube' 'Custom package name'"
 included-patches = "'Visual preferences icons'"
+version = "19.26.42"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
