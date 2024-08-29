@@ -3,15 +3,15 @@ patches-source = "inotia00/revanced-patches"
 integrations-source = "inotia00/revanced-integrations"
 cli-source = "inotia00/revanced-cli"
 
-patches-version = "v4.12.3"
-integrations-version = "v1.12.3"
+patches-version = "v4.13.1-dev.1"
+integrations-version = "v1.13.1-dev.1"
 
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
 build-mode = "module"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
-excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube' 'Custom package name' 'Spoof client'"
+excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube' 'Custom package name'"
 included-patches = "'Visual preferences icons'"
 
 [YouTube-Music-Extended]
