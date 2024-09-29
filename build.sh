@@ -50,6 +50,8 @@ java --version >/dev/null || abort "\`openjdk 17\` is not installed. install it 
 zip --version >/dev/null || abort "\`zip\` is not installed. install it with 'apt install zip' or equivalent"
 # ----------------
 rm -rf revanced-magisk/bin/*/tmp.*
+: >"$TEMP_DIR"/*-rv/changelog.md || :
+
 get_prebuilts
 
 declare -A cliriplib
@@ -160,13 +162,13 @@ for table_name in $(toml_get_table_names); do
 done
 wait
 rm -rf temp/tmp.*
-if [ -z "$(ls -A1 ${BUILD_DIR})" ]; then abort "All builds failed."; fi
+if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
 
 log "Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music from Play Store"
 log "\n[YouTube-ReVanced-Extended](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)\n"
-log "$(cat $TEMP_DIR/*-rv/changelog.md)"
+log "$(cat "$TEMP_DIR"/*-rv/changelog.md)"
 
-SKIPPED=$(cat $TEMP_DIR/skipped 2>/dev/null || :)
+SKIPPED=$(cat "$TEMP_DIR"/skipped 2>/dev/null || :)
 if [ -n "$SKIPPED" ]; then
 	log "\nSkipped:"
 	log "$SKIPPED"
