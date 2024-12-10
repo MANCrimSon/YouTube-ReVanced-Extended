@@ -2,7 +2,7 @@ name: Sync with Upstream
 
 on:
   schedule:
-  workflow_dispatch: # Позволяет запускать вручную
+  workflow_dispatch: 
 
 jobs:
   sync:
