@@ -1,4 +1,4 @@
-name: Manual Sync with Upstream
+name: Sync with Template Repository
 
 on:
   workflow_dispatch: # Позволяет запускать вручную
@@ -13,12 +13,7 @@ jobs:
         with:
           ref: main
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "MANCrimSon"
-          git config --global user.email "12345+MANCrimSon@users.noreply.github.com"
-
-      - name: Add Upstream Repository
+      - name: Add Template Repository as Upstream
         run: |
           git remote add upstream https://github.com/j-hc/revanced-magisk-module.git
           git fetch upstream
