@@ -1,0 +1,21 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+  workflow_dispatch: # Позволяет запускать вручную
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Your Repository
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Add Upstream Repository
+        run: |
+          git remote add upstream https://github.com/j-hc/revanced-magisk-module.git
+          git fetch upstream
+          git merge upstream/main --allow-unrelated-histories
+          git push origin main
