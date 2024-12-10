@@ -1,12 +1,12 @@
-name: Sync with Upstream
+name: Manual Sync with Upstream
 
 on:
-  schedule:
-  workflow_dispatch: 
+  workflow_dispatch: # Позволяет запускать вручную
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Your Repository
         uses: actions/checkout@v3
