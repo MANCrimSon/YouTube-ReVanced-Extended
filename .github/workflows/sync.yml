@@ -26,9 +26,9 @@ jobs:
 
       - name: Merge Changes with Conflict Resolution
         run: |
-          git merge upstream/main --strategy-option theirs || true
+          git merge upstream/main --allow-unrelated-histories --strategy-option theirs || true
           git add .
-          git commit -m "Resolve conflicts by accepting changes from upstream" || true
+          git commit -m "Force merge upstream changes" || true
 
       - name: Push Changes to Your Repository
         env:
