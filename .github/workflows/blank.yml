@@ -32,7 +32,8 @@ jobs:
 
       - name: Push Changes to New Branch
         run: |
-          git push --force-with-lease origin HEAD:refs/heads/sync-upstream
+          git fetch origin sync-upstream || true
+          git push --force origin HEAD:refs/heads/sync-upstream
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
