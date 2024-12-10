@@ -1,0 +1,46 @@
+name: Full Sync with Template Repository
+
+on:
+  workflow_dispatch: # Позволяет запускать вручную
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Your Repository
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Template Repository as Upstream
+        run: |
+          git remote add upstream https://github.com/j-hc/revanced-magisk-module.git
+          git fetch upstream
+
+      - name: Merge Changes with Conflict Resolution
+        run: |
+          git merge upstream/main --allow-unrelated-histories --strategy-option theirs || true
+          git add .
+          git commit -m "Sync changes from upstream" || true
+
+      - name: Push Changes to New Branch
+        run: |
+          git push --force-with-lease origin HEAD:refs/heads/sync-upstream
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Sync all changes from upstream"
+          branch: sync-upstream
+          title: "Sync all changes from upstream"
+          body: |
+            This pull request contains all changes merged from the upstream repository,
+            including updates to `.github/workflows/`.
