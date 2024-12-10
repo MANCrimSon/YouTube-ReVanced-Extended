@@ -4,8 +4,6 @@ parallel-jobs = 1
 patches-source = "inotia00/revanced-patches"
 cli-source = "inotia00/revanced-cli"
 
-patches-version = "dev"
-
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
