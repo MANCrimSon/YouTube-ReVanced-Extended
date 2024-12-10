@@ -13,6 +13,11 @@ jobs:
         with:
           ref: main
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "MANCrimSon"
+          git config --global user.email "MANCrimSon@users.noreply.github.com"
+
       - name: Add Template Repository as Upstream
         run: |
           git remote add upstream https://github.com/j-hc/revanced-magisk-module.git
