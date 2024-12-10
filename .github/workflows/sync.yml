@@ -30,8 +30,11 @@ jobs:
           git add .
           git commit -m "Force merge upstream changes" || true
 
-      - name: Push Changes to Your Repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/MANCrimSon/YouTube-ReVanced-Extended.git main
+      - name: Create Pull Request for Changes
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Sync with Template Repository"
+          branch: sync-upstream
+          title: "Sync with Template Repository"
+          body: "This PR includes changes from the upstream repository."
