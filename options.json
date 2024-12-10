@@ -1,0 +1,10 @@
+[ {
+    "patchName" : "Theme",
+    "options" : [ {
+      "key" : "DarkThemeBackgroundColor",
+      "value" : "#FF111111"
+    }, {
+      "key" : "LightThemeBackgroundColor",
+      "value" : "#FFF9F9F9"
+    } ] 
+} ]
