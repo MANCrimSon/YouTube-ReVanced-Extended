@@ -22,5 +22,12 @@ jobs:
         run: |
           git remote add upstream https://github.com/j-hc/revanced-magisk-module.git
           git fetch upstream
-          git merge upstream/main --allow-unrelated-histories
-          git push origin main
+
+      - name: Merge Changes with Conflict Resolution
+        run: |
+          git merge upstream/main --strategy-option theirs || true
+          git add .
+          git commit -m "Resolve conflicts by accepting changes from upstream" || true
+
+      - name: Push Changes to Your Repository
+        run: git push origin main
