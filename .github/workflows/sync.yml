@@ -15,8 +15,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.name "MANCrimSon"
-          git config --global user.email "MANCrimSon@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Add Template Repository as Upstream
         run: |
@@ -30,4 +30,6 @@ jobs:
           git commit -m "Resolve conflicts by accepting changes from upstream" || true
 
       - name: Push Changes to Your Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: git push origin main
