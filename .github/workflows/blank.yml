@@ -30,18 +30,42 @@ jobs:
           git add .
           git commit -m "Sync changes from upstream" || true
 
-      - name: Push Changes to New Branch
+      - name: Push Non-Workflow Changes to New Branch
         run: |
           git fetch origin sync-upstream || true
+          git reset HEAD .github/workflows/* || true
+          rm -rf .github/workflows/* # Удаляем workflow файлы из коммита
+          git add .
+          git commit -m "Sync changes from upstream (excluding workflows)" || true
           git push --force origin HEAD:refs/heads/sync-upstream
 
-      - name: Create Pull Request
+      - name: Create Pull Request for Non-Workflow Changes
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Sync all changes from upstream"
+          commit-message: "Sync changes from upstream (excluding workflows)"
           branch: sync-upstream
-          title: "Sync all changes from upstream"
+          title: "Sync changes from upstream (excluding workflows)"
           body: |
-            This pull request contains all changes merged from the upstream repository,
-            including updates to `.github/workflows/`.
+            This PR contains all changes from the upstream repository, excluding `.github/workflows/` files.
+
+      - name: Push Workflow Changes to a Separate Branch
+        run: |
+          git fetch origin workflows-sync || true
+          git checkout -b workflows-sync || git checkout workflows-sync
+          git reset HEAD . || true
+          git checkout upstream/main -- .github/workflows/ || true
+          git add .github/workflows/
+          git commit -m "Update workflows from upstream" || true
+          git push --force origin HEAD:refs/heads/workflows-sync
+
+      - name: Create Pull Request for Workflow Changes
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update workflows from upstream"
+          branch: workflows-sync
+          title: "Update workflows from upstream"
+          body: |
+            This PR contains updates to `.github/workflows/` files from the upstream repository.
+            These changes require manual approval.
