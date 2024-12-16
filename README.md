@@ -1,6 +1,6 @@
 # YouTube ReVanced Extended Magisk/KernelSU Module
 
-Get the [latest CI release](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases).
+Get the [latest release](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases).
 
 Use [**zygisk-detach**](https://github.com/j-hc/zygisk-detach) to detach YouTube and YT Music from Play Store. 
 
