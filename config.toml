@@ -5,6 +5,11 @@ patches-version = "dev"
 patches-source = "inotia00/revanced-patches"
 cli-source = "inotia00/revanced-cli"
 
+patcher-args = """\
+  -OdarkThemeBackgroundColor=#FFF9F9F9 \
+  -OlightThemeBackgroundColor=#FF111111 \
+"""
+
 [YouTube-Extended]
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
