@@ -6,8 +6,8 @@ patches-source = "inotia00/revanced-patches"
 cli-source = "inotia00/revanced-cli"
 
 patcher-args = """\
-  -OdarkThemeBackgroundColor=#FFF9F9F9 \
-  -OlightThemeBackgroundColor=#FF111111 \
+  -OdarkThemeBackgroundColor=#FF111111 \
+  -OlightThemeBackgroundColor=#FFF9F9F9 \
 """
 
 [YouTube-Extended]
