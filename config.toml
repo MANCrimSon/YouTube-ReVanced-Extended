@@ -1,6 +1,7 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
 parallel-jobs = 1
 
+patches-version = "dev"
 patches-source = "inotia00/revanced-patches"
 cli-source = "inotia00/revanced-cli"
 
@@ -8,6 +9,7 @@ cli-source = "inotia00/revanced-cli"
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
 build-mode = "module"
+version = "19.30.39"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube' 'Custom package name'"
 included-patches = "'Visual preferences icons for YouTube' 'Return YouTube Username'"
