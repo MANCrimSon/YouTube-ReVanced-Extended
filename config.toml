@@ -22,6 +22,7 @@ patcher-args = """\
 app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
 build-mode = "module"
+version = "7.16.53"
 arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding name for YouTube Music' 'Custom header for YouTube Music' 'Custom package name'"
