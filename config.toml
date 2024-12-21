@@ -12,10 +12,6 @@ build-mode = "module"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube' 'Custom package name'"
 included-patches = "'Visual preferences icons for YouTube' 'Return YouTube Username'"
-patcher-args = """\
-  -OdarkThemeBackgroundColor=#FF111111 \
-  -OlightThemeBackgroundColor=#FFF9F9F9 \
-"""
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
