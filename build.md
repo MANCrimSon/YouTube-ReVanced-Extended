@@ -7,7 +7,4 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and
   
 CLI: inotia00/revanced-cli-5.0.1-all.jar  
 Patches: inotia00/patches-5.1.1.rvp  
-[Changelog](https://github.com/inotia00/revanced-patches/releases/tag/v5.1.1)
-
-Patches: inotia00/patches-5.1.1.rvp  
 [Changelog](https://github.com/inotia00/revanced-patches/releases/tag/v5.1.1)  
