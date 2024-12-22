@@ -6,5 +6,5 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and
 [YouTube-ReVanced-Extended](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)
   
 CLI: inotia00/revanced-cli-5.0.1-all.jar  
-Patches: inotia00/patches-5.1.1.rvp  
-[Changelog](https://github.com/inotia00/revanced-patches/releases/tag/v5.1.1)  
+Patches: anddea/patches-3.0.0-dev.6.rvp  
+[Changelog](https://github.com/anddea/revanced-patches/releases/tag/v3.0.0-dev.6)  
