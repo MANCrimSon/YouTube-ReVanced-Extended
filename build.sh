@@ -166,7 +166,7 @@ rm -rf temp/tmp.*
 if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
 
 log "Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach root YouTube and YT Music from Play Store"
-log "\nInstall [Microg](https://github.com/WSTxda/MicroG-RE/releases) for non-root YouTube and YT Music APKs"
+log "\nInstall [MicroG](https://github.com/WSTxda/MicroG-RE/releases) for non-root YouTube and YT Music APKs"
 log "\n[YouTube-ReVanced-Extended](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)\n"
 log "$(cat "$TEMP_DIR"/*-rv/changelog.md)"
 
