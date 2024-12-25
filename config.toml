@@ -3,7 +3,7 @@ parallel-jobs = 1
 
 patches-source = "anddea/revanced-patches"
 cli-source = "inotia00/revanced-cli"
-patches-version = "dev"
+patches-version = "latest"
 
 [YouTube-Extended]
 app-name = "YouTube"
