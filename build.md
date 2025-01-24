@@ -1,3 +1,4 @@
+YouTube-Extended: 19.44.39  
 YouTube-Music-Extended (arm64-v8a): 8.02.53  
 YouTube-Music-Extended (arm-v7a): 8.02.53  
 
