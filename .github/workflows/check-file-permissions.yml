@@ -1,0 +1,20 @@
+name: Check File Permissions
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check-permissions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check file permissions
+        run: |
+          ls -l script.sh
+          git ls-files --stage | grep script.sh
