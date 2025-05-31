@@ -1,6 +1,6 @@
 {
-  "version": "v20.12.46 (patches: 3.9.0)",
-  "versionCode": 170,
-  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/170/youtube-revanced-extended-magisk-v20.12.46-all.zip",
+  "version": "v20.16.40 (patches: dev.1)",
+  "versionCode": 171,
+  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/171/youtube-revanced-extended-magisk-v20.16.40-all.zip",
   "changelog": "https://raw.githubusercontent.com/MANCrimSon/YouTube-ReVanced-Extended/update/build.md"
 }
