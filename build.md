@@ -1,4 +1,4 @@
-YouTube-Extended: 20.16.40  
+YouTube-Extended: 20.15.40  
 YouTube-Music-Extended (arm64-v8a): 8.12.53  
 YouTube-Music-Extended (arm-v7a): 8.12.53  
 
