@@ -13,10 +13,7 @@ version = "20.15.40"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube'"
 included-patches = "'Visual preferences icons for YouTube' 'Return YouTube Username'"
-patcher-args = """\
-  -OdarkThemeBackgroundColor=#FF111111 \
-  -OlightThemeBackgroundColor=#FFF9F9F9 \
-"""
+patcher-args = "-e 'Theme' -OdarkThemeBackgroundColor=#FF111111 -OlightThemeBackgroundColor=#FFF9F9F9"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
