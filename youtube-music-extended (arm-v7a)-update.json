@@ -1,6 +1,6 @@
 {
-  "version": "v8.24.53 (patches 3.10.0)",
-  "versionCode": 181,
-  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/181/youtube-music-revanced-extended-magisk-v8.24.53-arm-v7a.zip",
+  "version": "v8.24.53 (patches dev.1)",
+  "versionCode": 182,
+  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/182/youtube-music-revanced-extended-magisk-v8.24.53-arm-v7a.zip",
   "changelog": "https://raw.githubusercontent.com/MANCrimSon/YouTube-ReVanced-Extended/update/build.md"
 }
