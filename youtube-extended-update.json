@@ -1,6 +1,6 @@
 {
-  "version": "v20.21.37 (patches 3.11.0)",
-  "versionCode": 184,
-  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/184/youtube-revanced-extended-magisk-v20.21.37-all.zip",
+  "version": "v20.21.37 (patches dev.1)",
+  "versionCode": 185,
+  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/185/youtube-revanced-extended-magisk-v20.21.37-all.zip",
   "changelog": "https://raw.githubusercontent.com/MANCrimSon/YouTube-ReVanced-Extended/update/build.md"
 }
