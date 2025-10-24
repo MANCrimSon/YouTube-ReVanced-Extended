@@ -104,11 +104,17 @@ install() {
 			break
 		fi
 		if ! op=$(pmex install-commit "$SES"); then
-			if echo "$op" | grep -q INSTALL_FAILED_VERSION_DOWNGRADE; then
-				ui_print "* Handling INSTALL_FAILED_VERSION_DOWNGRADE.."
+			if echo "$op" | grep -q -e INSTALL_FAILED_VERSION_DOWNGRADE -e INSTALL_FAILED_UPDATE_INCOMPATIBLE; then
+				ui_print "* Handling install error"
 				if [ "$IS_SYS" = true ]; then
-					mkdir -p /data/adb/rvhc/empty /data/adb/post-fs-data.d
 					SCNM="/data/adb/post-fs-data.d/$PKG_NAME-uninstall.sh"
+					if [ -f "$SCNM" ]; then
+						ui_print "* Remove the old module. Reboot and reflash!"
+						ui_print ""
+						install_err=" "
+						break
+					fi
+					mkdir -p /data/adb/rvhc/empty /data/adb/post-fs-data.d
 					echo "mount -o bind /data/adb/rvhc/empty $BASEPATH" >"$SCNM"
 					chmod +x "$SCNM"
 					ui_print "* Created the uninstall script."
@@ -172,13 +178,24 @@ am force-stop "$PKG_NAME"
 ui_print "* Optimizing $PKG_NAME"
 nohup cmd package compile --reset "$PKG_NAME" >/dev/null 2>&1 &
 
-ui_print "* Cleanup"
-rm -rf "${MODPATH:?}/bin" "$MODPATH/$PKG_NAME.apk"
-
-if [ "$KSU" ] && [ -d "/data/adb/modules/zygisk-assistant" ]; then
-	ui_print "* If you are using zygisk-assistant, you need to"
-	ui_print "  give root permissions to $PKG_NAME"
+if [ "$KSU" ]; then
+	UID=$(dumpsys package "$PKG_NAME" | grep -m1 uid)
+	UID=${UID#*=} UID=${UID%% *}
+	if [ -z "$UID" ]; then
+		UID=$(dumpsys package "$PKG_NAME" | grep -m1 userId)
+		UID=${UID#*=} UID=${UID%% *}
+	fi
+	if [ "$UID" ]; then
+		if ! OP=$("${MODPATH:?}/bin/$ARCH/ksu_profile" "$UID" "$PKG_NAME" 2>&1); then
+			ui_print "ERROR ksu_profile: $OP"
+		fi
+	else
+		ui_print "no UID"
+		dumpsys package "$PKG_NAME" >&2
+	fi
 fi
+
+rm -rf "${MODPATH:?}/bin" "$MODPATH/$PKG_NAME.apk"
 
 ui_print "* Done"
 ui_print "  by CrimSonMAN (github.com/MANCrimSon)"
