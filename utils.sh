@@ -22,12 +22,15 @@ toml_get_table_names() { jq -r -e 'to_entries[] | select(.value | type == "objec
 toml_get_table_main() { jq -r -e 'to_entries | map(select(.value | type != "object")) | from_entries' <<<"$__TOML__"; }
 toml_get_table() { jq -r -e ".\"${1}\"" <<<"$__TOML__"; }
 toml_get() {
-	local op
+	local op quote_placeholder=$'\001'
 	op=$(jq -r ".\"${2}\" | values" <<<"$1")
 	if [ "$op" ]; then
 		op="${op#"${op%%[![:space:]]*}"}"
 		op="${op%"${op##*[![:space:]]}"}"
+		op=${op//\\\'/$quote_placeholder}
+		op=${op//"''"/$quote_placeholder}
 		op=${op//"'"/'"'}
+		op=${op//$quote_placeholder/$'\''}
 		echo "$op"
 	else return 1; fi
 }
@@ -323,11 +326,14 @@ dl_apkmirror() {
 		resp=$(req "$url" -) || return 1
 		node=$($HTMLQ "div.table-row.headerFont:nth-last-child(1)" -r "span:nth-child(n+3)" <<<"$resp")
 		if [ "$node" ]; then
-			if ! dlurl=$(apk_mirror_search "$resp" "$dpi" "${arch}" "APK"); then
-				if ! dlurl=$(apk_mirror_search "$resp" "$dpi" "${arch}" "BUNDLE"); then
-					return 1
-				else is_bundle=true; fi
-			fi
+			for current_dpi in $dpi; do
+				for type in APK BUNDLE; do
+					if dlurl=$(apk_mirror_search "$resp" "$current_dpi" "${arch}" "$type"); then
+						[[ "$type" == "BUNDLE" ]] && is_bundle=true || is_bundle=false
+						break 2
+					fi
+				done
+			done
 			[ -z "$dlurl" ] && return 1
 			resp=$(req "$dlurl" -)
 		fi
@@ -360,7 +366,7 @@ get_apkmirror_vers() {
 }
 get_apkmirror_pkg_name() { sed -n 's;.*id=\(.*\)" class="accent_color.*;\1;p' <<<"$__APKMIRROR_RESP__"; }
 get_apkmirror_resp() {
-	__APKMIRROR_RESP__=$(req "${1}" -)
+	__APKMIRROR_RESP__=$(req "${1}" -) || return 1
 	__APKMIRROR_CAT__="${1##*/}"
 }
 
