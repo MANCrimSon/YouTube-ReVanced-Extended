@@ -7,6 +7,9 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
 # or uptodown-dlurl = "https://app.en.uptodown.com/android"
 ```
 
+> [!WARNING]
+> When a patch name itself contains a single quote, double it inside the string (e.g. 'Hide ''Get Music Premium''').
+
 ## More about other options:
 
 There exists an example below with all defaults shown and all the keys explicitly set.  
@@ -16,6 +19,7 @@ There exists an example below with all defaults shown and all the keys explicitl
 parallel-jobs = 1                    # amount of cores to use for parallel patching, if not set $(nproc) is used
 compression-level = 9                # module zip compression level
 remove-rv-integrations-checks = true # remove checks from the revanced integrations
+dpi = "nodpi anydpi 120-640dpi"      # dpi packages to be searched in order. default: "nodpi anydpi"
 
 patches-source = "revanced/revanced-patches" # where to fetch patches bundle from. default: "revanced/revanced-patches"
 cli-source = "j-hc/revanced-cli"             # where to fetch cli from. default: "j-hc/revanced-cli"
