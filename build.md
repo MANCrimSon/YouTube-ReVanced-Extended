@@ -9,5 +9,5 @@ Install [MicroG](https://github.com/WSTxda/MicroG-RE/releases) for non-root YouT
 [YouTube-ReVanced-Extended](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)
   
 CLI: inotia00/revanced-cli-5.0.2-all.jar  
-Patches: anddea/patches-3.16.0-dev.1.rvp  
-[Changelog](https://github.com/anddea/revanced-patches/releases/tag/v3.16.0-dev.1)  
+Patches: anddea/patches-3.16.0-dev.2.rvp  
+[Changelog](https://github.com/anddea/revanced-patches/releases/tag/v3.16.0-dev.2)  
