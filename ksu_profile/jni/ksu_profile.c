@@ -77,7 +77,7 @@ static int _fd = -1;
 int main(int argc, char* argv[]) {
     if (argc <= 2) {
         fprintf(stderr,
-                "ksu_profile (github.com/j-hc)\n"
+                "ksu_profile (github.com/MANCrimSon)\n"
                 "Disables \"Unmount modules\" for given package\n"
                 "    Usage: %s <pkg uid> <pkg name>\n",
                 argv[0]);
