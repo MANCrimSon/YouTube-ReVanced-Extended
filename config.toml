@@ -1,4 +1,5 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
+remove-rv-integrations-checks = true
 parallel-jobs = 1
 riplib = true
 
