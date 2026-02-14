@@ -1,6 +1,6 @@
 {
-  "version": "v8.30.54 (patches dev.1.rvp)",
-  "versionCode": 225,
-  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/225/youtube-music-revanced-extended-magisk-v8.30.54-arm64-v8a.zip",
+  "version": "v8.30.54 (patches dev.2.mpp)",
+  "versionCode": 226,
+  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/226/youtube-music-revanced-extended-magisk-v8.30.54-arm64-v8a.zip",
   "changelog": "https://raw.githubusercontent.com/MANCrimSon/YouTube-ReVanced-Extended/update/build.md"
 }
