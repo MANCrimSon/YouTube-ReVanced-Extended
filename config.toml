@@ -2,10 +2,9 @@ enable-magisk-update = true   # set this to false if you do not want to receive 
 parallel-jobs = 1
 
 patches-source = "anddea/revanced-patches"
-cli-version = "dev"
+patches-version = "dev"
 cli-source = "MorpheApp/morphe-cli"
 cli-version = "dev"
-patches-version = "dev"
 
 [YouTube-Extended]
 app-name = "YouTube"
