@@ -1,7 +1,7 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
 remove-rv-integrations-checks = true
 parallel-jobs = 1
-striplibs = "arm64-v8a,armeabi-v7a"
+--striplibs = "arm64-v8a,armeabi-v7a"
 
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
