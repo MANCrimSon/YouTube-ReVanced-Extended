@@ -7,8 +7,8 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach root ReVanc
 
 [revanced-magisk-module](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)
   
-CLI: MorpheApp/morphe-cli-1.4.0-dev.3-all.jar  
+CLI: MorpheApp/morphe-cli-1.4.0-dev.4-all.jar  
 Patches: anddea/patches-4.0.0-dev.2.mpp  
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.0.0-dev.2)
 
-CLI: MorpheApp/morphe-cli-1.4.0-dev.3-all.jar    
+CLI: MorpheApp/morphe-cli-1.4.0-dev.4-all.jar    
