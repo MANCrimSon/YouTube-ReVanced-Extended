@@ -6,7 +6,7 @@ riplib = true
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
 cli-source = "MorpheApp/morphe-cli"
-cli-version = "latest"
+cli-version = "dev"
 
 [YouTube-Extended]
 app-name = "YouTube"
