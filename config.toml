@@ -16,7 +16,7 @@ uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube'"
 included-patches = "'Visual preferences icons for YouTube' 'Return YouTube Username'"
-patcher-args = "-e 'Theme' -OdarkThemeBackgroundColor=#FF121212 -OlightThemeBackgroundColor=#FFF9F9F9 --striplibs=arm64-v8a,armeabi-v7a"
+patcher-args = "-e 'Theme' -OdarkThemeBackgroundColor=#FF121212 -OlightThemeBackgroundColor=#FFF9F9F9"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
