@@ -1,6 +1,5 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
 parallel-jobs = 1
-remove-rv-integrations-checks = true
 
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
@@ -17,7 +16,7 @@ version = "20.21.37"
 archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube'"
 included-patches = "'Visual preferences icons for YouTube' 'Return YouTube Username'"
-patcher-args = "-e 'Theme' -OdarkThemeBackgroundColor=#FF121212 -OlightThemeBackgroundColor=#FFF9F9F9 --striplibs=arm64-v8a,armeabi-v7a"
+patcher-args = "-e 'Theme' -OdarkThemeBackgroundColor=#FF121212 -OlightThemeBackgroundColor=#FFF9F9F9"
 
 [YouTube-Music-Extended]
 app-name = "YouTube Music"
