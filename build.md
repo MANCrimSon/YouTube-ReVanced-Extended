@@ -7,6 +7,6 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach root YouTub
 
 [revanced-magisk-module](https://github.com/MANCrimSon/YouTube-ReVanced-Extended)
   
-CLI: MorpheApp/morphe-cli-1.4.0-all.jar  
-Patches: anddea/patches-4.0.0-dev.6.mpp  
-[Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.0.0-dev.6)  
+CLI: MorpheApp/morphe-cli-1.5.0-all.jar  
+Patches: anddea/patches-4.0.0-dev.7.mpp  
+[Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.0.0-dev.7)  
