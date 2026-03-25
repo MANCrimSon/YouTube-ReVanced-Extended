@@ -1,0 +1,49 @@
+name: Sync upstream
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone upstream repository
+        run: |
+          rm -rf /tmp/upstream
+          git clone --depth=1 --branch main https://github.com/j-hc/revanced-magisk-module.git /tmp/upstream
+
+      - name: Sync all files except local overrides
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='README.md' \
+            --exclude='config.toml' \
+            --exclude='.github/workflows/sync.yml' \
+            /tmp/upstream/ ./
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "Sync from j-hc/revanced-magisk-module"
+          git push origin HEAD:${GITHUB_REF_NAME}
