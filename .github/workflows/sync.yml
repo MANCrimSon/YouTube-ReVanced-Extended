@@ -18,6 +18,7 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.SYNC_TOKEN }}
           fetch-depth: 0
 
       - name: Clone upstream repository
@@ -35,15 +36,16 @@ jobs:
             /tmp/upstream/ ./
 
       - name: Commit and push if changed
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes"
             exit 0
           fi
 
           git add -A
           git commit -m "Sync from j-hc/revanced-magisk-module"
-          git push origin HEAD:${GITHUB_REF_NAME}
+          git push https://${{ github.actor }}:${SYNC_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
