@@ -32,4 +32,5 @@ excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding na
 [Instagram]
 patches-source = "crimera/piko"
 patches-version = "dev"
-uptodown-dlurl = "https://instagram.en.uptodown.com/android"
+# uptodown-dlurl = "https://instagram.en.uptodown.com/android"
+archive-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"
