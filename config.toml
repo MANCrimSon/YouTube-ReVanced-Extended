@@ -29,8 +29,8 @@ patches-version = "latest"
 archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding name for YouTube Music' 'Custom header for YouTube Music'"
 
-[Instagram]
-patches-source = "crimera/piko"
-patches-version = "dev"
+# [Instagram]
+# patches-source = "crimera/piko"
+# patches-version = "dev"
 # uptodown-dlurl = "https://instagram.en.uptodown.com/android"
-archive-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"
+# archive-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"
