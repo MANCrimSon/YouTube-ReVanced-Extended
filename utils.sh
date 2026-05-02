@@ -271,7 +271,7 @@ get_patch_last_supported_ver() {
 		fi
 	fi
 	op=$(patches_list_versions "$cli_jar" "$patches_jar" "$pkg_name") || return 1
-	op=$(sed -n '/(.* patch.*/,$p' <<<"$op" | awk '{$1=$1}1')
+	op=$(sed -n '/Most common compatible versions:/,$p' <<<"$op" | sed '1d' | awk '{$1=$1}1')
 	if [ "$op" = "Any" ]; then return; fi
 	pcount=$(head -1 <<<"$op") pcount=${pcount#*(} pcount=${pcount% *}
 	if [ -z "$pcount" ]; then
@@ -281,14 +281,28 @@ get_patch_last_supported_ver() {
 }
 
 patches_list_versions() {
-	local cli_jar=$1 patches_jar=$2 pkg_name=$3 op
-	if ! op=$(java -jar "$cli_jar" list-versions -p "$patches_jar" -f "$pkg_name" -b 2>&1); then
-		if ! op=$(java -jar "$cli_jar" list-versions "$patches_jar" -f "$pkg_name" 2>&1); then
-			epr "Could not list versions $cli_jar: '$op'"
-			return 1
-		fi
+	local cli_jar=$1 patches_jar=$2 pkg_name=$3 op cmd
+	local cmd_base="java -jar '$cli_jar' list-versions"
+
+	# TODO: remove this later
+	local cli_name
+	cli_name=$(basename "$cli_jar")
+	if [ "${cli_name::8}" = revanced ]; then cmd_base+=" -b"; fi
+
+	cmd="${cmd_base} --patches='$patches_jar' -f '$pkg_name'"
+	if op=$(eval "$cmd" 2>&1); then
+		echo "$op"
+		return
 	fi
-	echo "$op"
+
+	cmd="${cmd_base} '$patches_jar' -f '$pkg_name'"
+	if op=$(eval "$cmd" 2>&1); then
+		echo "$op"
+		return
+	fi
+
+	epr "Could not list versions $cli_jar: '$op'"
+	return 1
 }
 patches_list() {
 	local cli_jar=$1 patches_jar=$2 pkg_name=$3 op
@@ -346,12 +360,11 @@ apkmirror_search() {
 		node=$($HTMLQ "div.table-row.headerFont:nth-last-child($n)" -r "span:nth-child(n+3)" <<<"$resp")
 		if [ -z "$node" ]; then break; fi
 		emptyCheck=$($HTMLQ -t -w "div.table-cell:nth-child(1) > a:nth-child(1)" <<<"$node" | xargs)
-		if [ "$emptyCheck" ]; then
-			dlurl=$($HTMLQ --base https://www.apkmirror.com --attribute href "div:nth-child(1) > a:nth-child(1)" <<<"$node")
-		else break; fi
+		if [ -z "$emptyCheck" ]; then break; fi
 		app_table=$($HTMLQ --text --ignore-whitespace <<<"$node")
-		if [ "$(sed -n 3p <<<"$app_table")" = "$apk_bundle" ] &&
-			isoneof "$(sed -n 6p <<<"$app_table")" "${appdpi[@]}" &&
+		if [ "$(sed -n 3p <<<"$app_table")" != "$apk_bundle" ]; then continue; fi
+		dlurl=$($HTMLQ --base https://www.apkmirror.com --attribute href "div:nth-child(1) > a:nth-child(1)" <<<"$node")
+		if isoneof "$(sed -n 6p <<<"$app_table")" "${appdpi[@]}" &&
 			isoneof "$(sed -n 4p <<<"$app_table")" "${apparch[@]}"; then
 			echo "$dlurl"
 			return 0
