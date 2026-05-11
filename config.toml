@@ -40,7 +40,7 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 # archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
-excluded-patches = "'Custom branding' 'Custom header'"
+# excluded-patches = "'Custom branding' 'Custom header'"
 
 [YouTube-Music-Morphe]
 app-name = "YouTube Music"
@@ -54,9 +54,10 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 # archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
-excluded-patches = "'Custom branding' 'Custom header'"
+# excluded-patches = "'Custom branding' 'Custom header'"
 
-# [Instagram]
+# [Instagram-Piko]
+# app-name = "Instagram"
 # patches-source = "crimera/piko"
 # patches-version = "dev"
 # uptodown-dlurl = "https://instagram.en.uptodown.com/android"
