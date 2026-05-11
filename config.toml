@@ -29,6 +29,33 @@ uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding name for YouTube Music' 'Custom header for YouTube Music'"
 
+[YouTube-Morphe]
+app-name = "YouTube"
+rv-brand = "Morphe"
+build-mode = "both"
+# version = "20.21.37"
+patches-source = "MorpheApp/morphe-patches"
+patches-version = "dev"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
+excluded-patches = "'Custom branding' 'Custom header'"
+
+[YouTube-Music-Morphe]
+app-name = "YouTube Music"
+rv-brand = "Morphe"
+build-mode = "both"
+arch = "both"
+# version = "8.30.54"
+patches-source = "MorpheApp/morphe-patches"
+patches-version = "dev"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
+uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
+# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
+excluded-patches = "'Custom branding' 'Custom header'"
+
 # [Instagram]
 # patches-source = "crimera/piko"
 # patches-version = "dev"
