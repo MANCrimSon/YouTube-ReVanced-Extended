@@ -1,6 +1,6 @@
 {
-  "version": "v8.47.56 (patches 1.28.0.mpp)",
-  "versionCode": 251,
-  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/251/youtube-music-morphe-module-v8.47.56-arm64-v8a.zip",
+  "version": "v8.47.56 (patches dev.2.mpp)",
+  "versionCode": 252,
+  "zipUrl": "https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/252/youtube-music-morphe-module-v8.47.56-arm64-v8a.zip",
   "changelog": "https://raw.githubusercontent.com/MANCrimSon/YouTube-ReVanced-Extended/update/build.md"
 }
