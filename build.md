@@ -2,6 +2,7 @@ YouTube-Extended: 20.51.39
 YouTube-Morphe: 20.51.39  
 YouTube-Music-Extended (arm64-v8a): 8.30.54  
 YouTube-Music-Extended (arm-v7a): 8.30.54  
+YouTube-Music-Morphe (arm64-v8a): 8.51.51  
 YouTube-Music-Morphe (arm-v7a): 8.51.51  
 
 Install [Microg](https://github.com/ReVanced/GmsCore/releases) for non-root YouTube and YT Music APKs  
