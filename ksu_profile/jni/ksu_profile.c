@@ -11,7 +11,7 @@
 #define KSU_INSTALL_MAGIC1 0xDEADBEEF
 #define KSU_INSTALL_MAGIC2 0xCAFEBABE
 
-#define KSU_APP_PROFILE_VER 2
+#define KSU_APP_PROFILE_VER 4
 #define KSU_MAX_PACKAGE_NAME 256
 #define KSU_MAX_GROUPS 32
 #define KSU_SELINUX_DOMAIN 64
@@ -36,6 +36,7 @@ struct root_profile {
 
     char selinux_domain[KSU_SELINUX_DOMAIN];
     int32_t namespaces;
+    uint64_t flags;
 };
 
 struct non_root_profile {
