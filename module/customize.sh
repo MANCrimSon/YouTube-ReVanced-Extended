@@ -1,4 +1,6 @@
-. "$MODPATH/config"
+#!/system/bin/sh
+MODDIR=$MODPATH
+. "$MODPATH/utils.sh"
 
 ui_print ""
 if [ -n "$MODULE_ARCH" ] && [ "$MODULE_ARCH" != "$ARCH" ]; then
@@ -15,27 +17,10 @@ elif [ "$ARCH" = "x86" ]; then
 elif [ "$ARCH" = "x64" ]; then
 	ARCH_LIB=x86_64
 else abort "ERROR: unreachable: ${ARCH}"; fi
-RVPATH=/data/adb/rvhc/${MODPATH##*/}.apk
 
 set_perm_recursive "$MODPATH/bin" 0 0 0755 0777
 
-if su -M -c true >/dev/null 2>/dev/null; then
-	alias mm='su -M -c'
-else alias mm='nsenter -t1 -m'; fi
-
-mm grep -F "$PKG_NAME" /proc/mounts | while read -r line; do
-	ui_print "* Un-mount"
-	mp=${line#* } mp=${mp%% *}
-	mm umount -l "${mp%%\\*}"
-done
-am force-stop "$PKG_NAME"
-
-pmex() {
-	OP=$(pm "$@" 2>&1 </dev/null)
-	RET=$?
-	echo "$OP"
-	return $RET
-}
+umount_all
 
 if OP=$(dumpsys package "$PKG_NAME") && [ "$OP" ]; then
 	if echo "$OP" | grep -m1 pkgFlags | grep -Fq UPDATED_SYSTEM_APP; then
@@ -48,9 +33,7 @@ else
 fi
 
 INS=true
-if BASEPATH=$(pmex path "$PKG_NAME"); then
-	echo >&2 "'$BASEPATH'"
-	BASEPATH=${BASEPATH##*:} BASEPATH=${BASEPATH%/*}
+if BASEPATH=$(get_basepath); then
 	if [ "${BASEPATH:1:4}" != data ]; then
 		ui_print "* Detected $PKG_NAME as a system app"
 		SCNM="/data/adb/post-fs-data.d/$PKG_NAME-uninstall.sh"
@@ -63,7 +46,7 @@ if BASEPATH=$(pmex path "$PKG_NAME"); then
 		abort
 	fi
 
-	VERSION=$(dumpsys package "$PKG_NAME" 2>&1 | grep -m1 versionName=) VERSION="${VERSION#*=}"
+	VERSION=$(get_app_version)
 	if [ "$VERSION" ] && [ "$VERSION" = "$PKG_VER" ]; then
 		ui_print "* $PKG_NAME is up-to-date ($VERSION)"
 		INS=false
@@ -113,9 +96,13 @@ install() {
 
 		if ! op=$(pmex install-commit "$SES"); then
 			ui_print "$op"
-			if echo "$op" | grep -q -e INSTALL_FAILED_VERSION_DOWNGRADE -e INSTALL_FAILED_UPDATE_INCOMPATIBLE; then
+			if echo "$op" | grep -q -e INSTALL_FAILED_VERSION_DOWNGRADE -e INSTALL_FAILED_UPDATE_INCOMPATIBLE -e INSTALL_FAILED_DUPLICATE; then
 				ui_print "* Uninstalling..."
-				if ! op=$(pmex uninstall "$PKG_NAME"); then
+				ex_unins_arg=""
+				if echo "$op" | grep -q INSTALL_FAILED_DUPLICATE; then
+					ex_unins_arg="-k"
+				fi
+				if ! op=$(pmex uninstall --user 0 $ex_unins_arg "$PKG_NAME"); then
 					ui_print "$op"
 					if [ $IT = 2 ]; then
 						install_err="ERROR: pm uninstall failed."
@@ -128,8 +115,8 @@ install() {
 			install_err="$op"
 			break
 		fi
-		if BASEPATH=$(pmex path "$PKG_NAME"); then
-			BASEPATH=${BASEPATH##*:} BASEPATH=${BASEPATH%/*}
+		if BASEPATH=$(get_basepath); then
+			:
 		else
 			install_err=" "
 			break
@@ -154,37 +141,36 @@ if [ $INS = true ] || [ -z "$(ls -A1 "$BASEPATHLIB")" ]; then
 	fi
 fi
 
-ui_print "* Setting Permissions"
 set_perm "$MODPATH/base.apk" 1000 1000 644 u:object_r:apk_data_file:s0
 
 ui_print "* Mounting $PKG_NAME"
+# move out the apk from /data/adb/modules/.. to /data/adb/rvhc to not trip some root detections
 mkdir -p "/data/adb/rvhc"
-RVPATH=/data/adb/rvhc/${MODPATH##*/}.apk
 mv -f "$MODPATH/base.apk" "$RVPATH"
 
-if ! op=$(mm mount -o bind "$RVPATH" "$BASEPATH/base.apk" 2>&1); then
+if ! op=$(su -M -c mount -o bind "$RVPATH" "$BASEPATH/base.apk" 2>&1); then
 	ui_print "ERROR: Mount failed!"
 	ui_print "$op"
 fi
 am force-stop "$PKG_NAME"
-ui_print "* Optimizing $PKG_NAME"
 
+ui_print "* Optimizing $PKG_NAME"
 cmd package compile -m speed-profile -f "$PKG_NAME" >/dev/null 2>&1
 # nohup cmd package compile -m speed-profile -f "$PKG_NAME" >/dev/null 2>&1
 
 if [ "$KSU" ]; then
-	UID=$(dumpsys package "$PKG_NAME" 2>&1 | grep -m1 uid=)
+	DUMPSYS=$(dumpsys package "$PKG_NAME" 2>&1)
+	UID=$(echo "$DUMPSYS" | grep -m1 uid=)
 	UID=${UID#*=} UID=${UID%% *}
 	if [ -z "$UID" ]; then
-		UID=$(dumpsys package "$PKG_NAME" 2>&1 | grep -m1 userId=)
+		UID=$(echo "$DUMPSYS" | grep -m1 userId=)
 		UID=${UID#*=} UID=${UID%% *}
 	fi
 	if [ "$UID" ]; then
 		if ! OP=$("${MODPATH:?}/bin/$ARCH/ksu_profile" "$UID" "$PKG_NAME" 2>&1); then
 			ui_print "  $OP"
-			ui_print "* Because you are using a fork of KernelSU, "
-			ui_print "  you need to go to your root manager app and"
-			ui_print "  disable 'Unmount modules' for $PKG_NAME"
+			ui_print "  * In your root manager app,"
+			ui_print "    disable 'Unmount modules' for $PKG_NAME"
 		fi
 	else
 		ui_print "ERROR: UID could not be found for $PKG_NAME"
@@ -192,6 +178,7 @@ if [ "$KSU" ]; then
 fi
 
 rm -rf "${MODPATH:?}/bin" "$MODPATH/stock/"
+cp -f "$MODPATH/module.prop" "$MODPATH/module.prop.orig"
 
 ui_print "* Done"
 ui_print "  by j-hc (github.com/j-hc)"
