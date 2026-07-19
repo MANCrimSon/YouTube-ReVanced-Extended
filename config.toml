@@ -46,7 +46,8 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 # archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
-# excluded-patches = "'Custom branding' 'Custom header'"
+excluded-patches = "'Custom header for YouTube'"
+patcher-args = "-e 'Custom branding name for YouTube' -OappName='Morphe YouTube' -e Theme -OdarkThemeBackgroundColor=#002905 -OlightThemeBackgroundColor=#CCFFCC"
 
 [YouTube-Music-Morphe]
 app-name = "YouTube Music"
@@ -60,7 +61,8 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 # archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
-# excluded-patches = "'Custom branding' 'Custom header'"
+excluded-patches = "'Custom header for YouTube Music'"
+patcher-args = "-e 'Custom branding name for YouTube Music' -OappName='Morphe YT Music' -e Theme -OdarkThemeBackgroundColor=#002905 -OlightThemeBackgroundColor=#CCFFCC"
 
 # [Instagram-Piko]
 # app-name = "Instagram"
