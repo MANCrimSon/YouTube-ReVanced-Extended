@@ -2,7 +2,7 @@ enable-magisk-update = true   # set this to false if you do not want to receive 
 parallel-jobs = 1
 
 cli-source = "MorpheApp/morphe-cli"
-cli-version = "last"
+cli-version = "latest"
 
 [YouTube-Extended]
 app-name = "YouTube"
