@@ -30,6 +30,7 @@ uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 # archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
 excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding name for YouTube Music' 'Custom header for YouTube Music'"
+included-patches = "'Disable music video in album'" 
 
 [YouTube-Morphe]
 app-name = "YouTube"
