@@ -47,7 +47,7 @@ jobs:
       - name: Get add-on bundle
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release download -R MarcaDian/morphe-patches-yavot -p '*.mpp' -O yavot.mpp --clobber
+        run: gh release download -R sashade8-ship-it/morphe-patches-yavot -p '*.mpp' -O yavot.mpp --clobber
 
       - name: Build modules/APKs
         run: if [ -f "config.json" ]; then ./build.sh config.json; else ./build.sh config.toml; fi
