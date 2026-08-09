@@ -35,6 +35,27 @@ jobs:
             --exclude='.github/workflows/sync.yml' \
             /tmp/upstream/ ./
 
+      - name: Re-apply local build.yml patch
+        run: |
+          f=.github/workflows/build.yml
+          if grep -q 'Get add-on bundle' "$f"; then echo "already patched"; exit 0; fi
+          grep -q '      - name: Build modules/APKs' "$f" || { echo "::error::anchor step not found in $f"; exit 1; }
+          python3 - "$f" <<'PY'
+          import sys
+          path = sys.argv[1]
+          src = open(path).read()
+          anchor = "      - name: Build modules/APKs"
+          expr = "${" + "{ secrets.GITHUB_TOKEN }}"
+          block = (
+              "      - name: Get add-on bundle\n"
+              "        env:\n"
+              "          GH_TOKEN: " + expr + "\n"
+              "        run: gh release download -R MarcaDian/morphe-patches-yavot -p '*.mpp' -O yavot.mpp --clobber\n"
+              "\n"
+          )
+          open(path, "w").write(src.replace(anchor, block + anchor, 1))
+          PY
+
       - name: Commit and push if changed
         env:
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
