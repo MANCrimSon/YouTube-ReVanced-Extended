@@ -5,7 +5,7 @@ cli-source = "MorpheApp/morphe-cli"
 cli-version = "latest"
 
 [YouTube-Extended]
-enabled = true
+enabled = false
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
 build-mode = "both"
@@ -19,7 +19,7 @@ archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.y
 excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube'"
 
 [YouTube-Music-Extended]
-enabled = true
+enabled = false
 app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
 build-mode = "both"
@@ -49,7 +49,7 @@ archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.y
 # excluded-patches = "'Custom branding' 'Custom header'"
 
 [YouTube-Music-Morphe]
-enabled = true
+enabled = false
 app-name = "YouTube Music"
 rv-brand = "Morphe"
 build-mode = "both"
