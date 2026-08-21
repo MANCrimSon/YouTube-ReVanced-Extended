@@ -17,5 +17,5 @@ Patches: anddea/patches-4.3.0-dev.2.mpp
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.3.0-dev.2)
 
 CLI: MorpheApp/morphe-desktop-1.13.1-all.jar  
-Patches: MorpheApp/patches-1.40.0-dev.15.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.40.0-dev.15)  
+Patches: MorpheApp/patches-1.40.0-dev.16.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.40.0-dev.16)  
