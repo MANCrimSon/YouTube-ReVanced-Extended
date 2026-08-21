@@ -195,7 +195,13 @@ config_update() {
 			src_needs_update=0
 			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			if [ "$PATCHES_VER" = "dev" ]; then
-				last_patches=$(gh_req "$rv_rel" - | jq -e -r '.[0]') || continue
+				# Don't trust the API's own ordering (release #0) - pick the
+				# release whose tag is actually highest, same as get_prebuilts
+				# does, so this agrees with what actually gets built.
+				local dev_resp best_tag
+				dev_resp=$(gh_req "$rv_rel" -) || continue
+				best_tag=$(jq -e -r '.[].tag_name' <<<"$dev_resp" | get_highest_ver) || continue
+				last_patches=$(jq -e -r --arg t "$best_tag" '.[] | select(.tag_name == $t)' <<<"$dev_resp") || continue
 			elif [ "$PATCHES_VER" = "latest" ]; then
 				last_patches=$(gh_req "$rv_rel/latest" -) || continue
 			else
@@ -275,7 +281,12 @@ get_highest_ver() {
 	local vers m
 	vers=$(tee)
 	m=$(head -1 <<<"$vers")
-	if ! semver_validate "$m"; then echo "$m"; else sort -s -t- -k1,1Vr <<<"$vers" | head -1; fi
+	# Sort the whole string (not just the part before the first "-"), so
+	# a trailing "-dev.N" suffix is compared numerically too. Restricting
+	# to field 1 made e.g. "v4.3.0-dev.9"/"-dev.10"/"-dev.11" all tie (same
+	# base version), silently falling back to whatever order the caller's
+	# input happened to be in instead of picking the actual highest one.
+	if ! semver_validate "$m"; then echo "$m"; else sort -Vr <<<"$vers" | head -1; fi
 }
 semver_validate() {
 	local a="${1%-*}"
