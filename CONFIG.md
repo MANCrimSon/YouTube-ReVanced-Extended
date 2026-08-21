@@ -55,10 +55,15 @@ included-patches = "'Some Patch'"                          # whitespace seperate
 include-stock = "merged"                                   # 'merged', 'split' or 'disable'. default: merged
 exclusive-patches = false                                  # exclude all patches by default. default: false
 
-# whitespace separated list of extra .mpp bundle paths (relative to repo root) to patch alongside
-# the main patches-source, e.g. an official add-on bundle. Each is passed as its own '-p' bundle
-# with no selectors of its own (relies on the add-on's own default-enabled patches). default: ""
-addon-patches = "yavot.mpp"
+# Add-on .mpp bundles patched alongside the main patches-source, each as its own '-p' bundle with
+# no selectors of its own (relies on the add-on's own default-enabled patches). Two ways to supply
+# one, and they can be combined:
+# - addon-patches-source: whitespace separated "owner/repo" list. Each is auto-downloaded from
+#   GitHub releases, always resolving to the actual highest tag (dev/prerelease tags included, not
+#   just the newest stable release). Cached under temp/addons/. default: ""
+# - addon-patches: whitespace separated list of local .mpp file paths (relative to repo root), for
+#   a bundle you already have on disk. default: ""
+addon-patches-source = "sashade8-ship-it/morphe-patches-yavot"
 
 apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"

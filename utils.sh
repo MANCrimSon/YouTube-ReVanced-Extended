@@ -174,6 +174,41 @@ set_prebuilts() {
 	TOML="${BIN_DIR}/toml/tq-${arch}"
 }
 
+# Resolves and downloads a single .mpp add-on bundle from a GitHub repo's
+# releases. Always picks the actual highest tag (via get_highest_ver, so
+# dev/prerelease tags are included and compared correctly) rather than
+# GitHub's "/releases/latest", which only ever returns the newest
+# non-prerelease. Caches the downloaded file per resolved version, same as
+# get_prebuilts() does for the main patches jar. Echoes the local file path.
+get_addon() {
+	local src=$1
+	pr "Getting addon (${src})" >&2
+	local dir="${TEMP_DIR}/addons/${src,,}"
+	mkdir -p "$dir"
+
+	local resp best_tag
+	resp=$(gh_req "https://api.github.com/repos/${src}/releases" -) || return 1
+	best_tag=$(jq -e -r '.[].tag_name' <<<"$resp" | get_highest_ver) || return 1
+
+	local file
+	file=$(find "$dir" -maxdepth 1 -name "*-${best_tag#v}.*" -type f 2>/dev/null | head -1)
+	if [ -z "$file" ]; then
+		local release matches asset name url
+		release=$(jq -e -r --arg t "$best_tag" '.[] | select(.tag_name == $t)' <<<"$resp") || return 1
+		matches=$(jq -e '[.assets[] | select(.name | endswith(".mpp"))]' <<<"$release") || return 1
+		if [ "$(jq 'length' <<<"$matches")" -eq 0 ]; then
+			epr "No .mpp asset found for addon '$src' (${best_tag})"
+			return 1
+		fi
+		asset=$(jq -r ".[0]" <<<"$matches")
+		url=$(jq -r .url <<<"$asset")
+		name=$(jq -r .name <<<"$asset")
+		file="${dir}/${name}"
+		gh_dl "$file" "$url" >&2 || return 1
+	fi
+	echo "$file"
+}
+
 config_update() {
 	if [ ! -f build.md ]; then abort "build.md not available"; fi
 	declare -A sources
