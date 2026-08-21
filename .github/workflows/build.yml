@@ -92,6 +92,70 @@ jobs:
             gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
           fi
 
+      - name: Update README download links
+        env:
+          TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+          import re
+
+          tag = os.environ["TAG"]
+          base = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{tag}/"
+
+          # marker -> glob pattern (relative to build/) for the file it should link to.
+          # Only markers whose file was actually produced this run get touched; every
+          # other app keeps pointing at whatever release last built it.
+          targets = {
+              "yt-rvx-apk": "youtube-revanced-extended-v*-all.apk",
+              "yt-rvx-zip": "youtube-revanced-extended-module-v*-all.zip",
+              "ytm-rvx-apk": "youtube-music-revanced-extended-v*-arm64-v8a.apk",
+              "ytm-rvx-zip": "youtube-music-revanced-extended-module-v*-arm64-v8a.zip",
+              "yt-morphe-apk": "youtube-morphe-v*-all.apk",
+              "yt-morphe-zip": "youtube-morphe-module-v*-all.zip",
+              "ytm-morphe-apk": "youtube-music-morphe-v*-arm64-v8a.apk",
+              "ytm-morphe-zip": "youtube-music-morphe-module-v*-arm64-v8a.zip",
+          }
+
+          with open("README.md", encoding="utf-8") as f:
+              readme = f.read()
+
+          changed = False
+          for marker, pattern in targets.items():
+              matches = glob.glob(os.path.join("build", pattern))
+              if not matches:
+                  continue
+              name = os.path.basename(matches[0])
+              link = f"[{name}]({base}{name})"
+              new_readme, n = re.subn(
+                  rf"(<!--{marker}-->).*?(<!--/{marker}-->)",
+                  lambda m: m.group(1) + link + m.group(2),
+                  readme,
+                  flags=re.DOTALL,
+              )
+              if n and new_readme != readme:
+                  readme = new_readme
+                  changed = True
+
+          if changed:
+              with open("README.md", "w", encoding="utf-8") as f:
+                  f.write(readme)
+              print("README.md updated")
+          else:
+              print("No README changes needed")
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Update README download links"
+            git push origin HEAD:main
+          else
+            echo "no changes!"
+          fi
+
       - name: Update modules changelog and update json
         id: update_config
         run: |

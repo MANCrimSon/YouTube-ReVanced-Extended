@@ -13,14 +13,16 @@ rebuilt automatically as soon as new patches are released.
 
 ## Download
 
-All builds are in [**Releases**](../../releases/latest) — grab the file by name:
+The links below always point straight at the file, kept up to date automatically after every build (see full history
+in [**Releases**](../../releases)). YouTube Music ships `arm64-v8a` here by default — for `armeabi-v7a` grab it from
+Releases directly.
 
 | App | Patches | Non-Root (APK) | Root (module) |
 |---|---|---|---|
-| YouTube | ReVanced Extended (anddea) | `youtube-revanced-extended-*.apk` | `youtube-revanced-extended-module-*.zip` |
-| YouTube Music | ReVanced Extended (anddea) | `youtube-music-revanced-extended-*.apk` | `youtube-music-revanced-extended-module-*.zip` |
-| YouTube | Morphe (+ Yandex VoT) | `youtube-morphe-*.apk` | `youtube-morphe-module-*.zip` |
-| YouTube Music | Morphe | `youtube-music-morphe-*.apk` | `youtube-music-morphe-module-*.zip` |
+| YouTube | ReVanced Extended (anddea) | <!--yt-rvx-apk-->[youtube-revanced-extended-v20.51.39-all.apk](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-revanced-extended-v20.51.39-all.apk)<!--/yt-rvx-apk--> | <!--yt-rvx-zip-->[youtube-revanced-extended-module-v20.51.39-all.zip](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-revanced-extended-module-v20.51.39-all.zip)<!--/yt-rvx-zip--> |
+| YouTube Music | ReVanced Extended (anddea) | <!--ytm-rvx-apk-->[youtube-music-revanced-extended-v9.15.51-arm64-v8a.apk](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-music-revanced-extended-v9.15.51-arm64-v8a.apk)<!--/ytm-rvx-apk--> | <!--ytm-rvx-zip-->[youtube-music-revanced-extended-module-v9.15.51-arm64-v8a.zip](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-music-revanced-extended-module-v9.15.51-arm64-v8a.zip)<!--/ytm-rvx-zip--> |
+| YouTube | Morphe (+ Yandex VoT) | <!--yt-morphe-apk-->[youtube-morphe-v21.04.223-all.apk](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-morphe-v21.04.223-all.apk)<!--/yt-morphe-apk--> | <!--yt-morphe-zip-->[youtube-morphe-module-v21.04.223-all.zip](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-morphe-module-v21.04.223-all.zip)<!--/yt-morphe-zip--> |
+| YouTube Music | Morphe | <!--ytm-morphe-apk-->[youtube-music-morphe-v9.15.51-arm64-v8a.apk](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-music-morphe-v9.15.51-arm64-v8a.apk)<!--/ytm-morphe-apk--> | <!--ytm-morphe-zip-->[youtube-music-morphe-module-v9.15.51-arm64-v8a.zip](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/370/youtube-music-morphe-module-v9.15.51-arm64-v8a.zip)<!--/ytm-morphe-zip--> |
 
 ## Root — installation
 
