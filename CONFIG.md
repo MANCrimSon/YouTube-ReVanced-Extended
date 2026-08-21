@@ -55,6 +55,11 @@ included-patches = "'Some Patch'"                          # whitespace seperate
 include-stock = "merged"                                   # 'merged', 'split' or 'disable'. default: merged
 exclusive-patches = false                                  # exclude all patches by default. default: false
 
+# whitespace separated list of extra .mpp bundle paths (relative to repo root) to patch alongside
+# the main patches-source, e.g. an official add-on bundle. Each is passed as its own '-p' bundle
+# with no selectors of its own (relies on the add-on's own default-enabled patches). default: ""
+addon-patches = "yavot.mpp"
+
 apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 # direct download url. the url must have point to an apk file with name format shown in this example

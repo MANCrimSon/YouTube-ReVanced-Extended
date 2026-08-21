@@ -599,12 +599,27 @@ get_direct_resp() { __DIRECT_APKNAME__=$(awk -F/ '{print $NF}' <<<"$1"); }
 # --------------------------------------------------
 
 patch_apk() {
-	local stock_input=$1 patched_apk=$2 patcher_args=$3 cli_jar=$4 patches_jar=$5
+	local stock_input=$1 patched_apk=$2 patcher_args=$3 cli_jar=$4 patches_jar=$5 addon_patches=${6-}
 	local tmp_files
 	tmp_files="$(pwd)/$(mktemp -d -p "$TEMP_DIR")"
 
-	local cmd="java -jar '$cli_jar' patch '$stock_input' -o '$patched_apk' -p '$patches_jar' --keystore=ks.keystore \
---keystore-entry-password=123456789 --keystore-password=123456789 --signer=jhc --keystore-entry-alias=jhc -t '$tmp_files' $patcher_args"
+	# -e/-d selectors apply to whichever "-p <bundle>" they immediately follow
+	# on the command line (per-bundle patch selection, not global), so
+	# $patcher_args (which may -d the GmsCore/microg patch for module builds)
+	# MUST sit directly after the main "-p '$patches_jar'" and before any
+	# addon bundle - otherwise it silently binds to the wrong bundle (or none)
+	# and e.g. the microg patch never actually gets excluded from root builds.
+	local addon_args="" addon
+	for addon in $addon_patches; do
+		if [ ! -f "$addon" ]; then
+			epr "Addon patches bundle not found, skipping: $addon"
+			continue
+		fi
+		addon_args+=" -p '$addon'"
+	done
+
+	local cmd="java -jar '$cli_jar' patch '$stock_input' -o '$patched_apk' -p '$patches_jar' $patcher_args${addon_args} --keystore=ks.keystore \
+--keystore-entry-password=123456789 --keystore-password=123456789 --signer=jhc --keystore-entry-alias=jhc -t '$tmp_files'"
 
 	# TODO: remove this later
 	local cli_name
@@ -757,7 +772,7 @@ build_rv() {
 	microg_patch=$(grep "^Name: " <<<"$list_patches" | grep -i "gmscore\|microg" || :) microg_patch=${microg_patch#*: }
 	if [ -n "$microg_patch" ] && [[ ${p_patcher_args[*]} =~ $microg_patch ]]; then
 		wpr "You cant include/exclude microg patch as that's done by rvmm builder automatically."
-		p_patcher_args=("${p_patcher_args[@]//-[ei] ${microg_patch}/}")
+		p_patcher_args=("${p_patcher_args[@]//-[ed] ${microg_patch}/}")
 	fi
 
 	local patcher_args patched_apk build_mode
@@ -800,7 +815,7 @@ build_rv() {
 
 		local apk_output="${BUILD_DIR}/${app_name_l}-${rv_brand_f}-v${version_f}-${arch_f}.apk"
 		if [ "${NORB:-}" != true ] || { [ ! -f "$patched_apk" ] && [ ! -f "$apk_output" ]; }; then
-			if ! patch_apk "$stock_apk_to_patch" "$patched_apk" "${patcher_args[*]}" "${args[cli]}" "${args[ptjar]}"; then
+			if ! patch_apk "$stock_apk_to_patch" "$patched_apk" "${patcher_args[*]}" "${args[cli]}" "${args[ptjar]}" "${args[addon_patches]}"; then
 				epr "Building '${table}' failed!"
 				mark_failed "$table"
 				return 0
