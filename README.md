@@ -1,4 +1,4 @@
-# YouTube ReVanced Extended
+# YouTube & YT Music Mod Builder
 
 Automated builds of modified **YouTube** and **YouTube Music** — on two patch sets:
 [**anddea/revanced-patches**](https://github.com/anddea/revanced-patches) (ReVanced Extended) and
