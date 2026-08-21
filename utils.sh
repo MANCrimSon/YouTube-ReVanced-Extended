@@ -205,6 +205,8 @@ get_addon() {
 		name=$(jq -r .name <<<"$asset")
 		file="${dir}/${name}"
 		gh_dl "$file" "$url" >&2 || return 1
+		echo "Addon: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${TEMP_DIR}/addons/changelog.md"
+		echo -e "[Changelog](https://github.com/${src}/releases/tag/${best_tag})\n" >>"${TEMP_DIR}/addons/changelog.md"
 	fi
 	echo "$file"
 }
