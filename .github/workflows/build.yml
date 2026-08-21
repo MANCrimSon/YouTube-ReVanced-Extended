@@ -108,14 +108,14 @@ jobs:
           # Only markers whose file was actually produced this run get touched; every
           # other app/arch keeps pointing at whatever release last built it.
           targets = {
-              "yt-rvx-apk": ("youtube-revanced-extended-v*-all.apk", None),
-              "yt-rvx-zip": ("youtube-revanced-extended-module-v*-all.zip", None),
+              "yt-rvx-apk": ("youtube-revanced-extended-v*-all.apk", "Download"),
+              "yt-rvx-zip": ("youtube-revanced-extended-module-v*-all.zip", "Download"),
               "ytm-rvx-apk-arm64": ("youtube-music-revanced-extended-v*-arm64-v8a.apk", "arm64-v8a"),
               "ytm-rvx-apk-armv7": ("youtube-music-revanced-extended-v*-arm-v7a.apk", "arm-v7a"),
               "ytm-rvx-zip-arm64": ("youtube-music-revanced-extended-module-v*-arm64-v8a.zip", "arm64-v8a"),
               "ytm-rvx-zip-armv7": ("youtube-music-revanced-extended-module-v*-arm-v7a.zip", "arm-v7a"),
-              "yt-morphe-apk": ("youtube-morphe-v*-all.apk", None),
-              "yt-morphe-zip": ("youtube-morphe-module-v*-all.zip", None),
+              "yt-morphe-apk": ("youtube-morphe-v*-all.apk", "Download"),
+              "yt-morphe-zip": ("youtube-morphe-module-v*-all.zip", "Download"),
               "ytm-morphe-apk-arm64": ("youtube-music-morphe-v*-arm64-v8a.apk", "arm64-v8a"),
               "ytm-morphe-apk-armv7": ("youtube-music-morphe-v*-arm-v7a.apk", "arm-v7a"),
               "ytm-morphe-zip-arm64": ("youtube-music-morphe-module-v*-arm64-v8a.zip", "arm64-v8a"),
