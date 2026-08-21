@@ -269,6 +269,7 @@ config_update() {
 		else
 			grep -qF "^${table_name}: " build.md || table_built=false
 		fi
+		pr "DEBUG config_update: table='${table_name}' arch='${arch}' table_built=${table_built} src_needs_update=${src_needs_update}" >&2
 		if [ "$src_needs_update" = 1 ] || [ "$table_built" = false ]; then
 			prcfg=true
 			upped+=("$table_name")
