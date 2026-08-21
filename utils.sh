@@ -247,13 +247,9 @@ config_update() {
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
-			pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> resolved asset(s): $(tr '\n' '|' <<<"$last_patches")" >&2
 			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -qm1 "$last_patches"; then
-				pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> NOT found in build.md, marking needs-update" >&2
 				sources["$PATCHES_SRC/$PATCHES_VER"]=1
 				src_needs_update=1
-			else
-				pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> found in build.md, up to date" >&2
 			fi
 		fi
 		# A fresh patches jar only proves *some* table sharing this source built
@@ -264,12 +260,11 @@ config_update() {
 		local table_built=true arch
 		arch=$(toml_get "$t" arch) || arch="all"
 		if [ "$arch" = both ]; then
-			grep -qF "^${table_name} (arm64-v8a): " build.md || table_built=false
-			grep -qF "^${table_name} (arm-v7a): " build.md || table_built=false
+			grep -q "^${table_name} (arm64-v8a): " build.md || table_built=false
+			grep -q "^${table_name} (arm-v7a): " build.md || table_built=false
 		else
-			grep -qF "^${table_name}: " build.md || table_built=false
+			grep -q "^${table_name}: " build.md || table_built=false
 		fi
-		pr "DEBUG config_update: table='${table_name}' arch='${arch}' table_built=${table_built} src_needs_update=${src_needs_update}" >&2
 		if [ "$src_needs_update" = 1 ] || [ "$table_built" = false ]; then
 			prcfg=true
 			upped+=("$table_name")
