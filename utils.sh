@@ -187,10 +187,12 @@ config_update() {
 		if [ "$enabled" = "false" ]; then continue; fi
 		PATCHES_SRC=$(toml_get "$t" patches-source) || PATCHES_SRC=$DEF_PATCHES_SRC
 		PATCHES_VER=$(toml_get "$t" patches-version) || PATCHES_VER=$DEF_PATCHES_VER
+		local src_needs_update
 		if [[ -v sources["$PATCHES_SRC/$PATCHES_VER"] ]]; then
-			if [ "${sources["$PATCHES_SRC/$PATCHES_VER"]}" = 1 ]; then upped+=("$table_name"); fi
+			src_needs_update=${sources["$PATCHES_SRC/$PATCHES_VER"]}
 		else
 			sources["$PATCHES_SRC/$PATCHES_VER"]=0
+			src_needs_update=0
 			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			if [ "$PATCHES_VER" = "dev" ]; then
 				last_patches=$(gh_req "$rv_rel" - | jq -e -r '.[0]') || continue
@@ -202,15 +204,29 @@ config_update() {
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
-			if [ "$last_patches" ]; then
-				if ! OP=$(grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -m1 "$last_patches"); then
-					sources["$PATCHES_SRC/$PATCHES_VER"]=1
-					prcfg=true
-					upped+=("$table_name")
-				else
-					echo "$OP" >>"$TEMP_DIR"/skipped
-				fi
+			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -qm1 "$last_patches"; then
+				sources["$PATCHES_SRC/$PATCHES_VER"]=1
+				src_needs_update=1
 			fi
+		fi
+		# A fresh patches jar only proves *some* table sharing this source built
+		# successfully last time - not this one. If this table's own stock-APK
+		# download or patch step failed, it never got a "table_name: version"
+		# entry in build.md, so it must be retried even though the shared
+		# "Patches: ..." line looks up to date.
+		local table_built=true arch
+		arch=$(toml_get "$t" arch) || arch="all"
+		if [ "$arch" = both ]; then
+			grep -qF "^${table_name} (arm64-v8a): " build.md || table_built=false
+			grep -qF "^${table_name} (arm-v7a): " build.md || table_built=false
+		else
+			grep -qF "^${table_name}: " build.md || table_built=false
+		fi
+		if [ "$src_needs_update" = 1 ] || [ "$table_built" = false ]; then
+			prcfg=true
+			upped+=("$table_name")
+		else
+			echo "$table_name: already up to date" >>"$TEMP_DIR"/skipped
 		fi
 	done
 	if [ "$prcfg" = true ]; then
@@ -235,7 +251,7 @@ _req() {
 			return
 		fi
 	fi
-	if ! curl -L -c "$TEMP_DIR/cookie.txt" -b "$TEMP_DIR/cookie.txt" --connect-timeout 10 --retry 1 --fail -s -S "$@" "$ip" -o "$dlp"; then
+	if ! curl -L -c "$TEMP_DIR/cookie.txt" -b "$TEMP_DIR/cookie.txt" --connect-timeout 15 --retry 4 --retry-delay 5 --retry-connrefused --fail -s -S "$@" "$ip" -o "$dlp"; then
 		epr "Request failed: $ip"
 		if [ "$dlp" != - ]; then rm -f "$dlp"; fi
 		return 1
@@ -254,6 +270,7 @@ gh_dl() {
 }
 
 log() { echo -e "$1  " >>"build.md"; }
+mark_failed() { echo "$1" >>"${TEMP_DIR}/failed"; }
 get_highest_ver() {
 	local vers m
 	vers=$(tee)
@@ -637,6 +654,7 @@ build_rv() {
 
 	if [ -z "$pkg_name" ]; then
 		epr "empty pkg name, not building ${table}."
+		mark_failed "$table"
 		return 0
 	fi
 	pr "Package name of '${table}' is '$pkg_name'"
@@ -644,11 +662,12 @@ build_rv() {
 
 	local is_experimental="false"
 	if [ "$version_mode" = "experimental" ]; then is_experimental="true"; fi
-	list_patches=$(patches_list "$cli_jar" "$patches_jar" "$pkg_name" "$is_experimental") || return 1
+	list_patches=$(patches_list "$cli_jar" "$patches_jar" "$pkg_name" "$is_experimental") || { mark_failed "$table"; return 1; }
 	local get_latest_ver=false
 	if isoneof "$version_mode" "auto" "experimental"; then
 		if ! version=$(get_patch_last_supported_ver "$list_patches" "$pkg_name" "${args[included_patches]}" "$is_experimental"); then
 			epr "get_patch_last_supported_ver failed '$list_patches'"
+			mark_failed "$table"
 			return
 		elif [ -z "$version" ]; then get_latest_ver="true"; fi
 	elif [ "$version_mode" = "latest" ]; then
@@ -664,6 +683,7 @@ build_rv() {
 	fi
 	if [ -z "$version" ]; then
 		epr "empty version, not building ${table}."
+		mark_failed "$table"
 		return 0
 	fi
 
@@ -697,6 +717,7 @@ build_rv() {
 		done
 		if [ ! -f "$stock_apk" ]; then
 			epr "Stock apk not found ($stock_apk)"
+			mark_failed "$table"
 			return 0
 		fi
 	fi
@@ -708,6 +729,7 @@ build_rv() {
 		for a in "${stock_apk}"-zip/*.apk; do
 			if ! sig_op=$(check_sig "$a" "$pkg_name" 2>&1); then
 				epr "Not building $table, apk signature mismatch '$a': $sig_op"
+				mark_failed "$table"
 				return 0
 			fi
 		done
@@ -715,10 +737,10 @@ build_rv() {
 	else
 		if ! sig_op=$(check_sig "$stock_apk" "$pkg_name" 2>&1); then
 			epr "Not building $table, apk signature mismatch '$stock_apk': $sig_op"
+			mark_failed "$table"
 			return 0
 		fi
 	fi
-	log "${table}: ${version}"
 
 	local microg_patch
 	microg_patch=$(grep "^Name: " <<<"$list_patches" | grep -i "gmscore\|microg" || :) microg_patch=${microg_patch#*: }
@@ -769,6 +791,7 @@ build_rv() {
 		if [ "${NORB:-}" != true ] || { [ ! -f "$patched_apk" ] && [ ! -f "$apk_output" ]; }; then
 			if ! patch_apk "$stock_apk_to_patch" "$patched_apk" "${patcher_args[*]}" "${args[cli]}" "${args[ptjar]}"; then
 				epr "Building '${table}' failed!"
+				mark_failed "$table"
 				return 0
 			fi
 		fi
@@ -809,6 +832,7 @@ build_rv() {
 			elif [ "${args[include_stock]}" = "split" ]; then
 				if [ ! -f "${stock_apk}.apkm" ]; then
 					epr "Cannot include as 'split' because stock apk of $table_name is not a bundle"
+					mark_failed "$table"
 					return 0
 				fi
 				if [ "$arch" = "arm64-v8a" ]; then
@@ -830,6 +854,7 @@ build_rv() {
 		popd >/dev/null || :
 		pr "Built ${table} (root): '${BUILD_DIR}/${module_output}'"
 	done
+	log "${table}: ${version}"
 }
 
 list_args() { tr -d '\t\r' <<<"$1" | tr -s ' ' | sed 's/" "/"\n"/g' | sed 's/\([^"]\)"\([^"]\)/\1'\''\2/g' | grep -v '^$' || :; }

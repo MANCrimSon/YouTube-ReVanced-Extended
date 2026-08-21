@@ -53,6 +53,7 @@ rm -rf module/bin/*/tmp.*
 for file in "$TEMP_DIR"/*/changelog.md; do
 	[ -f "$file" ] && : >"$file"
 done
+: >"$TEMP_DIR/failed"
 
 mkdir -p ${MODULE_TEMPLATE_DIR}/bin/arm64 ${MODULE_TEMPLATE_DIR}/bin/arm ${MODULE_TEMPLATE_DIR}/bin/x86 ${MODULE_TEMPLATE_DIR}/bin/x64
 gh_dl "${MODULE_TEMPLATE_DIR}/bin/arm64/cmpr" "https://github.com/j-hc/cmpr/releases/latest/download/cmpr-arm64-v8a"
@@ -67,6 +68,7 @@ for table_name in $(toml_get_table_names); do
 	enabled=$(toml_get "$t" enabled) || enabled=true
 	vtf "$enabled" "enabled"
 	if [ "$enabled" = false ]; then continue; fi
+	if [ -n "${ONLY_TABLES:-}" ] && ! isoneof "$table_name" ${ONLY_TABLES//,/ }; then continue; fi
 	if ((idx >= PARALLEL_JOBS)); then
 		wait -n
 		idx=$((idx - 1))
@@ -168,6 +170,12 @@ SKIPPED=$(cat "$TEMP_DIR"/skipped 2>/dev/null || :)
 if [ -n "$SKIPPED" ]; then
 	log "\nSkipped:"
 	log "$SKIPPED"
+fi
+
+FAILED=$(sort -u "$TEMP_DIR/failed" 2>/dev/null || :)
+if [ -n "$FAILED" ]; then
+	log "\nFailed to build (see workflow run log for details):"
+	log "$FAILED"
 fi
 
 pr "Done"

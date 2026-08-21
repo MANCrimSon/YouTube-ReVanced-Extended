@@ -8,6 +8,12 @@ on:
         default: true
 
   workflow_dispatch:
+    inputs:
+      only_apps:
+        description: "Comma-separated table names from config.toml to build (e.g. YouTube-Morphe). Leave empty to build everything."
+        type: string
+        required: false
+        default: ""
 
 jobs:
   run:
@@ -50,11 +56,24 @@ jobs:
         run: gh release download -R sashade8-ship-it/morphe-patches-yavot -p '*.mpp' -O yavot.mpp --clobber
 
       - name: Build modules/APKs
-        run: if [ -f "config.json" ]; then ./build.sh config.json; else ./build.sh config.toml; fi
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 45
+          max_attempts: 2
+          retry_wait_seconds: 90
+          command: |
+            if [ -n "${ONLY_TABLES:-}" ]; then
+              ./build.sh config.toml
+            elif [ -f "config.json" ]; then
+              ./build.sh config.json
+            else
+              ./build.sh config.toml
+            fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
+          ONLY_TABLES: ${{ inputs.only_apps }}
 
       - name: Get output
         id: get_output
