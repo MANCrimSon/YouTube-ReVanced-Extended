@@ -247,9 +247,13 @@ config_update() {
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
+			pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> resolved asset(s): $(tr '\n' '|' <<<"$last_patches")" >&2
 			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -qm1 "$last_patches"; then
+				pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> NOT found in build.md, marking needs-update" >&2
 				sources["$PATCHES_SRC/$PATCHES_VER"]=1
 				src_needs_update=1
+			else
+				pr "DEBUG config_update: ${PATCHES_SRC}/${PATCHES_VER} -> found in build.md, up to date" >&2
 			fi
 		fi
 		# A fresh patches jar only proves *some* table sharing this source built
