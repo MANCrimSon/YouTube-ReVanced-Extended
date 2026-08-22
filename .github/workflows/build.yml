@@ -32,6 +32,7 @@ jobs:
           submodules: true
 
       - name: Update config
+        id: cfg
         if: ${{ inputs.from_ci }}
         run: |
           # state.md is the persistent "what was last built with what" record
@@ -43,10 +44,17 @@ jobs:
           UPDATE_CFG=$(./build.sh config.toml --config-update)
           if [ "$UPDATE_CFG" ]; then
             echo "$UPDATE_CFG" > config.json
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          else
+            # Ran and found nothing to do - distinct from this step not
+            # having run at all (from_ci=false), which leaves should_build
+            # unset and downstream steps default to building everything.
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get next version code
         id: next_ver_code
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -55,6 +63,7 @@ jobs:
           echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
 
       - name: Build modules/APKs
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 45
@@ -76,6 +85,7 @@ jobs:
 
       - name: Get output
         id: get_output
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
           DELIM="$(openssl rand -hex 8)"
           echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
@@ -85,6 +95,7 @@ jobs:
           cp -f state.md state.tmp
       
       - name: Upload release
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
@@ -98,6 +109,7 @@ jobs:
           fi
 
       - name: Update README download links
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
         run: |
@@ -167,6 +179,7 @@ jobs:
 
       - name: Update modules changelog and update json
         id: update_config
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
           git checkout -f update || git switch --discard-changes --orphan update
           cp -f build.tmp build.md
@@ -196,6 +209,7 @@ jobs:
           find . -name "*-update.json" | grep . || : >dummy-update.json
 
       - name: Commit module json changes
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -212,7 +226,7 @@ jobs:
       - name: Report to Telegram
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
-        if: env.TG_TOKEN != null
+        if: env.TG_TOKEN != null && (inputs.only_apps || steps.cfg.outputs.should_build != 'false')
         run: |
           cd build || { echo "build folder not found"; exit 1; }
 
