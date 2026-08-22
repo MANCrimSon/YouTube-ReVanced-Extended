@@ -5,51 +5,21 @@ on:
     - cron: "0 16 * * *"
 
 jobs:
-  check:
+  cleanup:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-java@v5
-        with:
-          distribution: "zulu"
-          java-version: "21"
-
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Should build?
-        id: should_build
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if ! git checkout origin/update build.md; then
-            echo "first time building!"
-            echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
-          else
-            UPDATE_CFG=$(./build.sh config.toml --config-update)
-            if [ "$UPDATE_CFG" ]; then
-              echo "'$UPDATE_CFG'"
-              echo "SHOULD_BUILD=1" >> $GITHUB_OUTPUT
-            else
-              echo "SHOULD_BUILD=0" >> $GITHUB_OUTPUT
-            fi
-          fi
-
       - name: Clear older runs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run list -L400 --json databaseId -q '.[].databaseId' | tail -n+10 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/runs/ID" -X DELETE || :
 
-    outputs:
-      SHOULD_BUILD: ${{ steps.should_build.outputs.SHOULD_BUILD }}
-
+  # build.yml decides for itself (via its "Update config" step and state.md)
+  # whether anything actually needs rebuilding, and no-ops if not - so this
+  # just calls it unconditionally instead of keeping a second, easily
+  # out-of-sync copy of that same "should we build?" check here.
   build:
     permissions: write-all
-    needs: check
     uses: ./.github/workflows/build.yml
-    if: ${{ needs.check.outputs.SHOULD_BUILD == 1 }}
     secrets: inherit
