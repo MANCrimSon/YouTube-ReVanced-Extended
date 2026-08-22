@@ -141,6 +141,7 @@ get_prebuilts() {
 		fi
 
 		if [ "$tag" = "Patches" ]; then
+			state_upsert "Patches: $(cut -d/ -f1 <<<"$src")/" "Patches: $(cut -d/ -f1 <<<"$src")/${name}"
 			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
@@ -212,7 +213,9 @@ get_addon() {
 }
 
 config_update() {
-	if [ ! -f build.md ]; then abort "build.md not available"; fi
+	# No prior state (e.g. first run ever, or 'update' branch has no state.md
+	# yet) just means every table looks new below - a one-time full rebuild.
+	touch state.md
 	declare -A sources
 	: >"$TEMP_DIR"/skipped
 	local upped=()
@@ -247,7 +250,7 @@ config_update() {
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
-			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -qm1 "$last_patches"; then
+			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" state.md | grep -qm1 "$last_patches"; then
 				sources["$PATCHES_SRC/$PATCHES_VER"]=1
 				src_needs_update=1
 			fi
@@ -255,15 +258,15 @@ config_update() {
 		# A fresh patches jar only proves *some* table sharing this source built
 		# successfully last time - not this one. If this table's own stock-APK
 		# download or patch step failed, it never got a "table_name: version"
-		# entry in build.md, so it must be retried even though the shared
+		# entry in state.md, so it must be retried even though the shared
 		# "Patches: ..." line looks up to date.
 		local table_built=true arch
 		arch=$(toml_get "$t" arch) || arch="all"
 		if [ "$arch" = both ]; then
-			grep -q "^${table_name} (arm64-v8a): " build.md || table_built=false
-			grep -q "^${table_name} (arm-v7a): " build.md || table_built=false
+			grep -q "^${table_name} (arm64-v8a): " state.md || table_built=false
+			grep -q "^${table_name} (arm-v7a): " state.md || table_built=false
 		else
-			grep -q "^${table_name}: " build.md || table_built=false
+			grep -q "^${table_name}: " state.md || table_built=false
 		fi
 		if [ "$src_needs_update" = 1 ] || [ "$table_built" = false ]; then
 			prcfg=true
@@ -314,6 +317,18 @@ gh_dl() {
 
 log() { echo -e "$1  " >>"build.md"; }
 mark_failed() { echo "$1" >>"${TEMP_DIR}/failed"; }
+# Unlike build.md (truncated and rebuilt fresh every run, so it only ever
+# reflects *this* run's output), state.md is never truncated: it's the
+# persistent record config_update() reads to know what a table last built
+# with, even across runs where that table wasn't touched at all. Replaces
+# any existing line with the same prefix, then appends the new one.
+state_upsert() {
+	local prefix=$1 line=$2
+	touch state.md
+	awk -v p="$prefix" 'index($0, p) != 1' state.md >"state.md.tmp"
+	mv -f "state.md.tmp" state.md
+	echo -e "$line  " >>state.md
+}
 get_highest_ver() {
 	local vers m
 	vers=$(tee)
@@ -918,6 +933,7 @@ build_rv() {
 		pr "Built ${table} (root): '${BUILD_DIR}/${module_output}'"
 	done
 	log "${table}: ${version}"
+	state_upsert "${table}: " "${table}: ${version}"
 }
 
 list_args() { tr -d '\t\r' <<<"$1" | tr -s ' ' | sed 's/" "/"\n"/g' | sed 's/\([^"]\)"\([^"]\)/\1'\''\2/g' | grep -v '^$' || :; }

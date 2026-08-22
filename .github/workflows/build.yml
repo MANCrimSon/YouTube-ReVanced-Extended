@@ -34,11 +34,15 @@ jobs:
       - name: Update config
         if: ${{ inputs.from_ci }}
         run: |
-          if git checkout origin/update build.md; then
-            UPDATE_CFG=$(./build.sh config.toml --config-update)
-            if [ "$UPDATE_CFG" ]; then
-              echo "$UPDATE_CFG" > config.json
-            fi
+          # state.md is the persistent "what was last built with what" record
+          # (see utils.sh state_upsert/config_update) - unlike build.md, which
+          # is truncated and rewritten fresh every run, so it only ever
+          # reflects the tables touched in that one run. No prior state.md
+          # (first run ever) is handled by config_update() itself.
+          git checkout origin/update -- state.md 2>/dev/null || :
+          UPDATE_CFG=$(./build.sh config.toml --config-update)
+          if [ "$UPDATE_CFG" ]; then
+            echo "$UPDATE_CFG" > config.json
           fi
 
       - name: Get next version code
@@ -78,6 +82,7 @@ jobs:
           cat build.md >> "$GITHUB_OUTPUT"
           echo "${DELIM}" >> "$GITHUB_OUTPUT"
           cp -f build.md build.tmp
+          cp -f state.md state.tmp
       
       - name: Upload release
         env:
@@ -165,6 +170,7 @@ jobs:
         run: |
           git checkout -f update || git switch --discard-changes --orphan update
           cp -f build.tmp build.md
+          cp -f state.tmp state.md
           get_update_json() {
             echo "{
             \"version\": \"$1\",
@@ -194,7 +200,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
-          git add build.md *-update.json
+          git add build.md state.md *-update.json
       
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
