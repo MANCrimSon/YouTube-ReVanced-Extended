@@ -1,9 +1,9 @@
 YouTube-Extended: 20.51.39  
-Patches: sashade8-ship-it/patches-1.40.0-dev.19-dualvot.8.3.mpp  
-YouTube-Morphe: 21.04.223  
 Patches: anddea/patches-4.3.0-dev.2.mpp  
 YouTube-Music-Extended (arm64-v8a): 9.15.51  
 YouTube-Music-Extended (arm-v7a): 9.15.51  
-Patches: MorpheApp/patches-1.40.0-dev.19.mpp  
+Patches: sashade8-ship-it/patches-1.40.0-dev.20-dualvot.8.3.mpp  
+YouTube-Morphe: 21.04.223  
+Patches: MorpheApp/patches-1.40.0-dev.20.mpp  
 YouTube-Music-Morphe (arm64-v8a): 9.15.51  
 YouTube-Music-Morphe (arm-v7a): 9.15.51  
