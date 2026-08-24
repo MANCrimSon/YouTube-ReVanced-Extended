@@ -80,6 +80,7 @@ get_prebuilts() {
 	for src_ver in "Patches $patches_src $patches_ver" "CLI $cli_src $cli_ver"; do
 		set -- $src_ver
 		local tag=$1 src=$2 ver=${3-}
+		pr "DEBUG: loop iter tag='${tag}' src='${src}' ver='${ver}'" >&2
 
 		local dir=${src%/*}
 		dir=${TEMP_DIR}/${dir,,}-rv
@@ -90,6 +91,7 @@ get_prebuilts() {
 			local resp
 			resp=$(gh_req "$rv_rel" -) || return 1
 			ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
+			pr "DEBUG: resolved dev ver='${ver}'" >&2
 		fi
 		if [ "$ver" = "latest" ]; then
 			rv_rel+="/latest"
@@ -109,11 +111,13 @@ get_prebuilts() {
 		else abort unreachable; fi
 
 		local url tag_name matches
+		pr "DEBUG: before local-file grep: file='${file}' ver='${ver}'" >&2
 		if [ "$ver" = "latest" ]; then
-			file=$(grep -v '/[^/]*dev[^/]*$' <<<"$file" | head -1)
+			file=$(grep -v '/[^/]*dev[^/]*$' <<<"$file" | head -1) || :
 		else
-			file=$(grep "/[^/]*${ver#v}[^/]*\$" <<<"$file" | head -1)
+			file=$(grep "/[^/]*${ver#v}[^/]*\$" <<<"$file" | head -1) || :
 		fi
+		pr "DEBUG: after local-file grep: file='${file}'" >&2
 		if [ -z "$file" ]; then
 			local resp asset name
 			resp=$(gh_req "$rv_rel" -) || return 1
