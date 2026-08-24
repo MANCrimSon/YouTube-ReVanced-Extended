@@ -136,7 +136,11 @@ get_prebuilts() {
 			url=$(jq -r .url <<<"$asset")
 			name=$(jq -r .name <<<"$asset")
 			file="${dir}/${name}"
-			gh_dl "$file" "$url" >&2 || return 1
+			pr "DEBUG: about to gh_dl file='${file}' url='${url}'" >&2
+			gh_dl "$file" "$url" >&2
+			gh_dl_rc=$?
+			pr "DEBUG: gh_dl rc=${gh_dl_rc}; file exists=$([ -f "$file" ] && echo yes || echo no); size=$(stat -c%s "$file" 2>/dev/null || echo n/a); tmp exists=$([ -f "${dir}/tmp.${name}" ] && echo yes || echo no)" >&2
+			if [ "$gh_dl_rc" -ne 0 ]; then return 1; fi
 			echo "$tag: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${cl_dir}/changelog.md"
 		else
 			grab_cl=false
@@ -171,6 +175,7 @@ get_prebuilts() {
 				fi
 				rm -r "${file}-zip" 2>/dev/null || :
 			fi
+			pr "DEBUG: extensions_ext block done for '${file}', extensions_ext='${extensions_ext-}'" >&2
 		fi
 		echo -n "$file "
 	done
