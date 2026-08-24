@@ -80,7 +80,6 @@ get_prebuilts() {
 	for src_ver in "Patches $patches_src $patches_ver" "CLI $cli_src $cli_ver"; do
 		set -- $src_ver
 		local tag=$1 src=$2 ver=${3-}
-		pr "DEBUG: loop iter tag='${tag}' src='${src}' ver='${ver}'" >&2
 
 		local dir=${src%/*}
 		dir=${TEMP_DIR}/${dir,,}-rv
@@ -88,18 +87,9 @@ get_prebuilts() {
 
 		local rv_rel="https://api.github.com/repos/${src}/releases" name_ver
 		if [ "$ver" = "dev" ]; then
-			local resp resp_rc tag_names_dbg jq_rc ghv_rc
-			resp=$(gh_req "$rv_rel" -)
-			resp_rc=$?
-			pr "DEBUG: dev-resolve gh_req rc=${resp_rc}; resp head100=$(head -c 300 <<<"$resp" 2>&1 | tr '\n' ' ')" >&2
-			if [ "$resp_rc" -ne 0 ]; then return 1; fi
-			tag_names_dbg=$(jq -e -r '.[] | .tag_name' <<<"$resp" 2>&1)
-			jq_rc=$?
-			pr "DEBUG: dev-resolve jq rc=${jq_rc}; tag_names=$(echo "$tag_names_dbg" | tr '\n' ',')" >&2
-			ver=$(echo "$tag_names_dbg" | get_highest_ver)
-			ghv_rc=$?
-			pr "DEBUG: dev-resolve get_highest_ver rc=${ghv_rc}; ver='${ver}'" >&2
-			if [ "$jq_rc" -ne 0 ] || [ "$ghv_rc" -ne 0 ] || [ -z "$ver" ]; then return 1; fi
+			local resp
+			resp=$(gh_req "$rv_rel" -) || return 1
+			ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
 		fi
 		if [ "$ver" = "latest" ]; then
 			rv_rel+="/latest"
@@ -119,13 +109,15 @@ get_prebuilts() {
 		else abort unreachable; fi
 
 		local url tag_name matches
-		pr "DEBUG: before local-file grep: file='${file}' ver='${ver}'" >&2
+		# Guarded: under set -e/pipefail, this would otherwise abort the whole
+		# script whenever $file is empty (the normal case - no local copy yet)
+		# and grep finds nothing to match, exactly like the extensions_ext case
+		# below. No match here just means "go fetch it".
 		if [ "$ver" = "latest" ]; then
 			file=$(grep -v '/[^/]*dev[^/]*$' <<<"$file" | head -1) || :
 		else
 			file=$(grep "/[^/]*${ver#v}[^/]*\$" <<<"$file" | head -1) || :
 		fi
-		pr "DEBUG: after local-file grep: file='${file}'" >&2
 		if [ -z "$file" ]; then
 			local resp asset name
 			resp=$(gh_req "$rv_rel" -) || return 1
@@ -148,11 +140,7 @@ get_prebuilts() {
 			url=$(jq -r .url <<<"$asset")
 			name=$(jq -r .name <<<"$asset")
 			file="${dir}/${name}"
-			pr "DEBUG: about to gh_dl file='${file}' url='${url}'" >&2
-			gh_dl "$file" "$url" >&2
-			gh_dl_rc=$?
-			pr "DEBUG: gh_dl rc=${gh_dl_rc}; file exists=$([ -f "$file" ] && echo yes || echo no); size=$(stat -c%s "$file" 2>/dev/null || echo n/a); tmp exists=$([ -f "${dir}/tmp.${name}" ] && echo yes || echo no)" >&2
-			if [ "$gh_dl_rc" -ne 0 ]; then return 1; fi
+			gh_dl "$file" "$url" >&2 || return 1
 			echo "$tag: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${cl_dir}/changelog.md"
 		else
 			grab_cl=false
@@ -187,7 +175,6 @@ get_prebuilts() {
 				fi
 				rm -r "${file}-zip" 2>/dev/null || :
 			fi
-			pr "DEBUG: extensions_ext block done for '${file}', extensions_ext='${extensions_ext-}'" >&2
 		fi
 		echo -n "$file "
 	done
@@ -397,10 +384,22 @@ get_highest_ver() {
 	# "-") here still matters: it's what correctly ranks e.g.
 	# "v4.3.0-dev.9"/"-dev.10"/"-dev.11" against each other, since comparing
 	# only the base would tie them all at "4.3.0".
+	#
+	# The filter loop below must use "if ...; then echo; fi", not
+	# "[ ... ] && echo": a bare "&&" makes the whole loop body's (and thus the
+	# while loop's, and thus this pipeline's) exit status the test's own
+	# non-zero result whenever the *last* input line doesn't match top_base -
+	# which is the common case. Under pipefail that failure outranks sort/head
+	# both succeeding right after it, so the function returned non-zero here
+	# despite already having echoed the correct answer, making every "|| return
+	# 1"/"|| continue" caller treat a fully successful resolution as a hard
+	# failure whenever the winning version had no stable release yet (e.g. a
+	# CLI/patches source still on "vX.Y.Z-dev.N"). An "if" with no "else"
+	# always returns 0 when its condition is false, sidestepping that.
 	{
 		while IFS= read -r v; do
 			base=${v#v} base=${base%%-*}
-			[ "$base" = "$top_base" ] && echo "$v"
+			if [ "$base" = "$top_base" ]; then echo "$v"; fi
 		done <<<"$vers"
 	} | sort -Vr | head -1
 }
