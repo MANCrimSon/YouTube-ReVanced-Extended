@@ -342,12 +342,42 @@ get_highest_ver() {
 	local vers m
 	vers=$(tee)
 	m=$(head -1 <<<"$vers")
-	# Sort the whole string (not just the part before the first "-"), so
-	# a trailing "-dev.N" suffix is compared numerically too. Restricting
-	# to field 1 made e.g. "v4.3.0-dev.9"/"-dev.10"/"-dev.11" all tie (same
-	# base version), silently falling back to whatever order the caller's
-	# input happened to be in instead of picking the actual highest one.
-	if ! semver_validate "$m"; then echo "$m"; else sort -Vr <<<"$vers" | head -1; fi
+	if ! semver_validate "$m"; then
+		echo "$m"
+		return
+	fi
+	# Find the highest base version (the part before any "-prerelease"
+	# suffix) with a numeric sort on that alone, since GNU `sort -V` ranks a
+	# tag *with* a suffix as greater than the same base *without* one (e.g.
+	# "v1.40.0-dev.23" > "v1.40.0") - the opposite of semver's own rule that
+	# a pre-release has lower precedence than its associated normal release.
+	# Left unfixed, this made a "dev" patches-version channel latch onto the
+	# last prerelease tag forever and never notice the stable release that
+	# actually superseded it.
+	local top_base v base stable=""
+	top_base=$(while IFS= read -r v; do echo "${v#v}"; done <<<"$vers" | cut -d- -f1 | sort -Vr | head -1)
+	while IFS= read -r v; do
+		base=${v#v} base=${base%%-*}
+		if [ "$base" = "$top_base" ] && [[ $v != *-* ]]; then
+			stable=$v
+			break
+		fi
+	done <<<"$vers"
+	if [ -n "$stable" ]; then
+		echo "$stable"
+		return
+	fi
+	# No stable release at the top base yet - compare its prereleases
+	# directly. Sorting the whole string (not just the part before the first
+	# "-") here still matters: it's what correctly ranks e.g.
+	# "v4.3.0-dev.9"/"-dev.10"/"-dev.11" against each other, since comparing
+	# only the base would tie them all at "4.3.0".
+	{
+		while IFS= read -r v; do
+			base=${v#v} base=${base%%-*}
+			[ "$base" = "$top_base" ] && echo "$v"
+		done <<<"$vers"
+	} | sort -Vr | head -1
 }
 semver_validate() {
 	local a="${1%-*}"
