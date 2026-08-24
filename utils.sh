@@ -149,8 +149,16 @@ get_prebuilts() {
 			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
-				extensions_ext=$(unzip -l "${file}" "extensions/shared.*" | grep -o "shared\..*") extensions_ext="${extensions_ext#*.}"
-				if ! (
+				# Under set -e/pipefail, an unguarded "$(cmd1 | cmd2)" assignment
+				# aborts the whole script the instant grep finds no match - which
+				# happens whenever a bundle simply has no extensions/shared.* to
+				# patch (e.g. some patches sources never had it, or don't anymore).
+				# That's a "nothing to do here" case, not a fatal error.
+				extensions_ext=$(unzip -l "${file}" "extensions/shared.*" 2>/dev/null | grep -o "shared\..*" || :)
+				extensions_ext="${extensions_ext#*.}"
+				if [ -z "$extensions_ext" ]; then
+					pr "'${file}' has no extensions/shared.* to patch, skipping revanced-integrations check removal"
+				elif ! (
 					mkdir -p "${file}-zip" || return 1
 					unzip -qo "${file}" -d "${file}-zip" || return 1
 					java -cp "${BIN_DIR}/paccer.jar:${BIN_DIR}/dexlib2.jar" com.jhc.Main "${file}-zip/extensions/shared.${extensions_ext}" "${file}-zip/extensions/shared-patched.${extensions_ext}" || return 1
@@ -161,7 +169,7 @@ get_prebuilts() {
 				) >&2; then
 					echo >&2 "Patching revanced-integrations failed"
 				fi
-				rm -r "${file}-zip" || :
+				rm -r "${file}-zip" 2>/dev/null || :
 			fi
 		fi
 		echo -n "$file "
