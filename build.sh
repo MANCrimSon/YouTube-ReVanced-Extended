@@ -34,7 +34,7 @@ DEF_CLI_VER=$(toml_get "$main_config_t" cli-version) || DEF_CLI_VER="latest"
 DEF_PATCHES_SRC=$(toml_get "$main_config_t" patches-source) || DEF_PATCHES_SRC="ReVanced/revanced-patches"
 DEF_CLI_SRC=$(toml_get "$main_config_t" cli-source) || DEF_CLI_SRC="ReVanced/revanced-cli"
 DEF_RV_BRAND=$(toml_get "$main_config_t" rv-brand) || DEF_RV_BRAND="ReVanced"
-mkdir -p "$TEMP_DIR" "$BUILD_DIR"
+mkdir -p "$TEMP_DIR" "$BUILD_DIR" "$STOCK_CACHE_DIR"
 
 if [ "${2-}" = "--config-update" ]; then
 	config_update
@@ -42,6 +42,11 @@ if [ "${2-}" = "--config-update" ]; then
 fi
 
 : >build.md
+# Tracks which STOCK_CACHE_DIR files this run actually used (see the
+# state_upsert-adjacent comment in build_rv()) - CI prunes anything else
+# in that directory before re-saving the cache, so old app versions don't
+# linger once patches move on to a newer one.
+: >"${STOCK_CACHE_DIR}/.manifest"
 ENABLE_MODULE_UPDATE=$(toml_get "$main_config_t" enable-module-update) || ENABLE_MODULE_UPDATE=true
 if [ "$ENABLE_MODULE_UPDATE" = true ] && [ -z "${GITHUB_REPOSITORY-}" ]; then
 	pr "You are building locally. Module updates will not be enabled."

@@ -2,6 +2,7 @@
 *.zip
 /temp
 /build
+/stock-apks
 test*
 /logs
 build.md

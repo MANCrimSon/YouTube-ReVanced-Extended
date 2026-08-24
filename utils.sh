@@ -5,6 +5,11 @@ CWD=$(pwd)
 TEMP_DIR="temp"
 BIN_DIR="bin"
 BUILD_DIR="build"
+# Separate from TEMP_DIR (which also holds fast-churning CLI/patches jars and
+# in-progress patched apks - none of that should persist) so CI can cache
+# just this directory across runs: stock apks are large, slow, and the least
+# reliable thing to (re-)download, but change far less often than patches do.
+STOCK_CACHE_DIR="stock-apks"
 DL_SRCS=("direct" "archive" "apkmirror" "uptodown")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
@@ -780,7 +785,7 @@ build_rv() {
 	pr "Choosing version '${version}' for ${table}"
 	local version_f=${version// /}
 	version_f=${version_f#v}
-	local stock_apk="${TEMP_DIR}/${pkg_name}-${version_f}-${arch_f}.apk"
+	local stock_apk="${STOCK_CACHE_DIR}/${pkg_name}-${version_f}-${arch_f}.apk"
 	if [ ! -f "$stock_apk" ]; then
 		for dl_p in "${DL_SRCS[@]}"; do
 			if [ -z "${args[${dl_p}_dlurl]}" ]; then continue; fi
@@ -802,7 +807,14 @@ build_rv() {
 			mark_failed "$table"
 			return 0
 		fi
+	else
+		pr "Using cached stock apk for '${table}': '${stock_apk}'"
 	fi
+	# Marks this file as still wanted, whether it was just downloaded or
+	# already sitting in the cache - CI prunes anything in STOCK_CACHE_DIR
+	# that isn't in this manifest before re-saving the cache, so a version
+	# bump's old file doesn't linger forever.
+	echo "$stock_apk" >>"${STOCK_CACHE_DIR}/.manifest"
 
 	local sig_op
 	if [ -f "${stock_apk}.apkm" ]; then

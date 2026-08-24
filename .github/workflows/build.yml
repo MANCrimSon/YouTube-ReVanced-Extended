@@ -62,6 +62,15 @@ jobs:
           if [ -z "$TAG" ]; then TAG=0; fi
           echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
 
+      - name: Restore stock APK cache
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: stock-apks
+          key: stock-apks-${{ github.run_id }}
+          restore-keys: |
+            stock-apks-
+
       - name: Build modules/APKs
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: nick-fields/retry@v3
@@ -82,6 +91,26 @@ jobs:
           GITHUB_REPOSITORY: $GITHUB_REPOSITORY
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
           ONLY_TABLES: ${{ inputs.only_apps }}
+
+      # Runs even if "Build modules/APKs" itself failed (e.g. one table's
+      # patches choke while others succeeded) so whatever did succeed still
+      # gets persisted - only a cancelled run skips this.
+      - name: Prune stale stock APKs from cache
+        if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
+        run: |
+          if [ -f stock-apks/.manifest ]; then
+            for f in stock-apks/*.apk; do
+              [ -f "$f" ] || continue
+              grep -qxF "$f" stock-apks/.manifest || { echo "Pruning stale $f"; rm -f "$f"; }
+            done
+          fi
+
+      - name: Save stock APK cache
+        if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
+        uses: actions/cache/save@v4
+        with:
+          path: stock-apks
+          key: stock-apks-${{ github.run_id }}
 
       - name: Get output
         id: get_output
