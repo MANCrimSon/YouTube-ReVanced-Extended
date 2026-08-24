@@ -88,10 +88,18 @@ get_prebuilts() {
 
 		local rv_rel="https://api.github.com/repos/${src}/releases" name_ver
 		if [ "$ver" = "dev" ]; then
-			local resp
-			resp=$(gh_req "$rv_rel" -) || return 1
-			ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
-			pr "DEBUG: resolved dev ver='${ver}'" >&2
+			local resp resp_rc tag_names_dbg jq_rc ghv_rc
+			resp=$(gh_req "$rv_rel" -)
+			resp_rc=$?
+			pr "DEBUG: dev-resolve gh_req rc=${resp_rc}; resp head100=$(head -c 300 <<<"$resp" 2>&1 | tr '\n' ' ')" >&2
+			if [ "$resp_rc" -ne 0 ]; then return 1; fi
+			tag_names_dbg=$(jq -e -r '.[] | .tag_name' <<<"$resp" 2>&1)
+			jq_rc=$?
+			pr "DEBUG: dev-resolve jq rc=${jq_rc}; tag_names=$(echo "$tag_names_dbg" | tr '\n' ',')" >&2
+			ver=$(echo "$tag_names_dbg" | get_highest_ver)
+			ghv_rc=$?
+			pr "DEBUG: dev-resolve get_highest_ver rc=${ghv_rc}; ver='${ver}'" >&2
+			if [ "$jq_rc" -ne 0 ] || [ "$ghv_rc" -ne 0 ] || [ -z "$ver" ]; then return 1; fi
 		fi
 		if [ "$ver" = "latest" ]; then
 			rv_rel+="/latest"
