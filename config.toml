@@ -1,7 +1,7 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
 
 cli-source = "MorpheApp/morphe-cli"
-cli-version = "latest"
+cli-version = "dev"
 
 [YouTube-Extended]
 enabled = true
