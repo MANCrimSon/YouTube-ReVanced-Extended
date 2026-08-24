@@ -141,7 +141,6 @@ get_prebuilts() {
 		fi
 
 		if [ "$tag" = "Patches" ]; then
-			state_upsert "Patches: $(cut -d/ -f1 <<<"$src")/" "Patches: $(cut -d/ -f1 <<<"$src")/${name}"
 			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
@@ -216,7 +215,11 @@ config_update() {
 	# No prior state (e.g. first run ever, or 'update' branch has no state.md
 	# yet) just means every table looks new below - a one-time full rebuild.
 	touch state.md
-	declare -A sources
+	# Caches the resolved latest-patches-asset-name per source+version, so
+	# tables sharing a source only hit the GitHub API once per run. Failure to
+	# resolve is cached too (empty string) - matches the pre-existing "skip
+	# this table for now" behavior on a transient API error.
+	declare -A resolved
 	: >"$TEMP_DIR"/skipped
 	local upped=()
 	local prcfg=false
@@ -227,12 +230,10 @@ config_update() {
 		if [ "$enabled" = "false" ]; then continue; fi
 		PATCHES_SRC=$(toml_get "$t" patches-source) || PATCHES_SRC=$DEF_PATCHES_SRC
 		PATCHES_VER=$(toml_get "$t" patches-version) || PATCHES_VER=$DEF_PATCHES_VER
-		local src_needs_update
-		if [[ -v sources["$PATCHES_SRC/$PATCHES_VER"] ]]; then
-			src_needs_update=${sources["$PATCHES_SRC/$PATCHES_VER"]}
+		local cache_key="$PATCHES_SRC/$PATCHES_VER" last_patches
+		if [[ -v resolved["$cache_key"] ]]; then
+			last_patches=${resolved["$cache_key"]}
 		else
-			sources["$PATCHES_SRC/$PATCHES_VER"]=0
-			src_needs_update=0
 			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			if [ "$PATCHES_VER" = "dev" ]; then
 				# Don't trust the API's own ordering (release #0) - pick the
@@ -250,25 +251,28 @@ config_update() {
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
-			if [ "$last_patches" ] && ! grep "^Patches: ${PATCHES_SRC%%/*}/" state.md | grep -qm1 "$last_patches"; then
-				sources["$PATCHES_SRC/$PATCHES_VER"]=1
-				src_needs_update=1
-			fi
+			resolved["$cache_key"]=$last_patches
 		fi
-		# A fresh patches jar only proves *some* table sharing this source built
-		# successfully last time - not this one. If this table's own stock-APK
-		# download or patch step failed, it never got a "table_name: version"
-		# entry in state.md, so it must be retried even though the shared
-		# "Patches: ..." line looks up to date.
-		local table_built=true arch
+		if [ -z "$last_patches" ]; then continue; fi
+
+		# A table's state.md line only gets (re)written by build_rv() on a
+		# fully successful build, and it embeds the exact patches file that
+		# build used - so this directly answers "did THIS table last succeed
+		# with the current patches?", not "did the download succeed" (that's
+		# all a shared per-source check can prove, and a table whose patch
+		# step then failed would wrongly look up to date forever - the actual
+		# bug this replaced). A never-built or previously-failed table simply
+		# won't have a matching line and gets queued for a (re)build.
+		local up_to_date=true arch
 		arch=$(toml_get "$t" arch) || arch="all"
 		if [ "$arch" = both ]; then
-			grep -q "^${table_name} (arm64-v8a): " state.md || table_built=false
-			grep -q "^${table_name} (arm-v7a): " state.md || table_built=false
+			for a in arm64-v8a arm-v7a; do
+				grep "^${table_name} (${a}): " state.md | grep -qF "$last_patches" || up_to_date=false
+			done
 		else
-			grep -q "^${table_name}: " state.md || table_built=false
+			grep "^${table_name}: " state.md | grep -qF "$last_patches" || up_to_date=false
 		fi
-		if [ "$src_needs_update" = 1 ] || [ "$table_built" = false ]; then
+		if [ "$up_to_date" = false ]; then
 			prcfg=true
 			upped+=("$table_name")
 		else
@@ -933,7 +937,11 @@ build_rv() {
 		pr "Built ${table} (root): '${BUILD_DIR}/${module_output}'"
 	done
 	log "${table}: ${version}"
-	state_upsert "${table}: " "${table}: ${version}"
+	# Embeds the exact patches file this table just succeeded with (not just
+	# the app version), so config_update() can tell "this table already
+	# built with the current patches" apart from "some other table sharing
+	# this source already downloaded the current patches" - see config_update().
+	state_upsert "${table}: " "${table}: ${version} [$(basename "${args[ptjar]}")]"
 }
 
 list_args() { tr -d '\t\r' <<<"$1" | tr -s ' ' | sed 's/" "/"\n"/g' | sed 's/\([^"]\)"\([^"]\)/\1'\''\2/g' | grep -v '^$' || :; }
