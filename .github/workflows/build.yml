@@ -34,6 +34,8 @@ jobs:
       - name: Update config
         id: cfg
         if: ${{ inputs.from_ci }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # state.md is the persistent "what was last built with what" record
           # (see utils.sh state_upsert/config_update) - unlike build.md, which
