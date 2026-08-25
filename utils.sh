@@ -615,7 +615,7 @@ dl_uptodown() {
 	if [ "$arch" = "arm-v7a" ]; then arch="armeabi-v7a"; fi
 
 	local apparch=('arm64-v8a, armeabi-v7a, x86_64' 'arm64-v8a, armeabi-v7a, x86, x86_64' 'arm64-v8a, armeabi-v7a')
-	if [ "$arch" != all ]; then
+	if [ "$arch" != "all" ]; then
 		apparch+=("$arch")
 	fi
 
@@ -677,7 +677,12 @@ dl_archive() {
 		return 0
 	fi
 
-	path=$(grep -m1 "${version_f#v}-${arch// /}" <<<"$__ARCHIVE_RESP__") || return 1
+	# Fall back to a universal "-all" build if the archive dump has no
+	# arch-specific entry for this version (e.g. it only ever got a merged
+	# upload) - matches upstream j-hc/revanced-magisk-module@65f40c9.
+	if ! path=$(grep -m1 "${version_f#v}-${arch// /}" <<<"$__ARCHIVE_RESP__"); then
+		path=$(grep -m1 "${version_f#v}-all" <<<"$__ARCHIVE_RESP__") || return 1
+	fi
 	if [ "${path##*.}" = "apkm" ]; then
 		req "${url}/${path}" "${output}.apkm" || return 1
 		merge_splits "${output}.apkm" "$output"
