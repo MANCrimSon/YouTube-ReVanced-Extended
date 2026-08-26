@@ -42,11 +42,11 @@ if [ "${2-}" = "--config-update" ]; then
 fi
 
 : >build.md
-# Tracks which STOCK_CACHE_DIR files this run actually used (see the
-# state_upsert-adjacent comment in build_rv()) - CI prunes anything else
-# in that directory before re-saving the cache, so old app versions don't
-# linger once patches move on to a newer one.
-: >"${STOCK_CACHE_DIR}/.manifest"
+# STOCK_CACHE_DIR/.manifest is NOT truncated here - it's a persistent,
+# per-table upserted record (see build_rv()) that round-trips through the
+# same CI cache as the apks themselves, so a table config_update() decided
+# not to touch this run doesn't look "unwanted" and get its still-current
+# apk pruned.
 ENABLE_MODULE_UPDATE=$(toml_get "$main_config_t" enable-module-update) || ENABLE_MODULE_UPDATE=true
 if [ "$ENABLE_MODULE_UPDATE" = true ] && [ -z "${GITHUB_REPOSITORY-}" ]; then
 	pr "You are building locally. Module updates will not be enabled."

@@ -869,11 +869,20 @@ build_rv() {
 	else
 		pr "Using cached stock apk for '${table}': '${stock_apk}'"
 	fi
-	# Marks this file as still wanted, whether it was just downloaded or
-	# already sitting in the cache - CI prunes anything in STOCK_CACHE_DIR
-	# that isn't in this manifest before re-saving the cache, so a version
-	# bump's old file doesn't linger forever.
-	echo "$stock_apk" >>"${STOCK_CACHE_DIR}/.manifest"
+	# Upsert (by table), not append: the manifest lives inside STOCK_CACHE_DIR
+	# itself and round-trips through the same CI cache as the apks, so it's
+	# never reset between runs (see build.sh) - only *this* table's own line
+	# gets replaced. A table config_update() decided didn't need rebuilding
+	# is never touched here, so its previous entry (still the correct file)
+	# survives the prune step below; only a table's own superseded old
+	# filename gets dropped, once that table is actually rebuilt with a new
+	# version. Blindly appending on every run, or truncating the manifest at
+	# the start of every run, both get this wrong: appending never forgets a
+	# superseded version, and truncating makes any table config_update()
+	# skipped that run look "unwanted" and prunes its still-current apk.
+	awk -v p="${table}: " 'index($0, p) != 1' "${STOCK_CACHE_DIR}/.manifest" 2>/dev/null >"${STOCK_CACHE_DIR}/.manifest.tmp" || :
+	mv -f "${STOCK_CACHE_DIR}/.manifest.tmp" "${STOCK_CACHE_DIR}/.manifest"
+	echo "${table}: ${stock_apk}" >>"${STOCK_CACHE_DIR}/.manifest"
 
 	local sig_op
 	if [ -f "${stock_apk}.apkm" ]; then

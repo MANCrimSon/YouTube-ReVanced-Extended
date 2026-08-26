@@ -100,10 +100,13 @@ jobs:
       - name: Prune stale stock APKs from cache
         if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
         run: |
+          # .manifest lines are "table: path", one per table, upserted by
+          # build_rv() - never truncated, so a table not touched this run
+          # still has its (still-current) entry from whenever it last built.
           if [ -f stock-apks/.manifest ]; then
             for f in stock-apks/*.apk; do
               [ -f "$f" ] || continue
-              grep -qxF "$f" stock-apks/.manifest || { echo "Pruning stale $f"; rm -f "$f"; }
+              grep -qF ": ${f}" stock-apks/.manifest || { echo "Pruning stale $f"; rm -f "$f"; }
             done
           fi
 
