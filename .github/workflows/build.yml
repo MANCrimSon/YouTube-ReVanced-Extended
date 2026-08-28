@@ -100,9 +100,22 @@ jobs:
       - name: Prune stale stock APKs from cache
         if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
         run: |
-          # .manifest lines are "table: path", one per table, upserted by
-          # build_rv() - never truncated, so a table not touched this run
-          # still has its (still-current) entry from whenever it last built.
+          # Seed manifest from state.md if present, so any table not touched in
+          # this run (partial build) still has its active stock APK protected from pruning
+          if [ -f state.md ]; then
+            while IFS= read -r line; do
+              if [[ $line =~ ^([^:]+):[[:space:]]*([0-9][^[:space:]]*) ]]; then
+                tbl="${BASH_REMATCH[1]}"
+                ver="${BASH_REMATCH[2]}"
+                if ! grep -qF "${tbl}: " stock-apks/.manifest 2>/dev/null; then
+                  for f in stock-apks/*"${ver}"*.apk; do
+                    [ -f "$f" ] && echo "${tbl}: ${f}" >> stock-apks/.manifest
+                  done
+                fi
+              fi
+            done < state.md
+          fi
+
           if [ -f stock-apks/.manifest ]; then
             for f in stock-apks/*.apk; do
               [ -f "$f" ] || continue
