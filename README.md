@@ -23,25 +23,6 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures — pi
 | YouTube — Morphe (+ Yandex VoT) | <!--yt-morphe-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-morphe-v21.04.223-all.apk)<!--/yt-morphe-apk--> | <!--yt-morphe-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-morphe-module-v21.04.223-all.zip)<!--/yt-morphe-zip--> |
 | YouTube Music — Morphe | <!--ytm-morphe-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-music-morphe-v9.15.51-arm64-v8a.apk)<!--/ytm-morphe-apk-arm64--> · <!--ytm-morphe-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-music-morphe-v9.15.51-arm-v7a.apk)<!--/ytm-morphe-apk-armv7--> | <!--ytm-morphe-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-music-morphe-module-v9.15.51-arm64-v8a.zip)<!--/ytm-morphe-zip-arm64--> · <!--ytm-morphe-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/384/youtube-music-morphe-module-v9.15.51-arm-v7a.zip)<!--/ytm-morphe-zip-armv7--> |
 
-## Root — installation
-
-<details>
-<summary>Instructions</summary>
-
-1. Install the module archive via Magisk/KernelSU → reboot.
-2. Detach the app from Google Play updates, otherwise Play Store will overwrite the patch:
-   - Magisk: enable Zygisk.
-   - KernelSU: install [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases).
-   - Install [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) +
-     [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases), grant root → reboot.
-   - In zygisk-detach-app, pick the app → Detach.
-3. KernelSU only: KSU App → Superuser → app → Unmount modules: Off → reboot the device.
-4. To update: hit "Update" in Magisk/KernelSU, or just flash the new archive on top.
-
-If you get a **\"Reflash needed\"** error after rebooting, or root detectors complain about a
-**\"Suspicious mount detected\"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
-</details>
-
 ## NonRoot — installation and auto-updates via Obtainium
 
 The APK installs like a regular app and needs no root, but YouTube/YouTube Music also need
@@ -97,6 +78,25 @@ Morphe provides two methods to resolve playback issues:
 > *Note: Due to regional restrictions or network DPI blocks, playback may still be unstable — check your network bypass tools if needed.*
 </details>
 
+</details>
+
+## Root — installation
+
+<details>
+<summary>Instructions</summary>
+
+1. Install the module archive via Magisk/KernelSU → reboot.
+2. Detach the app from Google Play updates, otherwise Play Store will overwrite the patch:
+   - Magisk: enable Zygisk.
+   - KernelSU: install [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases).
+   - Install [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) +
+     [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases), grant root → reboot.
+   - In zygisk-detach-app, pick the app → Detach.
+3. KernelSU only: KSU App → Superuser → app → Unmount modules: Off → reboot the device.
+4. To update: hit "Update" in Magisk/KernelSU, or just flash the new archive on top.
+
+If you get a **"Reflash needed"** error after rebooting, or root detectors complain about a
+**"Suspicious mount detected"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
 </details>
 
 ## Build details
