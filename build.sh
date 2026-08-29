@@ -99,7 +99,7 @@ for table_name in $(toml_get_table_names); do
 	app_args[included_patches]=$(toml_get "$tt" included-patches) || app_args[included_patches]=""
 	if [ -n "${app_args[included_patches]}" ] && [[ ${app_args[included_patches]} != *'"'* ]]; then abort "patch names inside included-patches must be quoted"; fi
 	app_args[exclusive_patches]=$(toml_get "$tt" exclusive-patches) && vtf "${app_args[exclusive_patches]}" "exclusive-patches" || app_args[exclusive_patches]=false
-	app_args[version]=$(toml_get "$tt" version) || app_args[version]=""
+	app_args[version]=$(toml_get "$tt" version) || app_args[version]="auto"
 	app_args[app_name]=$(toml_get "$tt" app-name) || app_args[app_name]=$table_name
 	app_args[patcher_args]=$(toml_get "$tt" patcher-args) || app_args[patcher_args]=""
 
