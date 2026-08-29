@@ -1,0 +1,82 @@
+name: Test Download Count Badge
+on:
+  workflow_dispatch:
+
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+      - name: Calculate downloads and update README
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.request
+
+          repo = os.environ.get("GITHUB_REPOSITORY", "MANCrimSon/YouTube-ReVanced-Extended")
+          token = os.environ.get("GH_TOKEN", "")
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "User-Agent": "GitHub-Actions",
+          }
+          if token:
+              headers["Authorization"] = f"Bearer {token}"
+
+          total_downloads = 0
+          page = 1
+          while True:
+              url = f"https://api.github.com/repos/{repo}/releases?per_page=100&page={page}"
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  data = json.loads(resp.read().decode())
+              if not data:
+                  break
+              for r in data:
+                  for a in r.get("assets", []):
+                      total_downloads += a.get("download_count", 0)
+              if len(data) < 100:
+                  break
+              page += 1
+
+          print(f"Total downloads across all releases: {total_downloads}")
+
+          if total_downloads >= 1_000_000:
+              count_str = f"{total_downloads / 1_000_000:.1f}M"
+          elif total_downloads >= 1_000:
+              count_str = f"{total_downloads / 1_000:.1f}k"
+          else:
+              count_str = str(total_downloads)
+
+          badge_link = f"https://img.shields.io/badge/downloads-{count_str}-success"
+          print(f"Badge link: {badge_link}")
+
+          with open("README.md", "r", encoding="utf-8") as f:
+              readme = f.read()
+
+          new_readme, n = re.subn(
+              r"(<!--downloads-->).*?(<!--/downloads-->)",
+              rf"\g<1>[![Downloads]({badge_link})](../../releases)\g<2>",
+              readme,
+              flags=re.DOTALL,
+          )
+
+          if n > 0 and new_readme != readme:
+              with open("README.md", "w", encoding="utf-8") as f:
+                  f.write(new_readme)
+              print("README.md successfully updated!")
+          else:
+              print("No changes or already up to date.")
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff-index --quiet HEAD || git commit -m "docs: update total downloads badge"
+          git push
