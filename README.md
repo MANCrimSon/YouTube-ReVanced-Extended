@@ -98,16 +98,6 @@ If you get a **\"Reflash needed\"** error after rebooting, or root detectors com
 **\"Suspicious mount detected\"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
 </details>
 
-## Build details
-
-- Rebuilt daily via GitHub Actions as soon as [anddea](https://github.com/anddea/revanced-patches) or
-  [Morphe](https://github.com/MorpheApp/morphe-patches) publish new dev patches — only the apps that actually have
-  something new get rebuilt.
-- The Morphe YouTube build is additionally patched with
-  [**Yandex VoT**](https://github.com/sashade8-ship-it/morphe-patches-yavot) — voice-over translation via Yandex, on
-  top of Morphe's built-in translation.
-- Every release includes a changelog: which patches version was used and what changed in it.
-
 ## Building your own config
 
 Want to build a different set of apps/patches? Use this repository as a base and edit
