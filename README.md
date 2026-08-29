@@ -38,8 +38,8 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures — pi
 3. KernelSU only: KSU App → Superuser → app → Unmount modules: Off → reboot the device.
 4. To update: hit "Update" in Magisk/KernelSU, or just flash the new archive on top.
 
-If you get a **"Reflash needed"** error after rebooting, or root detectors complain about a
-**"Suspicious mount detected"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
+If you get a **\"Reflash needed\"** error after rebooting, or root detectors complain about a
+**\"Suspicious mount detected\"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
 </details>
 
 ## NonRoot — installation and auto-updates via Obtainium
@@ -62,6 +62,42 @@ opens directly in the app with the source and APK filter already configured, jus
 
 These links only work on a device with Obtainium installed (they're `obtainium://` deep links, they won't do
 anything in a desktop browser).
+
+<details>
+<summary><b>Troubleshooting playback issues (infinite buffering)</b></summary>
+
+<details>
+<summary><b>YouTube & YouTube Music — ReVanced Extended (anddea)</b></summary>
+
+If videos or music tracks stop playing after a few seconds or buffer infinitely:
+
+1. **YouTube:** Go to `Settings` ➔ `RVX` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**On**) and set **Default client** to **`TV Simply`** (priority client with built-in PoToken generation). Alternatively, try switching to another client or toggling the feature **Off**.
+2. **YouTube Music:** Go to `Settings` ➔ `RVX` ➔ `Miscellaneous` ➔ toggle `Spoof video streams` (**On**) and set **Default client** to **`TV Simply`** (priority client with built-in PoToken generation). Alternatively, try switching to another client or toggling the feature **Off**.
+3. Restart the app.
+
+> *Note: Due to regional restrictions or network DPI blocks, playback may still be unstable — check your network bypass tools if needed.*
+</details>
+
+<details>
+<summary><b>YouTube & YouTube Music — Morphe</b></summary>
+
+Morphe provides two methods to resolve playback issues:
+
+#### 1. Primary solution — PoToken (Recommended)
+1. Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).
+2. Turn **OFF** stream spoofing: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**Off**).
+3. Turn **ON** PoToken: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `PoToken provider` ➔ toggle `External PoToken provider` (**On**).
+4. Restart the app.
+
+#### 2. Fallback solution — Spoof video streams
+1. Turn **OFF** PoToken: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `PoToken provider` ➔ toggle `External PoToken provider` (**Off**).
+2. Turn **ON** stream spoofing: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
+3. Restart the app.
+
+> *Note: Due to regional restrictions or network DPI blocks, playback may still be unstable — check your network bypass tools if needed.*
+</details>
+
+</details>
 
 ## Build details
 
