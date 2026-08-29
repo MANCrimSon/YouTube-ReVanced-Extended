@@ -1,104 +1,105 @@
 name: Build Modules
-on:
-  workflow_call:
-    inputs:
-      from_ci:
-        type: boolean
-        required: false
-        default: true
 
+on:
   workflow_dispatch:
     inputs:
       only_apps:
-        description: "Comma-separated table names from config.toml to build (e.g. YouTube-Morphe). Leave empty to build everything."
-        type: string
+        description: Comma separated list of apps to build. (youtube, youtube-music, ...)
         required: false
-        default: ""
+        type: string
+  workflow_call:
+    inputs:
+      only_apps:
+        description: Comma separated list of apps to build. (youtube, youtube-music, ...)
+        required: false
+        type: string
 
 jobs:
   run:
-    permissions: write-all
     runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
     steps:
-      - uses: actions/setup-java@v5
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: "21"
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: true
 
       - name: Update config
         id: cfg
-        if: ${{ inputs.from_ci }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # state.md is the persistent "what was last built with what" record
-          # (see utils.sh state_upsert/config_update) - unlike build.md, which
-          # is truncated and rewritten fresh every run, so it only ever
-          # reflects the tables touched in that one run. No prior state.md
-          # (first run ever) is handled by config_update() itself.
-          git checkout origin/update -- state.md 2>/dev/null || :
-          UPDATE_CFG=$(./build.sh config.toml --config-update)
-          if [ "$UPDATE_CFG" ]; then
-            echo "$UPDATE_CFG" > config.json
+          git checkout -f update || git switch --discard-changes --orphan update
+          if [ -f config.toml ]; then
+            cp -f config.toml ../config.toml
+          fi
+          if [ -f state.md ]; then
+            cp -f state.md ../state.md
+          fi
+          git checkout -f main
+
+          # copy over config from update branch
+          if [ -f ../config.toml ]; then
+            cp -f ../config.toml config.toml
+          fi
+          if [ -f ../state.md ]; then
+            cp -f ../state.md state.md
+          fi
+
+          chmod +x ./build.sh
+          ./build.sh "${{ github.workspace }}/config.toml" --config-update
+          if ! git diff --quiet config.toml || [ -n "${{ inputs.only_apps }}" ]; then
             echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
-            # Ran and found nothing to do - distinct from this step not
-            # having run at all (from_ci=false), which leaves should_build
-            # unset and downstream steps default to building everything.
             echo "should_build=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Get next version code
         id: next_ver_code
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG=$(gh release list -L 1 | awk -F '\t' '{print $3}')
-          if [ -z "$TAG" ]; then TAG=0; fi
-          echo "NEXT_VER_CODE=$((TAG + 1))" >> $GITHUB_OUTPUT
+          ver_code=$(gh api "repos/$GITHUB_REPOSITORY/releases" -q '.[0].tag_name' || echo 0)
+          ver_code=$((ver_code + 1))
+          echo "NEXT_VER_CODE=$ver_code" >> "$GITHUB_OUTPUT"
 
       - name: Restore stock APK cache
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: actions/cache/restore@v4
         with:
           path: stock-apks
+          # Exact match by run_id (re-runs hit this), then fall back to the
+          # latest stock-apks-* save from any previous run via restore-keys.
           key: stock-apks-${{ github.run_id }}
-          restore-keys: |
-            stock-apks-
+          restore-keys: stock-apks-
 
       - name: Build modules/APKs
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 45
+          timeout_minutes: 60
           max_attempts: 2
-          retry_wait_seconds: 90
+          retry_on: error
           command: |
-            if [ -n "${ONLY_TABLES:-}" ]; then
-              ./build.sh config.toml
-            elif [ -f "config.json" ]; then
-              ./build.sh config.json
-            else
-              ./build.sh config.toml
-            fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: $GITHUB_REPOSITORY
-          NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
-          ONLY_TABLES: ${{ inputs.only_apps }}
+            export ONLY_TABLES="${{ inputs.only_apps }}"
+            ./build.sh "${{ github.workspace }}/config.toml"
 
-      # Runs even if "Build modules/APKs" itself failed (e.g. one table's
-      # patches choke while others succeeded) so whatever did succeed still
-      # gets persisted - only a cancelled run skips this.
+      # build_rv() upserts each successfully downloaded/used apk into
+      # stock-apks/.manifest during build. Any cached apk NOT recorded there
+      # (old versions no longer referenced after upstream bump) is safe to delete
+      # so the GitHub Actions cache doesn't grow unbounded.
+      #
+      # Note: .manifest is seeded from state.md (which tracks every active build
+      # target), so even if this run is a partial build (via ONLY_TABLES/only_apps),
+      # the untouched tables' active stock APKs won't be pruned.
       - name: Prune stale stock APKs from cache
-        if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
+        if: ${{ always() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
         run: |
           # Seed manifest from state.md if present, so any table not touched in
           # this run (partial build) still has its active stock APK protected from pruning
@@ -124,46 +125,48 @@ jobs:
           fi
 
       - name: Save stock APK cache
-        if: ${{ !cancelled() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
+        if: ${{ always() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
         uses: actions/cache/save@v4
         with:
           path: stock-apks
+          # Unique key per run_id so save always creates a fresh cache entry
+          # instead of skipping because the exact key already exists.
           key: stock-apks-${{ github.run_id }}
 
       - name: Get output
-        id: get_output
+        id: out
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
-          DELIM="$(openssl rand -hex 8)"
-          echo "BUILD_LOG<<${DELIM}" >> "$GITHUB_OUTPUT"
-          cat build.md >> "$GITHUB_OUTPUT"
-          echo "${DELIM}" >> "$GITHUB_OUTPUT"
-          cp -f build.md build.tmp
-          cp -f state.md state.tmp
-      
+          OUTPUT=""
+          for f in build/*; do
+            OUTPUT+="${f} "
+          done
+          echo "OUTPUT=$OUTPUT" >> "$GITHUB_OUTPUT"
+
       - name: Upload release
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
-          BODY: ${{ steps.get_output.outputs.BUILD_LOG }}
         run: |
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "Release" --notes "$BODY"
-            gh release upload "$TAG" ./build/* --clobber
-          else
-            gh release create "$TAG" ./build/* --title "Release" --notes "$BODY"
-          fi
+          # pre-releases are not marked as latest by default.
+          # we have to do it manually.
+          gh release create "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
+            --title "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
+            --notes-file "build.md" \
+            --prerelease \
+            --latest \
+            ${{ steps.out.outputs.OUTPUT }}
 
       - name: Update README download links
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           TAG: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 - <<'PY'
           import glob
+          import json
           import os
           import re
+          import urllib.request
 
           tag = os.environ["TAG"]
           base = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{tag}/"
@@ -205,6 +208,51 @@ jobs:
               if n and new_readme != readme:
                   readme = new_readme
                   changed = True
+
+          try:
+              headers = {
+                  "Accept": "application/vnd.github+json",
+                  "User-Agent": "GitHub-Actions",
+              }
+              token = os.environ.get("GH_TOKEN", "")
+              if token:
+                  headers["Authorization"] = f"Bearer {token}"
+              repo = os.environ.get("GITHUB_REPOSITORY", "")
+              total_downloads = 0
+              page = 1
+              while True:
+                  url = f"https://api.github.com/repos/{repo}/releases?per_page=100&page={page}"
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=15) as resp:
+                      data = json.loads(resp.read().decode())
+                  if not data:
+                      break
+                  for r in data:
+                      for a in r.get("assets", []):
+                          total_downloads += a.get("download_count", 0)
+                  if len(data) < 100:
+                      break
+                  page += 1
+
+              if total_downloads >= 1_000_000:
+                  count_str = f"{total_downloads / 1_000_000:.1f}M"
+              elif total_downloads >= 1_000:
+                  count_str = f"{total_downloads / 1_000:.1f}k"
+              else:
+                  count_str = str(total_downloads)
+
+              badge_link = f"https://img.shields.io/badge/downloads-{count_str}-success"
+              new_readme, n = re.subn(
+                  r"(<!--downloads-->).*?(<!--/downloads-->)",
+                  rf"\g<1>[![Downloads]({badge_link})](../../releases)\g<2>",
+                  readme,
+                  flags=re.DOTALL,
+              )
+              if n and new_readme != readme:
+                  readme = new_readme
+                  changed = True
+          except Exception as e:
+              print(f"Warning: could not update download count badge: {e}")
 
           if changed:
               with open("README.md", "w", encoding="utf-8") as f:
@@ -284,27 +332,28 @@ jobs:
           for OUTPUT in *; do
             DL_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}/${OUTPUT}"
             if [[ $OUTPUT = *.apk ]]; then
-              APKS+="${NL}📦[${OUTPUT}](${DL_URL})"
+              APKS+="${NL}??[${OUTPUT}](${DL_URL})"
             elif [[ $OUTPUT = *.zip ]]; then
-              MODULES+="${NL}📦[${OUTPUT}](${DL_URL})"
+              MODULES+="${NL}??[${OUTPUT}](${DL_URL})"
             fi
           done
           MODULES=${MODULES#"$NL"}
           APKS=${APKS#"$NL"}
 
-          BODY="$(sed 's/^\* \*\*/↪ \*\*/g; s/^\* `/↪ \*\*/g; s/`/\*/g; s/^\* /\↪/g; s/\*\*/\*/g; s/###//g; s/^- /↪ /g; /^==/d;' ../build.md)"
+          BODY="$(sed 's/^\* \*\*/? \*\*/g; s/^\* `/? \*\*/g; s/`/\*/g; s/^\* /\?/g; s/\*\*/\*/g; s/###//g; s/^- /? /g; /^==/d;' ../build.md)"
           MSG="*New build!*
 
           ${BODY}
 
-          *▼ Download Links:*
+          *  Download Links:*
           Modules:
           ${MODULES}
 
           APKs:
-          ${APKS}
-          "
-          echo "'$MSG'"
-          MSG=${MSG:0:9450}
-          POST="https://api.telegram.org/bot${TG_TOKEN}/sendMessage"
-          curl -X POST --data-urlencode "parse_mode=Markdown" --data-urlencode "disable_web_page_preview=true" --data-urlencode "text=${MSG}" --data-urlencode "chat_id=${TG_CHAT}" "$POST"
+          ${APKS}"
+
+          curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            -d "chat_id=${TG_CHAT}" \
+            -d "parse_mode=Markdown" \
+            -d "disable_web_page_preview=true" \
+            -d "text=${MSG}"
