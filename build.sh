@@ -27,8 +27,7 @@ COMPRESSION_LEVEL=$(toml_get "$main_config_t" compression-level) || COMPRESSION_
 if ! PARALLEL_JOBS=$(toml_get "$main_config_t" parallel-jobs); then
 	if [ "$OS" = Android ]; then PARALLEL_JOBS=1; else PARALLEL_JOBS=$(nproc); fi
 fi
-PARALLEL_JOBS=1 # TODO: multiple jobs were broken by recent cli versions. and i cant bother to fix it so instead, i disable it.
-REMOVE_RV_INTEGRATIONS_CHECKS=$(toml_get "$main_config_t" remove-rv-integrations-checks) || REMOVE_RV_INTEGRATIONS_CHECKS="true"
+PARALLEL_JOBS=1 # TODO: multiple jobs were broken by recent cli versions. and i cant bother to fix it so instead, i disable it.\nREMOVE_RV_INTEGRATIONS_CHECKS=$(toml_get "$main_config_t" remove-rv-integrations-checks) || REMOVE_RV_INTEGRATIONS_CHECKS="true"
 DEF_PATCHES_VER=$(toml_get "$main_config_t" patches-version) || DEF_PATCHES_VER="latest"
 DEF_CLI_VER=$(toml_get "$main_config_t" cli-version) || DEF_CLI_VER="latest"
 DEF_PATCHES_SRC=$(toml_get "$main_config_t" patches-source) || DEF_PATCHES_SRC="ReVanced/revanced-patches"
@@ -69,8 +68,8 @@ gh_dl "${MODULE_TEMPLATE_DIR}/bin/x64/cmpr" "https://github.com/j-hc/cmpr/releas
 idx=0
 for table_name in $(toml_get_table_names); do
 	if [ -z "$table_name" ]; then continue; fi
-	t=$(toml_get_table "$table_name")
-	enabled=$(toml_get "$t" enabled) || enabled=true
+	tt=$(toml_get_table "$table_name")
+	enabled=$(toml_get "$tt" enabled) || enabled=true
 	vtf "$enabled" "enabled"
 	if [ "$enabled" = false ]; then continue; fi
 	if [ -n "${ONLY_TABLES:-}" ] && ! isoneof "$table_name" ${ONLY_TABLES//,/ }; then continue; fi
@@ -80,10 +79,10 @@ for table_name in $(toml_get_table_names); do
 	fi
 
 	declare -A app_args
-	patches_src=$(toml_get "$t" patches-source) || patches_src=$DEF_PATCHES_SRC
-	patches_ver=$(toml_get "$t" patches-version) || patches_ver=$DEF_PATCHES_VER
-	cli_src=$(toml_get "$t" cli-source) || cli_src=$DEF_CLI_SRC
-	cli_ver=$(toml_get "$t" cli-version) || cli_ver=$DEF_CLI_VER
+	patches_src=$(toml_get "$tt" patches-source) || patches_src=$DEF_PATCHES_SRC
+	patches_ver=$(toml_get "$tt" patches-version) || patches_ver=$DEF_PATCHES_VER
+	cli_src=$(toml_get "$tt" cli-source) || cli_src=$DEF_CLI_SRC
+	cli_ver=$(toml_get "$tt" cli-version) || cli_ver=$DEF_CLI_VER
 
 	if ! PREBUILTS="$(get_prebuilts "$cli_src" "$cli_ver" "$patches_src" "$patches_ver")"; then
 		epr "Could not get prebuilts"
@@ -92,19 +91,19 @@ for table_name in $(toml_get_table_names); do
 	read -r patches_jar cli_jar <<<"$PREBUILTS"
 	app_args[cli]=$cli_jar
 	app_args[ptjar]=$patches_jar
-	app_args[rv_brand]=$(toml_get "$t" rv-brand) || app_args[rv_brand]=$DEF_RV_BRAND
+	app_args[rv_brand]=$(toml_get "$tt" rv-brand) || app_args[rv_brand]=$DEF_RV_BRAND
 
-	app_args[excluded_patches]=$(toml_get "$t" excluded-patches) || app_args[excluded_patches]=""
+	app_args[excluded_patches]=$(toml_get "$tt" excluded-patches) || app_args[excluded_patches]=""
 	if [ -n "${app_args[excluded_patches]}" ] && [[ ${app_args[excluded_patches]} != *'"'* ]]; then abort "patch names inside excluded-patches must be quoted"; fi
-	app_args[included_patches]=$(toml_get "$t" included-patches) || app_args[included_patches]=""
+	app_args[included_patches]=$(toml_get "$tt" included-patches) || app_args[included_patches]=""
 	if [ -n "${app_args[included_patches]}" ] && [[ ${app_args[included_patches]} != *'"'* ]]; then abort "patch names inside included-patches must be quoted"; fi
-	app_args[exclusive_patches]=$(toml_get "$t" exclusive-patches) && vtf "${app_args[exclusive_patches]}" "exclusive-patches" || app_args[exclusive_patches]=false
-	app_args[version]=$(toml_get "$t" version) || app_args[version]="auto"
-	app_args[app_name]=$(toml_get "$t" app-name) || app_args[app_name]=$table_name
-	app_args[patcher_args]=$(toml_get "$t" patcher-args) || app_args[patcher_args]=""
+	app_args[exclusive_patches]=$(toml_get "$tt" exclusive-patches) && vtf "${app_args[exclusive_patches]}" "exclusive-patches" || app_args[exclusive_patches]=false
+	app_args[version]=$(toml_get "$tt" version) || app_args[version]="auto"
+	app_args[app_name]=$(toml_get "$tt" app-name) || app_args[app_name]=$table_name
+	app_args[patcher_args]=$(toml_get "$tt" patcher-args) || app_args[patcher_args]=""
 
-	app_args[addon_patches]=$(toml_get "$t" addon-patches) || app_args[addon_patches]=""
-	addon_patches_source=$(toml_get "$t" addon-patches-source) || addon_patches_source=""
+	app_args[addon_patches]=$(toml_get "$tt" addon-patches) || app_args[addon_patches]=""
+	addon_patches_source=$(toml_get "$tt" addon-patches-source) || addon_patches_source=""
 	for addon_src in $addon_patches_source; do
 		if addon_file=$(get_addon "$addon_src"); then
 			app_args[addon_patches]+=" $addon_file"
@@ -113,19 +112,19 @@ for table_name in $(toml_get_table_names); do
 		fi
 	done
 	app_args[table]=$table_name
-	app_args[build_mode]=$(toml_get "$t" build-mode) && {
+	app_args[build_mode]=$(toml_get "$tt" build-mode) && {
 		if ! isoneof "${app_args[build_mode]}" both apk module; then
 			abort "ERROR: build-mode '${app_args[build_mode]}' is not a valid option for '${table_name}': only 'both', 'apk' or 'module' is allowed"
 		fi
 	} || app_args[build_mode]=apk
-	app_args[include_stock]=$(toml_get "$t" include-stock) && {
+	app_args[include_stock]=$(toml_get "$tt" include-stock) && {
 		if ! isoneof "${app_args[include_stock]}" disable merged split; then
 			abort "ERROR: include-stock '${app_args[include_stock]}' is not a valid option for '${table_name}': only 'disable', 'merged' or 'split' is allowed"
 		fi
 	} || app_args[include_stock]=merged
 
 	for dl_from in "${DL_SRCS[@]}"; do
-		if app_args[${dl_from}_dlurl]=$(toml_get "$t" "${dl_from}-dlurl"); then
+		if app_args[${dl_from}_dlurl]=$(toml_get "$tt" "${dl_from}-dlurl"); then
 			app_args[${dl_from}_dlurl]=${app_args[${dl_from}_dlurl]%/}
 			app_args[${dl_from}_dlurl]=${app_args[${dl_from}_dlurl]%download}
 			app_args[${dl_from}_dlurl]=${app_args[${dl_from}_dlurl]%/}
@@ -135,16 +134,16 @@ for table_name in $(toml_get_table_names); do
 		fi
 	done
 	if [ -z "${app_args[dl_from]-}" ]; then abort "ERROR: no 'dlurl' option was set for '$table_name'. (${DL_SRCS[*]})"; fi
-	app_args[arch]=$(toml_get "$t" arch) || app_args[arch]="all"
+	app_args[arch]=$(toml_get "$tt" arch) || app_args[arch]="all"
 	if ! isoneof "${app_args[arch]}" "both" "all" "arm64-v8a" "arm-v7a" "x86_64" "x86"; then
 		abort "wrong arch '${app_args[arch]}' for '$table_name'"
 	fi
 
-	app_args[pkg_name]=$(toml_get "$t" pkg-name) || app_args[pkg_name]=""
-	app_args[dpi]=$(toml_get "$t" dpi) || app_args[dpi]=""
+	app_args[pkg_name]=$(toml_get "$tt" pkg-name) || app_args[pkg_name]=""
+	app_args[dpi]=$(toml_get "$tt" dpi) || app_args[dpi]=""
 	table_name_f=${table_name,,}
 	table_name_f=${table_name_f// /-}
-	app_args[module_prop_name]=$(toml_get "$t" module-prop-name) || app_args[module_prop_name]="${table_name_f}-jhc"
+	app_args[module_prop_name]=$(toml_get "$tt" module-prop-name) || app_args[module_prop_name]="${table_name_f}-jhc"
 
 	if [ "${app_args[arch]}" = both ]; then
 		app_args[table]="$table_name (arm64-v8a)"
@@ -176,7 +175,7 @@ wait
 _clean_tmp
 if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
 
-log "\nInstall instructions: [Root](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#root--installation) · [NonRoot + Obtainium](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#nonroot--installation-and-auto-updates-via-obtainium)\n"
+log "\nInstall instructions: [NonRoot + Obtainium](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#nonroot--installation-and-auto-updates-via-obtainium) · [Root](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#root--installation)\n"
 log "$(cat "$TEMP_DIR"/*/changelog.md)"
 
 SKIPPED=$(cat "$TEMP_DIR"/skipped 2>/dev/null || :)
