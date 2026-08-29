@@ -21,10 +21,10 @@ compression-level = 9                # module zip compression level
 remove-rv-integrations-checks = true # remove checks from the revanced integrations
 dpi = "nodpi anydpi 120-640dpi"      # dpi packages to be searched in order. default: "nodpi anydpi"
 
-patches-source = "revanced/revanced-patches" # where to fetch patches bundle from. default: "revanced/revanced-patches"
-cli-source = "ReVanced/revanced-cli"             # where to fetch cli from. default: "ReVanced/revanced-cli"
-# options like cli-source can also set per app
-rv-brand = "ReVanced Extended" # rebrand from 'ReVanced' to something different. default: "ReVanced"
+patches-source = "MorpheApp/morphe-patches" # where to fetch patches bundle from. default: "MorpheApp/morphe-patches"
+cli-source = "MorpheApp/morphe-desktop"     # where to fetch cli/desktop tool from. default: "MorpheApp/morphe-desktop"
+# options like cli-source, patches-source, and rv-brand can also be set per app
+rv-brand = "Morphe"                  # custom brand name for in-app settings menu and patcher prefix (e.g. 'Morphe', 'ReVanced Extended', 'ReVanced'). default: "Morphe"
 
 patches-version = "v2.160.0" # 'latest', 'dev', or a version number. default: "latest"
 cli-version = "v5.0.0"       # 'latest', 'dev', or a version number. default: "latest"
