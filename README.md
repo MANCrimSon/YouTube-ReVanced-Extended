@@ -16,7 +16,7 @@ rebuilt automatically as soon as new patches are released.
 The links below always point straight at the file, kept up to date automatically after every build (see full history
 in [**Releases**](../../releases)). YouTube Music ships two architectures — pick the one matching your device.
 
-| Build | Non-Root (APK) | Root (module) |
+| Build | NonRoot (APK) | Root (module) |
 |---|---|---|
 | YouTube — ReVanced Extended (anddea) | <!--yt-rvx-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-revanced-extended-v20.51.39-all.apk)<!--/yt-rvx-apk--> | <!--yt-rvx-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-revanced-extended-module-v20.51.39-all.zip)<!--/yt-rvx-zip--> |
 | YouTube Music — ReVanced Extended (anddea) | <!--ytm-rvx-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-music-revanced-extended-v9.15.51-arm64-v8a.apk)<!--/ytm-rvx-apk-arm64--><br><br><!--ytm-rvx-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-music-revanced-extended-v9.15.51-arm-v7a.apk)<!--/ytm-rvx-apk-armv7--> | <!--ytm-rvx-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-music-revanced-extended-module-v9.15.51-arm64-v8a.zip)<!--/ytm-rvx-zip-arm64--><br><br><!--ytm-rvx-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/383/youtube-music-revanced-extended-module-v9.15.51-arm-v7a.zip)<!--/ytm-rvx-zip-armv7--> |
