@@ -8,8 +8,7 @@ Automated builds of modified **YouTube** and **YouTube Music** — on two patch 
 Every build ships in two flavors — **NonRoot** (a plain APK) and **Root** (a Magisk/KernelSU module) — and gets
 rebuilt automatically as soon as new patches are released.
 
-[![Latest release](https://img.shields.io/github/v/release/MANCrimSon/YouTube-ReVanced-Extended?label=release&color=blue)](../../releases/latest)
-<!--downloads-->[![Downloads](https://img.shields.io/badge/downloads-444.7k-success)](../../releases)<!--/downloads-->
+[![Latest release](https://img.shields.io/github/v/release/MANCrimSon/YouTube-ReVanced-Extended?label=release&color=blue)](../../releases/latest) <!--downloads--><a href="../../releases"><img src="https://img.shields.io/badge/downloads-444.7k-success" alt="Downloads"></a><!--/downloads-->
 
 ## Download
 
