@@ -244,7 +244,7 @@ jobs:
               badge_link = f"https://img.shields.io/badge/downloads-{count_str}-success"
               new_readme, n = re.subn(
                   r"(<!--downloads-->).*?(<!--/downloads-->)",
-                  rf"\g<1>[![Downloads]({badge_link})](../../releases)\g<2>",
+                  rf'\g<1><a href="../../releases"><img src="{badge_link}" alt="Downloads"></a>\g<2>',
                   readme,
                   flags=re.DOTALL,
               )
