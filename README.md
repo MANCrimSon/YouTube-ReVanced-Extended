@@ -5,7 +5,7 @@ Automated builds of modified **YouTube** and **YouTube Music** — on two patch 
 [**MorpheApp/morphe-patches**](https://github.com/MorpheApp/morphe-patches) (Morphe), with voice-over translation via
 [**Yandex VoT**](https://github.com/sashade8-ship-it/morphe-patches-yavot).
 
-Every build ships in two flavors — **Root** (a Magisk/KernelSU module) and **NonRoot** (a plain APK) — and gets
+Every build ships in two flavors — **NonRoot** (a plain APK) and **Root** (a Magisk/KernelSU module) — and gets
 rebuilt automatically as soon as new patches are released.
 
 [![Latest release](https://img.shields.io/github/v/release/MANCrimSon/YouTube-ReVanced-Extended?label=release&color=blue)](../../releases/latest)
