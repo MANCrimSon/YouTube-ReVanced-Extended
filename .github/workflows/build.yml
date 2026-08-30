@@ -147,13 +147,9 @@ jobs:
       - name: Upload release
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
-          # pre-releases are not marked as latest by default.
-          # we have to do it manually.
           gh release create "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
-            --title "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
+            --title "Release" \
             --notes-file "build.md" \
-            --prerelease \
-            --latest \
             ${{ steps.out.outputs.OUTPUT }}
 
       - name: Update README download links
