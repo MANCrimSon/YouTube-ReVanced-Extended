@@ -143,6 +143,8 @@ jobs:
             OUTPUT+="${f} "
           done
           echo "OUTPUT=$OUTPUT" >> "$GITHUB_OUTPUT"
+          [ -f build.md ] && cp -f build.md build.tmp
+          [ -f state.md ] && cp -f state.md state.tmp
 
       - name: Upload release
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
@@ -274,8 +276,8 @@ jobs:
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
           git checkout -f update || git switch --discard-changes --orphan update
-          cp -f build.tmp build.md
-          cp -f state.tmp state.md
+          [ -f build.tmp ] && cp -f build.tmp build.md
+          [ -f state.tmp ] && cp -f state.tmp state.md
           get_update_json() {
             echo "{
             \"version\": \"$1\",
