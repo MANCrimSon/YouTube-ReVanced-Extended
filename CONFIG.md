@@ -1,76 +1,166 @@
-# Config
+# Configuration Guide
 
-Adding another revanced app is as easy as this:
+This document describes all available options in `config.toml` for configuring automated builds of modified YouTube, YouTube Music, or any other supported Android applications.
+
+---
+
+## Quick Start
+
+Adding another app is as simple as adding a new table with its download source:
+
 ```toml
-[Some-App]
-apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
-# or uptodown-dlurl = "https://app.en.uptodown.com/android"
+[Twitter]
+uptodown-dlurl = "https://twitter.en.uptodown.com/android"
 ```
 
 > [!WARNING]
-> When a patch name itself contains a single quote, double it inside the string (e.g. 'Hide ''Get Music Premium''').
+> When a patch name contains a single quote, double it inside TOML strings (e.g. `'Hide ''Get Music Premium'''`).
 
-## More about other options:
+---
 
-There exists an example below with all defaults shown and all the keys explicitly set.  
-**All keys are optional** (except download urls) and are assigned to their default values if not set explicitly.  
+## 1. Global Options (Top Level)
+
+These options apply across all apps unless overridden inside a specific app section:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `cli-source` | string | `"MorpheApp/morphe-desktop"` | GitHub repository (`owner/repo`) to fetch the CLI/Desktop patcher from. |
+| `cli-version` | string | `"latest"` | CLI version to use (`"latest"`, `"dev"`, or a specific tag like `"v1.15.0"`). |
+| `patches-source` | string | `"MorpheApp/morphe-patches"` | Default repository for patches bundles. |
+| `patches-version` | string | `"latest"` | Default patches version (`"latest"`, `"dev"`, or a specific tag). |
+| `rv-brand` | string | `"Morphe"` | Custom brand name for in-app settings menu and patcher prefix (e.g. `"Morphe"`, `"ReVanced Extended"`). |
+| `compression-level` | integer | `9` | Zip compression level (0–9) for Magisk/KernelSU root modules. Level `9` produces the smallest size with zero installation delay. |
+| `enable-module-update` | boolean | `true` | Enables in-app update checks for Magisk/KernelSU modules. |
+| `parallel-jobs` | integer | `1` | Number of parallel patching jobs (kept at `1` for maximum CLI stability). |
+| `remove-rv-integrations-checks` | boolean | `true` | Removes internal integration checks from the patches bundle. |
+
+---
+
+## 2. Per-App Options (`[App-Name]`)
+
+Each section `[App-Name]` configures a specific application target:
+
+### General & Targeting
+* **`enabled`** *(boolean, default: `true`)* — Set to `false` to temporarily skip building this app.
+* **`app-name`** *(string, default: table name)* — Name used in release files and changelog.
+* **`build-mode`** *(string, default: `"apk"`)*:
+  * `"apk"` — Builds NonRoot APK only.
+  * `"module"` — Builds Root (Magisk/KernelSU) module only.
+  * `"both"` — Builds both NonRoot APK and Root module.
+* **`arch`** *(string, default: `"all"`)*:
+  * `"all"` — Universal build containing all architectures.
+  * `"arm64-v8a"` / `"arm-v7a"` — Specific target architecture.
+  * `"both"` — Automatically builds **two separate versions** (`arm64-v8a` and `arm-v7a`) in parallel.
+
+### Version Selection
+* **`version`** *(string, default: `"auto"`)*:
+  * `"auto"` — Automatically resolves the highest stock version officially supported by all selected patches.
+  * `"latest"` — Picks the newest version found in the download source without patch compatibility checking.
+  * `"20.51.39"` — Forces a specific version number.
+
+### Patches Selection
+* **`patches-source`** *(string)* — Overrides the global patches repository (e.g. `"anddea/revanced-patches"`).
+* **`patches-version`** *(string)* — Overrides the patches version (`"dev"`, `"latest"`, etc.).
+* **`included-patches`** *(string)* — Quoted list of optional/non-default patches to include:
+  ```toml
+  included-patches = "'Disable music video in album' 'Theme'"
+  ```
+* **`excluded-patches`** *(string)* — Quoted list of default patches to exclude:
+  ```toml
+  excluded-patches = "'Custom branding icon for YouTube' 'Custom header'"
+  ```
+* **`exclusive-patches`** *(boolean, default: `false`)* — When `true`, excludes all patches by default and enables *only* those in `included-patches`.
+* **`patcher-args`** *(multiline string)* — Custom options passed directly to the patcher CLI:
+  ```toml
+  patcher-args = """\
+    -OdarkThemeBackgroundColor=#FF0F0F0F \
+    """
+  ```
+* **`addon-patches-source`** *(string)* — Extra `.mpp` patch bundles to apply on top (e.g. `"sashade8-ship-it/morphe-patches-yavot"` for Yandex translation).
+
+---
+
+## 3. Stock APK Download Sources
+
+At least one download source is required per app.
+
+### 🌟 Archive.org (`archive-dlurl`) — Recommended for CI
+The most reliable and stable source for GitHub Actions CI builds (no Cloudflare IP blocks, fast downloads, and full control over stock APKs).
+
+#### Setting up your own Archive.org storage:
+1. Create a free account on [Archive.org](https://archive.org/) and create an Item/Collection (e.g. `my-apks`).
+2. Inside that item, organize APK files named strictly in the following format:
+   ```text
+   <package_name>-<version>-<arch>.apk
+   ```
+   **Examples:**
+   * `com.google.android.youtube-20.51.39-all.apk`
+   * `com.google.android.apps.youtube.music-9.15.51-arm64-v8a.apk`
+   * `com.google.android.apps.youtube.music-9.15.51-arm-v7a.apk`
+3. Point `archive-dlurl` to the URL ending with the package name:
+   ```toml
+   archive-dlurl = "https://archive.org/download/my-apks/apks/com.google.android.youtube"
+   ```
+
+### Other Sources:
+* **`uptodown-dlurl`** — Public Uptodown app page:
+  ```toml
+  uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+  ```
+* **`direct-dlurl`** — Direct link to an APK file hosted on any web server:
+  ```toml
+  direct-dlurl = "https://my-server.com/com.google.android.youtube-20.51.39-all.apk"
+  ```
+* **`apkmirror-dlurl`** — APKMirror app URL.  
+  > *Note: APKMirror is Cloudflare-protected and blocks GitHub Actions runner IPs (returns 403 Forbidden). Recommended for local builds only.*
+
+---
+
+## Full Example (`config.toml`)
 
 ```toml
-parallel-jobs = 1                    # amount of cores to use for parallel patching, if not set $(nproc) is used
-compression-level = 9                # module zip compression level
-remove-rv-integrations-checks = true # remove checks from the revanced integrations
-dpi = "nodpi anydpi 120-640dpi"      # dpi packages to be searched in order. default: "nodpi anydpi"
+enable-magisk-update = true
 
-patches-source = "MorpheApp/morphe-patches" # where to fetch patches bundle from. default: "MorpheApp/morphe-patches"
-cli-source = "MorpheApp/morphe-desktop"     # where to fetch cli/desktop tool from. default: "MorpheApp/morphe-desktop"
-# options like cli-source, patches-source, and rv-brand can also be set per app
-rv-brand = "Morphe"                  # custom brand name for in-app settings menu and patcher prefix (e.g. 'Morphe', 'ReVanced Extended', 'ReVanced'). default: "Morphe"
+cli-source = "MorpheApp/morphe-desktop"
+cli-version = "dev"
 
-patches-version = "v2.160.0" # 'latest', 'dev', or a version number. default: "latest"
-cli-version = "v5.0.0"       # 'latest', 'dev', or a version number. default: "latest"
+[YouTube-Extended]
+enabled = true
+app-name = "YouTube"
+rv-brand = "ReVanced Extended"
+build-mode = "both"
+patches-source = "anddea/revanced-patches"
+patches-version = "dev"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 
-[Some-App]
-app-name = "SomeApp" # if set, release name becomes SomeApp instead of Some-App. default is same as table name, which is 'Some-App' here.
-enabled = true       # whether to build the app. default: true
-build-mode = "apk"   # 'both', 'apk' or 'module'. default: apk
+[YouTube-Music-Extended]
+enabled = true
+app-name = "YouTube Music"
+rv-brand = "ReVanced Extended"
+build-mode = "both"
+arch = "both"
+patches-source = "anddea/revanced-patches"
+patches-version = "dev"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
+included-patches = "'Disable music video in album'"
 
-# 'auto' option gets the latest possible version supported by all the included patches
-# 'latest' gets the latest stable without checking patches support. 'beta' gets the latest beta/alpha
-# whitespace seperated list of patches to exclude. default: ""
-version = "auto"     # 'auto', 'experimental', 'latest' or a version number (e.g. '17.40.41'). default: auto
+[YouTube-Morphe]
+enabled = true
+app-name = "YouTube"
+rv-brand = "Morphe"
+build-mode = "both"
+patches-source = "sashade8-ship-it/dual-vot-patches"
+patches-version = "dev"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
 
-# optional args to be passed to cli. can be used to set patch options
-# multiline strings in the config is supported
-patcher-args = """\
-  -OdarkThemeBackgroundColor=#FF0F0F0F \
-  -Oanother-option=value \
-  """
-
-excluded-patches = """\
-  'Some Patch' \
-  'Some Other Patch' \
-  """
-
-included-patches = "'Some Patch'"                          # whitespace seperated list of non-default patches to include. default: ""
-include-stock = "merged"                                   # 'merged', 'split' or 'disable'. default: merged
-exclusive-patches = false                                  # exclude all patches by default. default: false
-
-# Add-on .mpp bundles patched alongside the main patches-source, each as its own '-p' bundle with
-# no selectors of its own (relies on the add-on's own default-enabled patches). Two ways to supply
-# one, and they can be combined:
-# - addon-patches-source: whitespace separated "owner/repo" list. Each is auto-downloaded from
-#   GitHub releases, always resolving to the actual highest tag (dev/prerelease tags included, not
-#   just the newest stable release). Cached under temp/addons/. default: ""
-# - addon-patches: whitespace separated list of local .mpp file paths (relative to repo root), for
-#   a bundle you already have on disk. default: ""
-addon-patches-source = "sashade8-ship-it/morphe-patches-yavot"
-
-apkmirror-dlurl = "https://www.apkmirror.com/apk/inc/app"
-uptodown-dlurl = "https://spotify.en.uptodown.com/android"
-# direct download url. the url must have point to an apk file with name format shown in this example
-direct-dlurl = "https://website/com.google.android.youtube-20.40.45-all.apk"
-
-module-prop-name = "some-app-module"                       # module prop name.
-dpi = "360-480dpi"                                         # used to select apk variant from apkmirror. default: nodpi
-arch = "arm64-v8a"                                         # 'arm64-v8a', 'arm-v7a', 'all', 'both'. 'both' downloads both arm64-v8a and arm-v7a. default: all
+[YouTube-Music-Morphe]
+enabled = true
+app-name = "YouTube Music"
+rv-brand = "Morphe"
+build-mode = "both"
+arch = "both"
+patches-source = "MorpheApp/morphe-patches"
+patches-version = "dev"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
 ```
