@@ -37,25 +37,22 @@ jobs:
         id: cfg
         run: |
           git checkout -f update || git switch --discard-changes --orphan update
-          if [ -f config.toml ]; then
-            cp -f config.toml ../config.toml
-          fi
           if [ -f state.md ]; then
             cp -f state.md ../state.md
           fi
           git checkout -f main
 
-          # copy over config from update branch
-          if [ -f ../config.toml ]; then
-            cp -f ../config.toml config.toml
-          fi
+          # copy over state from update branch
           if [ -f ../state.md ]; then
             cp -f ../state.md state.md
           fi
 
           chmod +x ./build.sh
-          ./build.sh "${{ github.workspace }}/config.toml" --config-update
-          if ! git diff --quiet config.toml || [ -n "${{ inputs.only_apps }}" ]; then
+          UPDATE_CFG=$(./build.sh "${{ github.workspace }}/config.toml" --config-update)
+          if [ -n "$UPDATE_CFG" ] || [ -n "${{ inputs.only_apps }}" ]; then
+            if [ -n "$UPDATE_CFG" ] && [ -z "${{ inputs.only_apps }}" ]; then
+              echo "$UPDATE_CFG" > config.json
+            fi
             echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_build=false" >> "$GITHUB_OUTPUT"
@@ -88,7 +85,11 @@ jobs:
           retry_on: error
           command: |
             export ONLY_TABLES="${{ inputs.only_apps }}"
-            ./build.sh "${{ github.workspace }}/config.toml"
+            CFG_FILE="config.toml"
+            if [ -f "config.json" ] && [ -z "${{ inputs.only_apps }}" ]; then
+              CFG_FILE="config.json"
+            fi
+            ./build.sh "${{ github.workspace }}/${CFG_FILE}"
 
       # build_rv() upserts each successfully downloaded/used apk into
       # stock-apks/.manifest during build. Any cached apk NOT recorded there
