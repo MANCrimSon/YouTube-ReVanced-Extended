@@ -208,6 +208,18 @@ jobs:
                   readme = new_readme
                   changed = True
 
+          # Update release badge
+          badge_release = f"https://img.shields.io/badge/release-v{tag}-blue"
+          new_readme, n = re.subn(
+              r"(<!--release-->).*?(<!--/release-->)",
+              rf'\g<1><a href="../../releases/latest"><img src="{badge_release}" alt="Latest release"></a>\g<2>',
+              readme,
+              flags=re.DOTALL,
+          )
+          if n and new_readme != readme:
+              readme = new_readme
+              changed = True
+
           try:
               headers = {
                   "Accept": "application/vnd.github+json",
