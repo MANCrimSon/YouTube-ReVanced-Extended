@@ -8,16 +8,12 @@ enabled = true
 app-name = "YouTube"
 rv-brand = "ReVanced Extended"
 build-mode = "both"
-# version = "20.31.42"
+version = "20.51.39"
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
-# apkmirror is Cloudflare-protected and returns 403 for GitHub-hosted runner IPs; keep disabled in CI
-# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.youtube"
+apkpure-dlurl = "com.google.android.youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
-# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
-# excluded-patches = "'Custom branding icon for YouTube' 'Custom branding name for YouTube' 'Custom header for YouTube'"
-# included-patches = "'Theme'" 
 
 [YouTube-Music-Extended]
 enabled = true
@@ -25,15 +21,12 @@ app-name = "YouTube Music"
 rv-brand = "ReVanced Extended"
 build-mode = "both"
 arch = "both"
-# version = "8.30.54"
+version = "9.15.51"
 patches-source = "anddea/revanced-patches"
 patches-version = "dev"
-# apkmirror is Cloudflare-protected and returns 403 for GitHub-hosted runner IPs; keep disabled in CI
-# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
+archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.apps.youtube.music"
+apkpure-dlurl = "com.google.android.apps.youtube.music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
-# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
-# excluded-patches = "'Custom branding icon for YouTube Music' 'Custom branding name for YouTube Music' 'Custom header for YouTube Music'"
 included-patches = "'Disable music video in album'" 
 
 [YouTube-Morphe]
@@ -41,16 +34,12 @@ enabled = true
 app-name = "YouTube"
 rv-brand = "Morphe"
 build-mode = "both"
-# version = "20.21.37"
+version = "21.04.223"
 patches-source = "sashade8-ship-it/dual-vot-patches"
 patches-version = "dev"
-# apkmirror is Cloudflare-protected and returns 403 for GitHub-hosted runner IPs; keep disabled in CI
-# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.youtube"
+apkpure-dlurl = "com.google.android.youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
-# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.youtube"
-# excluded-patches = "'Custom branding' 'Custom header'"
-# addon-patches-source = "sashade8-ship-it/morphe-patches-yavot"
 
 [YouTube-Music-Morphe]
 enabled = true
@@ -58,19 +47,9 @@ app-name = "YouTube Music"
 rv-brand = "Morphe"
 build-mode = "both"
 arch = "both"
-# version = "8.30.54"
+version = "9.15.51"
 patches-source = "MorpheApp/morphe-patches"
 patches-version = "dev"
-# apkmirror is Cloudflare-protected and returns 403 for GitHub-hosted runner IPs; keep disabled in CI
-# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
+archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.apps.youtube.music"
+apkpure-dlurl = "com.google.android.apps.youtube.music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
-# archive-dlurl = "https://archive.org/download/crimsonman/apk/com.google.android.apps.youtube.music"
-# excluded-patches = "'Custom branding' 'Custom header'"
-
-# [Instagram-Piko]
-# app-name = "Instagram"
-# patches-source = "crimera/piko"
-# patches-version = "dev"
-# uptodown-dlurl = "https://instagram.en.uptodown.com/android"
-# archive-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"

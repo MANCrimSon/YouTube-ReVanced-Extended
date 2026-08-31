@@ -10,7 +10,7 @@ BUILD_DIR="build"
 # just this directory across runs: stock apks are large, slow, and the least
 # reliable thing to (re-)download, but change far less often than patches do.
 STOCK_CACHE_DIR="stock-apks"
-DL_SRCS=("direct" "archive" "apkmirror" "uptodown")
+DL_SRCS=("direct" "archive" "apkpure" "apkmirror" "uptodown")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
 NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
@@ -698,6 +698,69 @@ get_archive_resp() {
 }
 get_archive_vers() { sed 's/^[^-]*-//;s/-\(all\|arm64-v8a\|arm-v7a\)\.apk//g' <<<"$__ARCHIVE_RESP__"; }
 get_archive_pkg_name() { echo "$__ARCHIVE_PKG_NAME__"; }
+
+# -------------------- apkpure (via apkeep) --------------------
+get_apkeep() {
+	if command -v apkeep >/dev/null 2>&1; then
+		APKEEP="apkeep"
+		return 0
+	fi
+	local bin_dir="${TEMP_DIR}/bin"
+	mkdir -p "$bin_dir"
+	APKEEP="${bin_dir}/apkeep"
+	if [ ! -f "$APKEEP" ]; then
+		pr "Getting 'apkeep'" >&2
+		local arch os uname_s uname_m apkeep_url
+		uname_s=$(uname -s 2>/dev/null | tr '[:upper:]' '[:lower:]' || echo linux)
+		uname_m=$(uname -m 2>/dev/null || echo x86_64)
+		apkeep_url="https://github.com/EFForg/apkeep/releases/download/1.0.0/apkeep-x86_64-unknown-linux-gnu"
+		if [[ "$uname_s" =~ mingw|msys|cygwin ]]; then
+			apkeep_url="https://github.com/EFForg/apkeep/releases/download/1.0.0/apkeep-x86_64-pc-windows-msvc.exe"
+			APKEEP="${bin_dir}/apkeep.exe"
+		elif [ "$uname_m" = "aarch64" ] || [ "$uname_m" = "arm64" ]; then
+			apkeep_url="https://github.com/EFForg/apkeep/releases/download/1.0.0/apkeep-aarch64-unknown-linux-gnu"
+		fi
+		_req "$apkeep_url" "$APKEEP" || return 1
+		chmod +x "$APKEEP" 2>/dev/null || :
+	fi
+}
+get_apkpure_resp() {
+	get_apkeep || return 1
+	local pkg=$1
+	pkg="${pkg%/}"
+	pkg="${pkg##*/}"
+	__APKPURE_PKG__="$pkg"
+	__APKPURE_RESP__=$("$APKEEP" -a "$__APKPURE_PKG__" -l -d apk-pure .) || return 1
+}
+get_apkpure_vers() {
+	sed -n 's/^[| ]*//; s/, /\n/g; p' <<<"$__APKPURE_RESP__" | grep -v "Versions available" | grep -iv "\(beta\|alpha\)"
+}
+get_apkpure_pkg_name() { echo "$__APKPURE_PKG__"; }
+dl_apkpure() {
+	get_apkeep || return 1
+	local url=$1 version=$2 output=$3 arch=$4 _dpi=$5
+	local pkg="$__APKPURE_PKG__"
+	[ -z "$pkg" ] && pkg="${url%/}" && pkg="${pkg##*/}"
+	local dl_dir="${TEMP_DIR}/apkeep_${pkg}_${version// /}"
+	mkdir -p "$dl_dir"
+	"$APKEEP" -a "${pkg}@${version}" -d apk-pure "$dl_dir" || { rm -rf "$dl_dir"; return 1; }
+	local downloaded
+	downloaded=$(find "$dl_dir" -maxdepth 1 -name "${pkg}@${version}*" -type f 2>/dev/null | head -1)
+	if [ -z "$downloaded" ]; then
+		downloaded=$(find "$dl_dir" -maxdepth 1 -name "${pkg}*" -type f 2>/dev/null | head -1)
+	fi
+	if [ -z "$downloaded" ]; then
+		rm -rf "$dl_dir"
+		return 1
+	fi
+
+	if [[ "$downloaded" =~ \.xapk$ ]] || [[ "$downloaded" =~ \.apkm$ ]]; then
+		merge_splits "$downloaded" "$output"
+	else
+		mv -f "$downloaded" "$output"
+	fi
+	rm -rf "$dl_dir"
+}
 
 # -------------------- direct --------------------
 dl_direct() {
