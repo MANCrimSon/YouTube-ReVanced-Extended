@@ -754,7 +754,16 @@ dl_apkpure() {
 		return 1
 	fi
 
-	if [[ "$downloaded" =~ \.xapk$ ]] || [[ "$downloaded" =~ \.apkm$ ]]; then
+	if [[ "$downloaded" =~ \.xapk$ ]]; then
+		# Check if xapk contains standalone apk
+		local standalone_apk
+		standalone_apk=$(unzip -l "$downloaded" 2>/dev/null | awk '{print $4}' | grep -E '^[^/]+\.apk$' | grep -v '^config\.' | head -1 || :)
+		if [ -n "$standalone_apk" ] && [ "$standalone_apk" != "base.apk" ]; then
+			unzip -p "$downloaded" "$standalone_apk" >"$output"
+		else
+			merge_splits "$downloaded" "$output"
+		fi
+	elif [[ "$downloaded" =~ \.apkm$ ]]; then
 		merge_splits "$downloaded" "$output"
 	else
 		mv -f "$downloaded" "$output"
