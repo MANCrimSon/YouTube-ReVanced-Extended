@@ -13,7 +13,7 @@ patches-source = "anddea/revanced-patches"
 patches-version = "dev"
 archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.youtube"
 apkpure-dlurl = "com.google.android.youtube"
-uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+# uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 # apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 
 [YouTube-Music-Extended]
@@ -27,7 +27,8 @@ patches-source = "anddea/revanced-patches"
 patches-version = "dev"
 archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.apps.youtube.music"
 apkpure-dlurl = "com.google.android.apps.youtube.music"
-uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
+# uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
+# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 included-patches = "'Disable music video in album'" 
 
 [YouTube-Morphe]
@@ -40,7 +41,8 @@ patches-source = "sashade8-ship-it/dual-vot-patches"
 patches-version = "dev"
 archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.youtube"
 apkpure-dlurl = "com.google.android.youtube"
-uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+# uptodown-dlurl = "https://youtube.en.uptodown.com/android"
+# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 
 [YouTube-Music-Morphe]
 enabled = true
@@ -53,4 +55,5 @@ patches-source = "MorpheApp/morphe-patches"
 patches-version = "dev"
 archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.apps.youtube.music"
 apkpure-dlurl = "com.google.android.apps.youtube.music"
-uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
+# uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
+# apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
