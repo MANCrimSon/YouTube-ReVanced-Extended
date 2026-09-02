@@ -14,11 +14,12 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - name: Clear older runs
+      - name: Clear older runs and caches
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run list -L400 --json databaseId -q '.[].databaseId' | tail -n+10 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/runs/ID" -X DELETE || :
+          gh api -H "Accept: application/vnd.github+json" "repos/$GITHUB_REPOSITORY/actions/caches" -q '.actions_caches[].id' | tail -n+4 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/caches/ID" -X DELETE || :
 
   # build.yml decides for itself (via its "Update config" step and state.md)
   # whether anything actually needs rebuilding, and no-ops if not - so this

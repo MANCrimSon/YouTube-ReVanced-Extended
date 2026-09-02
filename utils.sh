@@ -891,6 +891,8 @@ build_rv() {
 		for a in "${stock_apk}"-zip/*.apk; do
 			if ! sig_op=$(check_sig "$a" "$pkg_name" 2>&1); then
 				epr "Not building $table, apk signature mismatch '$a': $sig_op"
+				rm -f "$stock_apk" "${stock_apk}.apkm" 2>/dev/null || :
+				rm -rf "${stock_apk}-zip" 2>/dev/null || :
 				mark_failed "$table"
 				return 0
 			fi
@@ -899,6 +901,7 @@ build_rv() {
 	else
 		if ! sig_op=$(check_sig "$stock_apk" "$pkg_name" 2>&1); then
 			epr "Not building $table, apk signature mismatch '$stock_apk': $sig_op"
+			rm -f "$stock_apk" "${stock_apk}.apkm" 2>/dev/null || :
 			mark_failed "$table"
 			return 0
 		fi
