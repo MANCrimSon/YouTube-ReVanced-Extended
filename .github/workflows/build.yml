@@ -324,14 +324,17 @@ jobs:
             DLURL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}/${OUTPUT}"
 
             # Создаем персональный чейнджлог для данного приложения
-            cat <<EOF > "../$CL_NAME"
-## $NAME
-* **Version:** $VER
-* **Release:** [#${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }})
-
-### 📦 Release Notes:
-$([ -f ../build.md ] && cat ../build.md)
-EOF
+            # Create per-module changelog file
+            {
+              echo "## $NAME"
+              echo "* **Version:** $VER"
+              echo "* **Release:** [#${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }})"
+              echo ""
+              echo "### Release Notes:"
+              if [ -f ../build.md ]; then
+                cat ../build.md
+              fi
+            } > "../$CL_NAME"
 
             get_update_json "$VER" "$DLURL" "$CL_NAME" >"../$UPDATE_JSON"
           done
