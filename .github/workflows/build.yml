@@ -308,7 +308,7 @@ jobs:
             \"version\": \"$1\",
             \"versionCode\": ${{ steps.next_ver_code.outputs.MODULE_VER_CODE }},
             \"zipUrl\": \"$2\",
-            \"changelog\": \"https://raw.githubusercontent.com/$GITHUB_REPOSITORY/update/build.md\"
+            \"changelog\": \"https://raw.githubusercontent.com/$GITHUB_REPOSITORY/update/$3\"
           }"
           }
 
@@ -318,10 +318,22 @@ jobs:
             ZIP_S=$(unzip -p "$OUTPUT" module.prop)
             if ! UPDATE_JSON=$(echo "$ZIP_S" | grep updateJson); then continue; fi
             UPDATE_JSON="${UPDATE_JSON##*/}"
-            VER=$(echo "$ZIP_S" | grep version=)
-            VER="${VER##*=}"
+            CL_NAME="${UPDATE_JSON%-update.json}-changelog.md"
+            NAME=$(echo "$ZIP_S" | grep '^name=' | cut -d= -f2-)
+            VER=$(echo "$ZIP_S" | grep '^version=' | cut -d= -f2-)
             DLURL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}/${OUTPUT}"
-            get_update_json "$VER" "$DLURL" >"../$UPDATE_JSON"
+
+            # Создаем персональный чейнджлог для данного приложения
+            cat <<EOF > "../$CL_NAME"
+## $NAME
+* **Version:** $VER
+* **Release:** [#${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/${{ steps.next_ver_code.outputs.NEXT_VER_CODE }})
+
+### 📦 Release Notes:
+$([ -f ../build.md ] && cat ../build.md)
+EOF
+
+            get_update_json "$VER" "$DLURL" "$CL_NAME" >"../$UPDATE_JSON"
           done
           cd ..
 
@@ -332,8 +344,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      
-          git add build.md state.md *-update.json
+          git add build.md state.md *-update.json *-changelog.md
       
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
