@@ -1,6 +1,11 @@
 name: CI
 on:
   workflow_dispatch:
+    inputs:
+      only_apps:
+        description: Comma separated list of apps to build (e.g. YouTube-Morphe, YouTube-Extended)
+        required: false
+        type: string
   schedule:
     - cron: "23 20 * * *"
 
@@ -22,4 +27,6 @@ jobs:
   build:
     permissions: write-all
     uses: ./.github/workflows/build.yml
+    with:
+      only_apps: ${{ inputs.only_apps }}
     secrets: inherit
