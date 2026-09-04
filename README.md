@@ -47,7 +47,7 @@ anything in a desktop browser).
 <summary><b>Troubleshooting playback issues (infinite buffering)</b></summary>
 
 <details>
-<summary><b>YouTube & YouTube Music - ReVanced Extended (anddea)</b></summary>
+<summary><b>YouTube & YouTube Music — ReVanced Extended (anddea)</b></summary>
 
 If videos or music tracks stop playing after a few seconds or buffer infinitely, try the following solutions:
 
@@ -77,20 +77,21 @@ anddea patches include a built-in PoToken generator (no external PotHelper requi
 <details>
 <summary><b>YouTube & YouTube Music — Morphe</b></summary>
 
-Morphe provides two methods to resolve playback issues:
+If videos or music tracks stop playing after a few seconds or buffer infinitely, try the following solutions:
 
-#### 1. Primary solution — PoToken (Recommended)
+#### 1. Primary solution — PoToken via PotHelper (Recommended)
 1. Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).
-2. Turn **OFF** stream spoofing: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**Off**).
-3. Turn **ON** PoToken: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `PoToken provider` ➔ toggle `External PoToken provider` (**On**).
+2. Turn **OFF** stream spoofing: `Settings` → `Morphe` → `Miscellaneous` → `Spoof video streams` → toggle `Spoof video streams` (**Off**).
+3. Turn **ON** PoToken: `Settings` → `Morphe` → `Miscellaneous` → `PoToken provider` → toggle `External PoToken provider` (**On**).
 4. Restart the app.
 
 #### 2. Fallback solution — Spoof video streams
-1. Turn **OFF** PoToken: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `PoToken provider` ➔ toggle `External PoToken provider` (**Off**).
-2. Turn **ON** stream spoofing: `Settings` ➔ `Morphe` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
+1. Turn **OFF** PoToken: `Settings` → `Morphe` → `Miscellaneous` → `PoToken provider` → toggle `External PoToken provider` (**Off**).
+2. Turn **ON** stream spoofing: `Settings` → `Morphe` → `Miscellaneous` → `Spoof video streams` → toggle `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
 3. Restart the app.
 
-> *Note: Due to regional restrictions or network DPI blocks, playback may still be unstable — check your network bypass tools if needed.*
+> [!NOTE]
+> Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters — verify your network bypass or VPN configuration if needed.
 </details>
 
 </details>
@@ -100,14 +101,14 @@ Morphe provides two methods to resolve playback issues:
 <details>
 <summary>Instructions</summary>
 
-1. Install the module archive via Magisk/KernelSU ➔ reboot.
+1. Install the module archive via Magisk/KernelSU → reboot.
 2. Detach the app from Google Play updates, otherwise Play Store will overwrite the patch:
    - Magisk: enable Zygisk.
    - KernelSU: install [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases).
    - Install [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) +
-     [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases), grant root ➔ reboot.
-   - In zygisk-detach-app, pick the app ➔ Detach.
-3. KernelSU only: KSU App ➔ Superuser ➔ app ➔ Unmount modules: Off ➔ reboot the device.
+     [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases), grant root → reboot.
+   - In zygisk-detach-app, pick the app → Detach.
+3. KernelSU only: KSU App → Superuser → app → Unmount modules: Off → reboot the device.
 4. To update: hit \"Update\" in Magisk/KernelSU, or just flash the new archive on top.
 
 If you get a **\"Reflash needed\"** error after rebooting, or root detectors complain about a
