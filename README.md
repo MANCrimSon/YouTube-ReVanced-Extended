@@ -81,14 +81,16 @@ If videos or music tracks stop playing after a few seconds or buffer infinitely,
 
 #### 1. Primary solution — PoToken via PotHelper (Recommended)
 1. Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).
-2. Turn **OFF** stream spoofing: `Settings` → `Morphe` → `Miscellaneous` → `Spoof video streams` → toggle `Spoof video streams` (**Off**).
-3. Turn **ON** PoToken: `Settings` → `Morphe` → `Miscellaneous` → `PoToken provider` → toggle `External PoToken provider` (**On**).
-4. Restart the app.
+2. Go to `Settings` → `Morphe` → `Miscellaneous`:
+   - Turn **OFF** stream spoofing: `Spoof video streams` → `Spoof video streams` (**Off**).
+   - Turn **ON** PoToken: `PoToken provider` → `External PoToken provider` (**On**).
+3. Restart the app.
 
 #### 2. Fallback solution — Spoof video streams
-1. Turn **OFF** PoToken: `Settings` → `Morphe` → `Miscellaneous` → `PoToken provider` → toggle `External PoToken provider` (**Off**).
-2. Turn **ON** stream spoofing: `Settings` → `Morphe` → `Miscellaneous` → `Spoof video streams` → toggle `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
-3. Restart the app.
+1. Go to `Settings` → `Morphe` → `Miscellaneous`:
+   - Turn **OFF** PoToken: `PoToken provider` → `External PoToken provider` (**Off**).
+   - Turn **ON** stream spoofing: `Spoof video streams` → `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
+2. Restart the app.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters — verify your network bypass or VPN configuration if needed.
