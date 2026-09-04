@@ -47,15 +47,31 @@ anything in a desktop browser).
 <summary><b>Troubleshooting playback issues (infinite buffering)</b></summary>
 
 <details>
-<summary><b>YouTube & YouTube Music — ReVanced Extended (anddea)</b></summary>
+<summary><b>YouTube & YouTube Music - ReVanced Extended (anddea)</b></summary>
 
-If videos or music tracks stop playing after a few seconds or buffer infinitely:
+If videos or music tracks stop playing after a few seconds or buffer infinitely, try the following solutions:
 
-1. **YouTube:** Go to `Settings` ➔ `RVX` ➔ `Miscellaneous` ➔ `Spoof video streams` ➔ toggle `Spoof video streams` (**On**) and set **Default client** to **`TV Simply`** (priority client with built-in PoToken generation). Alternatively, try switching to another client or toggling the feature **Off**.
-2. **YouTube Music:** Go to `Settings` ➔ `RVX` ➔ `Miscellaneous` ➔ toggle `Spoof video streams` (**On**) and set **Default client** to **`TV Simply`** (priority client with built-in PoToken generation). Alternatively, try switching to another client or toggling the feature **Off**.
+#### 1. Primary solution — Built-in PoToken (Recommended)
+anddea patches include a built-in PoToken generator (no external PotHelper required):
+1. **YouTube:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
+   - Turn **OFF** stream spoofing: `Spoof video streams` (**Off**).
+   - Turn **ON** PoToken: `PoToken provider` (**On**).
+2. **YouTube Music:** Go to `Settings` → `RVX` → `Miscellaneous`:
+   - Turn **OFF** stream spoofing: `Spoof video streams` (**Off**).
+   - Turn **ON** PoToken: `PoToken provider` (**On**).
+3. Restart the app (if buffering persists, force stop **MicroG RE** in Android system settings).
+
+#### 2. Fallback solution — Spoof video streams
+1. **YouTube:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
+   - Turn **OFF** PoToken: `PoToken provider` (**Off**).
+   - Turn **ON** stream spoofing: `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
+2. **YouTube Music:** Go to `Settings` → `RVX` → `Miscellaneous`:
+   - Turn **OFF** PoToken: `PoToken provider` (**Off**).
+   - Turn **ON** stream spoofing: `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
 3. Restart the app.
 
-> *Note: Due to regional restrictions or network DPI blocks, playback may still be unstable — check your network bypass tools if needed.*
+> [!NOTE]
+> Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters — verify your network bypass or VPN configuration if needed.
 </details>
 
 <details>
