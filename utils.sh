@@ -139,18 +139,27 @@ get_prebuilts() {
 			asset=$(jq -r ".[0]" <<<"$matches")
 			url=$(jq -r .url <<<"$asset")
 			name=$(jq -r .name <<<"$asset")
+			if [[ ! "$name" =~ [0-9] ]]; then
+				local name_only="${name%.*}"
+				local name_ext="${name##*.}"
+				name="${name_only}-${tag_name#v}.${name_ext}"
+			fi
 			file="${dir}/${name}"
 			gh_dl "$file" "$url" >&2 || return 1
-			echo "$tag: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${cl_dir}/changelog.md"
 		else
-			grab_cl=false
 			name=$(basename "$file")
-			tag_name=$(cut -d'-' -f3- <<<"$name")
+			tag_name=$(cut -d'-' -f2- <<<"$name")
 			tag_name=v${tag_name%.*}
 		fi
 
+		if ! grep -qF "/${name}  " "${cl_dir}/changelog.md" 2>/dev/null; then
+			echo "$tag: ${src}/${name}  " >>"${cl_dir}/changelog.md"
+			if [ "$tag" = "Patches" ]; then
+				echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"
+			fi
+		fi
+
 		if [ "$tag" = "Patches" ]; then
-			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
 				# Under set -e/pipefail, an unguarded "$(cmd1 | cmd2)" assignment
@@ -171,7 +180,7 @@ get_prebuilts() {
 					cd "${file}-zip" || abort
 					zip -0rq "${CWD}/${file}" . || return 1
 				) >&2; then
-					echo >&2 "Patching revanced-integrations failed"
+					echo >&2 "Patching integrations checks failed"
 				fi
 				rm -r "${file}-zip" 2>/dev/null || :
 			fi
@@ -220,10 +229,17 @@ get_addon() {
 		asset=$(jq -r ".[0]" <<<"$matches")
 		url=$(jq -r .url <<<"$asset")
 		name=$(jq -r .name <<<"$asset")
+		if [[ ! "$name" =~ [0-9] ]]; then
+			local name_only="${name%.*}"
+			local name_ext="${name##*.}"
+			name="${name_only}-${best_tag#v}.${name_ext}"
+		fi
 		file="${dir}/${name}"
 		gh_dl "$file" "$url" >&2 || return 1
-		echo "Addon: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${TEMP_DIR}/addons/changelog.md"
-		echo -e "[Changelog](https://github.com/${src}/releases/tag/${best_tag})\n" >>"${TEMP_DIR}/addons/changelog.md"
+		if ! grep -qF "/${name}  " "${TEMP_DIR}/addons/changelog.md" 2>/dev/null; then
+			echo "Addon: ${src}/${name}  " >>"${TEMP_DIR}/addons/changelog.md"
+			echo -e "[Changelog](https://github.com/${src}/releases/tag/${best_tag})\n" >>"${TEMP_DIR}/addons/changelog.md"
+		fi
 	fi
 	echo "$file"
 }
@@ -252,6 +268,7 @@ config_update() {
 			last_patches=${resolved["$cache_key"]}
 		else
 			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
+			local tag_name=""
 			if [ "$PATCHES_VER" = "dev" ]; then
 				# Don't trust the API's own ordering (release #0) - pick the
 				# release whose tag is actually highest, same as get_prebuilts
@@ -260,13 +277,23 @@ config_update() {
 				dev_resp=$(gh_req "$rv_rel" -) || continue
 				best_tag=$(jq -e -r '.[].tag_name' <<<"$dev_resp" | get_highest_ver) || continue
 				last_patches=$(jq -e -r --arg t "$best_tag" '.[] | select(.tag_name == $t)' <<<"$dev_resp") || continue
+				tag_name="$best_tag"
 			elif [ "$PATCHES_VER" = "latest" ]; then
 				last_patches=$(gh_req "$rv_rel/latest" -) || continue
+				tag_name=$(jq -r '.tag_name' <<<"$last_patches") || :
 			else
 				last_patches=$(gh_req "$rv_rel/tags/${PATCHES_VER}" -) || continue
+				tag_name="$PATCHES_VER"
 			fi
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
+			fi
+			if [ "$last_patches" ]; then
+				if [[ ! "$last_patches" =~ [0-9] ]]; then
+					local name_only="${last_patches%.*}"
+					local name_ext="${last_patches##*.}"
+					last_patches="${name_only}-${tag_name#v}.${name_ext}"
+				fi
 			fi
 			resolved["$cache_key"]=$last_patches
 		fi
@@ -747,7 +774,7 @@ patch_apk() {
 	cli_name=$(basename "$cli_jar")
 	if [ "${cli_name::8}" = revanced ]; then cmd+=" -b"; fi
 
-	if [ "$OS" = Android ]; then cmd+=" --custom-aapt2-binary='${AAPT2}'"; fi
+	# if [ "$OS" = Android ]; then cmd+=" --custom-aapt2-binary='${AAPT2}'"; fi
 	pr "$cmd"
 	if eval "$cmd"; then [ -f "$patched_apk" ]; else
 		rm "$patched_apk" 2>/dev/null || :
