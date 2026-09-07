@@ -55,6 +55,7 @@ fi
 if ((COMPRESSION_LEVEL > 9)) || ((COMPRESSION_LEVEL < 0)); then abort "compression-level must be within 0-9"; fi
 
 rm -rf module/bin/*/tmp.*
+rm -f "$TEMP_DIR/cli.md" "$TEMP_DIR/patches.md" "$TEMP_DIR/failed" "$TEMP_DIR/skipped"
 for file in "$TEMP_DIR"/*/changelog.md; do
 	[ -f "$file" ] && : >"$file"
 done
@@ -177,7 +178,12 @@ _clean_tmp
 if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
 
 log "\nInstall instructions: [NonRoot + Obtainium](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#nonroot--installation-and-auto-updates-via-obtainium) · [Root](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#root--installation)\n"
-log "$(cat "$TEMP_DIR"/*/changelog.md)"
+if [ -s "$TEMP_DIR/cli.md" ]; then
+	log "$(cat "$TEMP_DIR/cli.md")\n"
+fi
+if [ -s "$TEMP_DIR/patches.md" ]; then
+	log "$(cat "$TEMP_DIR/patches.md")"
+fi
 
 SKIPPED=$(cat "$TEMP_DIR"/skipped 2>/dev/null || :)
 if [ -n "$SKIPPED" ]; then

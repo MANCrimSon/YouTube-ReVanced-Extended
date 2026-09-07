@@ -152,10 +152,14 @@ get_prebuilts() {
 			tag_name=v${tag_name%.*}
 		fi
 
-		if ! grep -qF "/${name}  " "${cl_dir}/changelog.md" 2>/dev/null; then
-			echo "$tag: ${src}/${name}  " >>"${cl_dir}/changelog.md"
-			if [ "$tag" = "Patches" ]; then
-				echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"
+		if [ "$tag" = "CLI" ]; then
+			if ! grep -qF "/${name}  " "$TEMP_DIR/cli.md" 2>/dev/null; then
+				echo "CLI: ${src}/${name}  " >>"$TEMP_DIR/cli.md"
+			fi
+		elif [ "$tag" = "Patches" ]; then
+			if ! grep -qF "/${name}  " "$TEMP_DIR/patches.md" 2>/dev/null; then
+				echo "Patches: ${src}/${name}  " >>"$TEMP_DIR/patches.md"
+				echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"$TEMP_DIR/patches.md"
 			fi
 		fi
 
@@ -236,9 +240,9 @@ get_addon() {
 		fi
 		file="${dir}/${name}"
 		gh_dl "$file" "$url" >&2 || return 1
-		if ! grep -qF "/${name}  " "${TEMP_DIR}/addons/changelog.md" 2>/dev/null; then
-			echo "Addon: ${src}/${name}  " >>"${TEMP_DIR}/addons/changelog.md"
-			echo -e "[Changelog](https://github.com/${src}/releases/tag/${best_tag})\n" >>"${TEMP_DIR}/addons/changelog.md"
+		if ! grep -qF "/${name}  " "$TEMP_DIR/patches.md" 2>/dev/null; then
+			echo "Addon: ${src}/${name}  " >>"$TEMP_DIR/patches.md"
+			echo -e "[Changelog](https://github.com/${src}/releases/tag/${best_tag})\n" >>"$TEMP_DIR/patches.md"
 		fi
 	fi
 	echo "$file"
