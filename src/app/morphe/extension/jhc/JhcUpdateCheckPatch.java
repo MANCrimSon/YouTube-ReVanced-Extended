@@ -41,8 +41,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.content.ComponentName;
 import android.os.Bundle;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -257,7 +260,58 @@ public class JhcUpdateCheckPatch {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             try {
                 ShortcutManager sm = (ShortcutManager) context.getSystemService(Context.SHORTCUT_SERVICE);
-                if (sm != null) {
+                if (sm == null) return;
+
+                Icon customIcon = createShortcutIcon(context);
+                if (customIcon == null) {
+                    try {
+                        int iconRes = context.getApplicationInfo().icon;
+                        if (iconRes != 0) {
+                            customIcon = Icon.createWithResource(context, iconRes);
+                        }
+                    } catch (Throwable ignored) {}
+                }
+
+                List<ShortcutInfo> shortcuts = new ArrayList<>();
+                PackageManager pm = context.getPackageManager();
+                String packageName = context.getPackageName();
+
+                Intent queryIntent = new Intent(Intent.ACTION_MAIN);
+                queryIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                queryIntent.setPackage(packageName);
+                List<ResolveInfo> resolveInfos = null;
+                try {
+                    resolveInfos = pm.queryIntentActivities(queryIntent, 0);
+                } catch (Throwable ignored) {}
+
+                if (resolveInfos != null && !resolveInfos.isEmpty()) {
+                    int idx = 0;
+                    for (ResolveInfo ri : resolveInfos) {
+                        if (ri.activityInfo == null) continue;
+                        ComponentName cn = new ComponentName(packageName, ri.activityInfo.name);
+
+                        Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
+                        shortcutIntent.setComponent(cn);
+                        shortcutIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        shortcutIntent.setAction(ACTION_MANUAL_CHECK);
+                        shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                        String shortcutId = (idx == 0) ? "morphe_check_updates" : ("morphe_check_updates_" + idx);
+                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, shortcutId)
+                            .setActivity(cn)
+                            .setShortLabel(getString("shortcut_label"))
+                            .setLongLabel(getString("shortcut_long_label"))
+                            .setIntent(shortcutIntent);
+
+                        if (customIcon != null) {
+                            builder.setIcon(customIcon);
+                        }
+                        shortcuts.add(builder.build());
+                        idx++;
+                    }
+                }
+
+                if (shortcuts.isEmpty()) {
                     Intent shortcutIntent = new Intent(context, context.getClass());
                     shortcutIntent.setAction(ACTION_MANUAL_CHECK);
                     shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -267,20 +321,13 @@ public class JhcUpdateCheckPatch {
                         .setLongLabel(getString("shortcut_long_label"))
                         .setIntent(shortcutIntent);
 
-                    Icon customIcon = createShortcutIcon(context);
                     if (customIcon != null) {
                         builder.setIcon(customIcon);
-                    } else {
-                        try {
-                            int iconRes = context.getApplicationInfo().icon;
-                            if (iconRes != 0) {
-                                builder.setIcon(Icon.createWithResource(context, iconRes));
-                            }
-                        } catch (Throwable ignored) {}
                     }
-
-                    sm.setDynamicShortcuts(Collections.singletonList(builder.build()));
+                    shortcuts.add(builder.build());
                 }
+
+                sm.setDynamicShortcuts(shortcuts);
             } catch (Throwable t) {
                 Log.e(TAG, "Failed to register shortcut", t);
             }
