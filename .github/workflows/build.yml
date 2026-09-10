@@ -89,6 +89,13 @@ jobs:
           key: stock-apks-${{ github.run_id }}
           restore-keys: stock-apks-
 
+      - name: Build update-check patch
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        env:
+          NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
+        run: |
+          python3 build_patch.py
+
       - name: Build modules/APKs
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: nick-fields/retry@v3
