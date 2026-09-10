@@ -32,17 +32,24 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
-import android.graphics.drawable.Icon;
 import android.app.Application;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Icon;
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -126,7 +133,6 @@ public class JhcUpdateCheckPatch {
         } catch (Throwable ignored) {}
 
         registerLifecycleIfNeeded(context);
-        registerShortcut(context);
 
         boolean isManual = false;
         if (context instanceof Activity) {
@@ -169,6 +175,8 @@ public class JhcUpdateCheckPatch {
     }
 
     private static boolean lifecycleRegistered = false;
+    private static final String PREF_KEY_UPDATE = "jhc_morphe_update_check_action_sort_by_unsorted";
+    private static WeakReference<Activity> currentActivityRef = new WeakReference<>(null);
 
     private static void registerLifecycleIfNeeded(Context context) {
         if (lifecycleRegistered || context == null) return;
@@ -186,16 +194,40 @@ public class JhcUpdateCheckPatch {
                 app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                     @Override
                     public void onActivityResumed(Activity activity) {
+                        currentActivityRef = new WeakReference<>(activity);
                         Intent intent = activity.getIntent();
                         if (intent != null && ACTION_MANUAL_CHECK.equals(intent.getAction())) {
                             intent.setAction(Intent.ACTION_MAIN);
                             showToast(activity, getString("toast_checking_updates"));
                             new Thread(() -> performCheck(activity, true)).start();
                         }
+                        scheduleInjection(activity);
                     }
 
-                    @Override public void onActivityCreated(Activity a, Bundle b) {}
-                    @Override public void onActivityStarted(Activity a) {}
+                    @Override
+                    public void onActivityStarted(Activity activity) {
+                        scheduleInjection(activity);
+                    }
+
+                    @Override
+                    public void onActivityCreated(Activity a, Bundle b) {
+                        try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                a.getFragmentManager().registerFragmentLifecycleCallbacks(
+                                    new FragmentManager.FragmentLifecycleCallbacks() {
+                                        @Override
+                                        public void onFragmentResumed(FragmentManager fm, Fragment f) {
+                                            tryInjectIntoFragment(f, a);
+                                        }
+                                        @Override
+                                        public void onFragmentStarted(FragmentManager fm, Fragment f) {
+                                            tryInjectIntoFragment(f, a);
+                                        }
+                                    }, true);
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+
                     @Override public void onActivityPaused(Activity a) {}
                     @Override public void onActivityStopped(Activity a) {}
                     @Override public void onActivitySaveInstanceState(Activity a, Bundle b) {}
@@ -207,178 +239,218 @@ public class JhcUpdateCheckPatch {
         }
     }
 
-    private static Icon createShortcutIcon(Context context) {
+    private static void scheduleInjection(Activity activity) {
+        if (activity == null) return;
+        currentActivityRef = new WeakReference<>(activity);
+        Handler handler = new Handler(Looper.getMainLooper());
+        runInjectionPass(activity);
+        handler.postDelayed(() -> runInjectionPass(activity), 150L);
+        handler.postDelayed(() -> runInjectionPass(activity), 450L);
+        handler.postDelayed(() -> runInjectionPass(activity), 1000L);
+    }
+
+    private static void runInjectionPass(Activity activity) {
+        if (activity == null || activity.isFinishing()) return;
+        if (Build.VERSION.SDK_INT >= 17 && activity.isDestroyed()) return;
+
         try {
-            float density = context.getResources().getDisplayMetrics().density;
-            int size = (int) (96 * density);
-            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
+            // 1. Попытка через статические инстансы Morphe / RVX
+            tryInjectFromStaticInstances(activity);
 
-            // White circular badge
-            Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            bgPaint.setColor(Color.WHITE);
-            canvas.drawCircle(size / 2f, size / 2f, size / 2f - (2 * density), bgPaint);
-
-            // Red circular update arrow (YouTube Brand Red)
-            Paint arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            arrowPaint.setColor(Color.parseColor("#FF0000"));
-            arrowPaint.setStyle(Paint.Style.STROKE);
-            arrowPaint.setStrokeWidth(5.5f * density);
-            arrowPaint.setStrokeCap(Paint.Cap.ROUND);
-
-            float pad = size * 0.28f;
-            RectF arcBounds = new RectF(pad, pad, size - pad, size - pad);
-            canvas.drawArc(arcBounds, 40, 275, false, arrowPaint);
-
-            // Arrow head in YouTube Red
-            Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            fillPaint.setColor(Color.parseColor("#FF0000"));
-            fillPaint.setStyle(Paint.Style.FILL);
-
-            float arrowSize = 6.5f * density;
-            Path head = new Path();
-            float tipX = size - pad;
-            float tipY = size / 2f;
-            head.moveTo(tipX, tipY - arrowSize * 1.5f);
-            head.lineTo(tipX + arrowSize * 1.6f, tipY + arrowSize * 0.4f);
-            head.lineTo(tipX - arrowSize * 1.3f, tipY + arrowSize * 0.4f);
-            head.close();
-            canvas.drawPath(head, fillPaint);
-
+            // 2. Попытка через FragmentManager Activity
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                return Icon.createWithAdaptiveBitmap(bitmap);
-            } else {
-                return Icon.createWithBitmap(bitmap);
+                FragmentManager fm = activity.getFragmentManager();
+                if (fm != null) {
+                    List<Fragment> fragments = fm.getFragments();
+                    if (fragments != null) {
+                        for (Fragment f : fragments) {
+                            if (f != null && tryInjectIntoFragment(f, activity)) {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. Попытка если сама Activity является PreferenceActivity
+            if (activity instanceof PreferenceActivity) {
+                PreferenceScreen screen = ((PreferenceActivity) activity).getPreferenceScreen();
+                if (screen != null && isRootMorpheOrRvxScreen(screen, null)) {
+                    tryInjectIntoScreen(screen, activity);
+                }
             }
         } catch (Throwable t) {
-            Log.e(TAG, "Failed to create custom shortcut icon", t);
-            return null;
+            Log.d(TAG, "runInjectionPass error: " + t.getMessage());
         }
     }
 
-    private static void registerShortcut(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+    private static void tryInjectFromStaticInstances(Activity activity) {
+        if (activity == null) return;
+        String[] knownFragmentClasses = new String[] {
+            "app.morphe.extension.shared.settings.preference.AbstractPreferenceFragment",
+            "app.revanced.extension.shared.settings.preference.AbstractPreferenceFragment",
+            "anddea.extension.shared.settings.preference.AbstractPreferenceFragment"
+        };
+
+        for (String clsName : knownFragmentClasses) {
             try {
-                Context appContext = (context != null && context.getApplicationContext() != null) 
-                    ? context.getApplicationContext() 
-                    : context;
-                if (appContext == null) return;
-
-                ShortcutManager sm = (ShortcutManager) appContext.getSystemService(Context.SHORTCUT_SERVICE);
-                if (sm == null) return;
-
-                Icon customIcon = createShortcutIcon(appContext);
-                if (customIcon == null) {
-                    try {
-                        int iconRes = appContext.getApplicationInfo().icon;
-                        if (iconRes != 0) {
-                            customIcon = Icon.createWithResource(appContext, iconRes);
+                Class<?> clazz = Class.forName(clsName);
+                Field instanceField = clazz.getField("instance");
+                Object weakRefObj = instanceField.get(null);
+                if (weakRefObj instanceof WeakReference) {
+                    Object fragment = ((WeakReference<?>) weakRefObj).get();
+                    if (fragment != null) {
+                        if (tryInjectIntoFragment(fragment, activity)) {
+                            return;
                         }
-                    } catch (Throwable ignored) {}
+                    }
                 }
+            } catch (Throwable ignored) {}
+        }
+    }
 
-                PackageManager pm = appContext.getPackageManager();
-                String packageName = appContext.getPackageName();
+    private static boolean tryInjectIntoFragment(Object fragment, Activity activity) {
+        if (fragment == null || activity == null) return false;
+        try {
+            Class<?> cls = fragment.getClass();
+            Method getScreenMethod = null;
+            try {
+                getScreenMethod = cls.getMethod("getPreferenceScreen");
+            } catch (NoSuchMethodException ignored) {}
 
-                // 1. Находим текущий активный launcher-компонент
-                ComponentName targetActivity = null;
+            if (getScreenMethod == null) return false;
+
+            Object screenObj = getScreenMethod.invoke(fragment);
+            if (screenObj instanceof PreferenceScreen) {
+                PreferenceScreen screen = (PreferenceScreen) screenObj;
+                if (isRootMorpheOrRvxScreen(screen, fragment)) {
+                    return tryInjectIntoScreen(screen, activity);
+                }
+            }
+        } catch (Throwable t) {
+            Log.d(TAG, "tryInjectIntoFragment: " + t.getMessage());
+        }
+        return false;
+    }
+
+    private static boolean isRootMorpheOrRvxScreen(PreferenceScreen screen, Object fragment) {
+        if (screen == null) return false;
+
+        // 1. Проверяем класс фрагмента, если передан
+        if (fragment != null) {
+            String clsName = fragment.getClass().getName().toLowerCase(Locale.ROOT);
+            boolean isMorpheOrRvx = clsName.contains("morphe") 
+                                 || clsName.contains("revanced") 
+                                 || clsName.contains("anddea") 
+                                 || clsName.contains("preference");
+            if (!isMorpheOrRvx) {
+                return false;
+            }
+        }
+
+        // 2. Проверяем ключ экрана на предмет вложенных подэкранов
+        String key = screen.getKey();
+        if (key != null) {
+            String keyLower = key.toLowerCase(Locale.ROOT);
+            if (keyLower.contains("player") || keyLower.contains("sponsorblock")
+                    || keyLower.contains("video") || keyLower.contains("audio")
+                    || keyLower.contains("overlay") || keyLower.contains("layout")
+                    || keyLower.contains("ads") || keyLower.contains("sub_")
+                    || keyLower.contains("flyout") || keyLower.contains("general")) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean tryInjectIntoScreen(PreferenceScreen screen, Activity activity) {
+        if (screen == null || activity == null) return false;
+        try {
+            if (screen.findPreference(PREF_KEY_UPDATE) != null) {
+                return true;
+            }
+
+            Preference pref = new Preference(activity);
+            pref.setKey(PREF_KEY_UPDATE);
+            pref.setTitle(getString("update_settings_title"));
+            pref.setSummary(getString("update_settings_summary"));
+            pref.setPersistent(false);
+            pref.setOrder(99999);
+
+            Drawable icon = createSettingsIcon(activity);
+            if (icon != null) {
+                pref.setIcon(icon);
+            }
+
+            final Activity actRef = activity;
+            pref.setOnPreferenceClickListener(p -> {
                 try {
-                    Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
-                    if (launchIntent != null && launchIntent.getComponent() != null) {
-                        ComponentName comp = launchIntent.getComponent();
-                        String cls = comp.getClassName();
-                        if (cls != null) {
-                            if (cls.startsWith(".")) {
-                                cls = packageName + cls;
-                            }
-                            targetActivity = new ComponentName(packageName, cls);
-                        }
+                    Activity act = (!actRef.isFinishing()) ? actRef : currentActivityRef.get();
+                    if (act != null) {
+                        showToast(act, getString("toast_checking_updates"));
+                        new Thread(() -> performCheck(act, true)).start();
                     }
                 } catch (Throwable t) {
-                    Log.w(TAG, "Failed to get launch intent component", t);
+                    Log.e(TAG, "Failed to perform manual update check from settings", t);
                 }
+                return true;
+            });
 
-                if (targetActivity == null) {
-                    try {
-                        Intent queryIntent = new Intent(Intent.ACTION_MAIN);
-                        queryIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                        queryIntent.setPackage(packageName);
-                        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(queryIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                        if (resolveInfos != null) {
-                            for (ResolveInfo ri : resolveInfos) {
-                                if (ri.activityInfo != null && ri.activityInfo.name != null && ri.activityInfo.exported) {
-                                    String cls = ri.activityInfo.name;
-                                    if (cls.startsWith(".")) {
-                                        cls = packageName + cls;
-                                    }
-                                    targetActivity = new ComponentName(packageName, cls);
-                                    break;
-                                }
-                            }
-                        }
-                    } catch (Throwable t) {
-                        Log.w(TAG, "Failed to query launcher activities", t);
-                    }
-                }
+            screen.addPreference(pref);
+            Log.i(TAG, "Successfully injected update preference into root settings screen!");
+            return true;
+        } catch (Throwable t) {
+            Log.e(TAG, "Error injecting preference into screen", t);
+            return false;
+        }
+    }
 
-                Intent shortcutIntent = null;
-                if (targetActivity != null) {
-                    shortcutIntent = new Intent(Intent.ACTION_MAIN);
-                    shortcutIntent.setComponent(targetActivity);
-                    shortcutIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                } else {
-                    try {
-                        shortcutIntent = pm.getLaunchIntentForPackage(packageName);
-                    } catch (Throwable ignored) {}
-                }
-                if (shortcutIntent == null) {
-                    shortcutIntent = new Intent(appContext, appContext.getClass());
-                }
-                shortcutIntent.setAction(ACTION_MANUAL_CHECK);
-                shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    private static Drawable createSettingsIcon(Context context) {
+        try {
+            float density = context.getResources().getDisplayMetrics().density;
+            int size = (int) (24 * density);
+            if (size <= 0) size = 48;
 
-                final String shortcutId = "morphe_check_updates";
-                boolean published = false;
+            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
 
-                // Попытка 1: С явным targetActivity
-                if (targetActivity != null) {
-                    try {
-                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(appContext, shortcutId)
-                            .setActivity(targetActivity)
-                            .setShortLabel(getString("shortcut_label"))
-                            .setLongLabel(getString("shortcut_long_label"))
-                            .setIntent(shortcutIntent);
-                        if (customIcon != null) {
-                            builder.setIcon(customIcon);
-                        }
-                        sm.setDynamicShortcuts(Collections.singletonList(builder.build()));
-                        published = true;
-                        Log.d(TAG, "Dynamic shortcut registered with activity: " + targetActivity.flattenToString());
-                    } catch (Throwable t) {
-                        Log.w(TAG, "Registration with explicit activity failed (" + targetActivity + "), trying fallback", t);
-                    }
+            int color = Color.parseColor("#8E8E93");
+            try {
+                TypedValue tv = new TypedValue();
+                if (context.getTheme().resolveAttribute(android.R.attr.textColorSecondary, tv, true)) {
+                    if (tv.data != 0) color = tv.data;
                 }
+            } catch (Throwable ignored) {}
 
-                // Попытка 2: Без явного setActivity (Android сама подставляет дефолтный лаунчер)
-                if (!published) {
-                    try {
-                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(appContext, shortcutId)
-                            .setShortLabel(getString("shortcut_label"))
-                            .setLongLabel(getString("shortcut_long_label"))
-                            .setIntent(shortcutIntent);
-                        if (customIcon != null) {
-                            builder.setIcon(customIcon);
-                        }
-                        sm.setDynamicShortcuts(Collections.singletonList(builder.build()));
-                        published = true;
-                        Log.d(TAG, "Dynamic shortcut registered with default system activity");
-                    } catch (Throwable t) {
-                        Log.e(TAG, "Fallback registration without activity also failed", t);
-                    }
-                }
-            } catch (Throwable t) {
-                Log.e(TAG, "Failed to register shortcut", t);
-            }
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(color);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(2.2f * density);
+            paint.setStrokeCap(Paint.Cap.ROUND);
+
+            float pad = 3.5f * density;
+            RectF arcBounds = new RectF(pad, pad, size - pad, size - pad);
+            canvas.drawArc(arcBounds, 35, 275, false, paint);
+
+            Paint arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            arrowPaint.setColor(color);
+            arrowPaint.setStyle(Paint.Style.FILL);
+
+            float arrowSize = 3.2f * density;
+            Path arrow = new Path();
+            float tipX = size - pad;
+            float tipY = size / 2f;
+            arrow.moveTo(tipX, tipY - arrowSize * 1.4f);
+            arrow.lineTo(tipX + arrowSize * 1.5f, tipY + arrowSize * 0.4f);
+            arrow.lineTo(tipX - arrowSize * 1.2f, tipY + arrowSize * 0.4f);
+            arrow.close();
+            canvas.drawPath(arrow, arrowPaint);
+
+            return new BitmapDrawable(context.getResources(), bitmap);
+        } catch (Throwable t) {
+            Log.w(TAG, "Failed to create settings icon", t);
+            return null;
         }
     }
 
@@ -1577,14 +1649,16 @@ public class JhcUpdateCheckPatch {
                 case "toast_snoozed": return "Сповіщення вимкнено на %s";
                 case "toast_snoozed_forever": return "Сповіщення вимкнено назавжди";
                 case "toast_snooze_reset": return "Паузу скинуто. Сповіщення увімкнено";
-                case "hint_shortcut": return "💡 Затисніть іконку на робочому столі для ручної перевірки";
                 case "toast_skipped": return "Збірку %s пропущено";
                 case "toast_install_obtainium": return "Встановіть Obtainium для автооновлень";
+                case "update_settings_title": return "Оновлення патчів";
+                case "update_settings_summary": return "Перевірити наявність нових збірок";
                 case "shortcut_label": return "Оновити патчі";
                 case "shortcut_long_label": return "🔄  Оновити патчі";
                 case "toast_checking_updates": return "Перевірка оновлень патчів...";
                 case "toast_already_latest": return "У вас встановлені найновіші патчі";
                 case "toast_check_failed": return "Не вдалося перевірити оновлення. Перевірте мережу";
+                case "hint_shortcut": return "💡 Перевірити оновлення також можна в Налаштування -> Morphe / RVX";
             }
         }
         // Russian, Belarusian, Kazakh
@@ -1615,14 +1689,16 @@ public class JhcUpdateCheckPatch {
                 case "toast_snoozed": return "Уведомления отключены на %s";
                 case "toast_snoozed_forever": return "Уведомления отключены навсегда";
                 case "toast_snooze_reset": return "Пауза сброшена. Уведомления включены";
-                case "hint_shortcut": return "💡 Зажмите иконку на рабочем столе для ручной проверки";
                 case "toast_skipped": return "Билд %s пропущен";
                 case "toast_install_obtainium": return "Установите Obtainium для автообновлений";
+                case "update_settings_title": return "Обновление патчей";
+                case "update_settings_summary": return "Проверить наличие новой версии сборок";
                 case "shortcut_label": return "Обновить патчи";
                 case "shortcut_long_label": return "🔄  Обновить патчи";
                 case "toast_checking_updates": return "Проверка обновлений патчей...";
                 case "toast_already_latest": return "У вас установлены актуальные патчи";
                 case "toast_check_failed": return "Не удалось проверить обновления. Проверьте сеть";
+                case "hint_shortcut": return "💡 Проверить обновления также можно в Настройки -> Morphe / RVX";
             }
         } 
         // Spanish
@@ -1653,14 +1729,16 @@ public class JhcUpdateCheckPatch {
                 case "toast_snoozed": return "Notificaciones pausadas por %s";
                 case "toast_snoozed_forever": return "Notificaciones desactivadas permanentemente";
                 case "toast_snooze_reset": return "Pausa restablecida. Notificaciones activadas";
-                case "hint_shortcut": return "💡 Mantén pulsado el icono para buscar actualizaciones";
                 case "toast_skipped": return "Versión %s omitida";
                 case "toast_install_obtainium": return "Instala Obtainium para actualizaciones";
+                case "update_settings_title": return "Actualización de parches";
+                case "update_settings_summary": return "Buscar nuevas compilaciones";
                 case "shortcut_label": return "Actualizar parches";
                 case "shortcut_long_label": return "🔄  Actualizar parches";
                 case "toast_checking_updates": return "Buscando actualizaciones de parches...";
                 case "toast_already_latest": return "Tienes instalados los parches más recientes";
                 case "toast_check_failed": return "Error al buscar actualizaciones. Comprueba la red";
+                case "hint_shortcut": return "💡 También puedes buscar actualizaciones en Ajustes -> Morphe / RVX";
             }
         } 
         // German
@@ -1691,14 +1769,16 @@ public class JhcUpdateCheckPatch {
                 case "toast_snoozed": return "Benachrichtigungen pausiert für %s";
                 case "toast_snoozed_forever": return "Benachrichtigungen dauerhaft deaktiviert";
                 case "toast_snooze_reset": return "Pause zurückgesetzt. Benachrichtigungen aktiviert";
-                case "hint_shortcut": return "💡 Halte das App-Symbol gedrückt für manuelle Suche";
                 case "toast_skipped": return "Build %s übersprungen";
                 case "toast_install_obtainium": return "Installiere Obtainium für Updates";
+                case "update_settings_title": return "Patch-Updates";
+                case "update_settings_summary": return "Nach neuen Builds suchen";
                 case "shortcut_label": return "Patches aktualisieren";
                 case "shortcut_long_label": return "🔄  Patches aktualisieren";
                 case "toast_checking_updates": return "Suche nach Patch-Updates...";
                 case "toast_already_latest": return "Sie haben die neuesten Patches installiert";
                 case "toast_check_failed": return "Fehler bei der Update-Suche. Netzwerk prüfen";
+                case "hint_shortcut": return "💡 Sie können auch unter Einstellungen -> Morphe / RVX nach Updates suchen";
             }
         }
 
@@ -1731,12 +1811,14 @@ public class JhcUpdateCheckPatch {
             case "toast_snooze_reset": return "Pause reset. Notifications enabled";
             case "toast_skipped": return "Build %s skipped";
             case "toast_install_obtainium": return "Install Obtainium for auto-updates";
+            case "update_settings_title": return "Patch updates";
+            case "update_settings_summary": return "Check for new builds";
             case "shortcut_label": return "Update Patches";
             case "shortcut_long_label": return "🔄  Update Patches";
             case "toast_checking_updates": return "Checking for patch updates...";
             case "toast_already_latest": return "You have the latest patches installed";
             case "toast_check_failed": return "Failed to check for updates. Check your network";
-            case "hint_shortcut": return "💡 Long press the home screen icon to check manually";
+            case "hint_shortcut": return "💡 You can also check for updates in Settings -> Morphe / RVX";
             default: return key;
         }
      }
