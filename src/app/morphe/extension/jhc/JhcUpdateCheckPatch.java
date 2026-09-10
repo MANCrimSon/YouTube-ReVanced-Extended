@@ -88,6 +88,16 @@ public class JhcUpdateCheckPatch {
             }
         }
     }
+    private static String getAppDisplayName(Context context) {
+        String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
+        boolean isMusic = pkg.contains("music");
+        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
+        if (isMusic) {
+            return isAnddea ? "YT Music RVX" : "YT Music Morphe";
+        } else {
+            return isAnddea ? "YouTube RVX" : "YouTube Morphe";
+        }
+    }
     private static final String OBTAINIUM_DOWNLOAD_URL = "https://github.com/ImranR98/Obtainium/releases/latest";
 
     private static final String ACTION_MANUAL_CHECK = "app.morphe.action.CHECK_UPDATES";
@@ -96,9 +106,9 @@ public class JhcUpdateCheckPatch {
     private static final long STARTUP_DELAY_MS = 10000L;
     // 24 hours cooldown between automatic background checks
     private static final long API_COOLDOWN_MS = 86_400_000L;
-    // Current latest release in MANCrimSon/YouTube-ReVanced-Extended is 410.
-    // In CI build, NEXT_VER_CODE will dynamically overwrite this with the next tag (e.g. 411).
-    private static final int EMBEDDED_BUILD_CODE = 410;
+    // Current latest release in MANCrimSon/YouTube-ReVanced-Extended is 411.
+    // In CI build, NEXT_VER_CODE will dynamically overwrite this with the next tag (e.g. 412).
+    private static final int EMBEDDED_BUILD_CODE = 411;
     // FALSE: dialog only appears if new update is available (and cooldown/snooze respected)
     private static final boolean FORCE_TEST_ALWAYS_SHOW = false;
 
@@ -443,7 +453,7 @@ public class JhcUpdateCheckPatch {
                 return;
             }
 
-            // If not in forced test mode and not a manual check, check snooze and skip
+            boolean isLatest = false;
             if (!FORCE_TEST_ALWAYS_SHOW && !manualCheck) {
                 long snoozeUntil = prefs.getLong(KEY_SNOOZE_UNTIL, 0L);
                 long now = System.currentTimeMillis();
@@ -468,11 +478,7 @@ public class JhcUpdateCheckPatch {
             } else if (manualCheck && EMBEDDED_BUILD_CODE > 0 && !FORCE_TEST_ALWAYS_SHOW) {
                 int remoteBuildCode = parseNumericTag(targetTag);
                 if (remoteBuildCode > 0 && remoteBuildCode <= EMBEDDED_BUILD_CODE) {
-                    if (context instanceof Activity) {
-                        ((Activity) context).runOnUiThread(() -> 
-                            showToast(context, getString("toast_already_latest")));
-                    }
-                    return;
+                    isLatest = true;
                 }
             }
 
@@ -481,10 +487,11 @@ public class JhcUpdateCheckPatch {
             final String finalVer = appVersion;
             final String finalPatchVer = patchVersion;
             final String finalChangelog = changelogUrl;
+            final boolean finalIsLatest = isLatest;
 
             if (context instanceof Activity) {
                 ((Activity) context).runOnUiThread(() -> 
-                    showDialog((Activity) context, finalTag, finalVer, finalPatchVer, finalUrl, finalChangelog));
+                    showDialog((Activity) context, finalTag, finalVer, finalPatchVer, finalUrl, finalChangelog, finalIsLatest));
             }
         } catch (Throwable t) {
             Log.e(TAG, "Error checking updates", t);
@@ -710,7 +717,7 @@ public class JhcUpdateCheckPatch {
     }
 
     // --- UI DIALOG (Style 1: Material 3 / Telegram Layout with Changelog & Return Labels) ---
-    private static void showDialog(Activity activity, String tag, String version, String patchVersion, String downloadUrl, String changelogUrl) {
+    private static void showDialog(Activity activity, String tag, String version, String patchVersion, String downloadUrl, String changelogUrl, boolean isLatest) {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
@@ -872,15 +879,20 @@ public class JhcUpdateCheckPatch {
             identityRow.setLayoutParams(idRowLp);
 
             TextView iconBox = new TextView(activity);
-            iconBox.setText(emoji(0x1F680));
+            if (isLatest) {
+                iconBox.setText("✅");
+            } else {
+                iconBox.setText(emoji(0x1F680));
+            }
             iconBox.setTextSize(22);
             iconBox.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(44, density), dp(44, density));
             iconLp.rightMargin = dp(12, density);
             iconBox.setLayoutParams(iconLp);
 
+            final int colGreenIconBg = dark ? Color.parseColor("#152B1E") : Color.parseColor("#E6F4EA");
             GradientDrawable iconBg = new GradientDrawable();
-            iconBg.setColor(colIconBg);
+            iconBg.setColor(isLatest ? colGreenIconBg : colIconBg);
             iconBg.setCornerRadius(dp(14, density));
             iconBox.setBackground(iconBg);
             identityRow.addView(iconBox);
@@ -889,7 +901,7 @@ public class JhcUpdateCheckPatch {
             textBlock.setOrientation(LinearLayout.VERTICAL);
 
             TextView titleView = new TextView(activity);
-            titleView.setText(getString("title"));
+            titleView.setText(isLatest ? getString("title_latest") : getString("title"));
             titleView.setTextColor(colTitle);
             titleView.setTypeface(Typeface.DEFAULT_BOLD);
             titleView.setTextSize(18);
@@ -897,7 +909,7 @@ public class JhcUpdateCheckPatch {
 
             TextView subView = new TextView(activity);
             String verText = version.isEmpty() ? "v" + tag : "v" + version;
-            subView.setText("YouTube Morphe • " + verText);
+            subView.setText(getAppDisplayName(activity) + " • " + verText);
             subView.setTextColor(colSubtitle);
             subView.setTextSize(12);
             textBlock.addView(subView);
@@ -1149,7 +1161,7 @@ public class JhcUpdateCheckPatch {
 
             // 6. Dismiss / Skip Button
             TextView skipBtn = new TextView(activity);
-            skipBtn.setText(getString("skip_btn"));
+            skipBtn.setText(isLatest ? getString("btn_close") : getString("skip_btn"));
             skipBtn.setTextColor(colSubtitle);
             skipBtn.setTextSize(12);
             skipBtn.setGravity(Gravity.CENTER);
@@ -1158,9 +1170,13 @@ public class JhcUpdateCheckPatch {
             skipBtn.setLayoutParams(skipLp);
             skipBtn.setPadding(0, dp(4, density), 0, dp(4, density));
             skipBtn.setOnClickListener(v -> {
-                prefs.edit().putString(KEY_SKIPPED_TAG, tag).apply();
-                dialog.dismiss();
-                showToast(activity, String.format(getString("toast_skipped"), tag));
+                if (isLatest) {
+                    dialog.dismiss();
+                } else {
+                    prefs.edit().putString(KEY_SKIPPED_TAG, tag).apply();
+                    dialog.dismiss();
+                    showToast(activity, String.format(getString("toast_skipped"), tag));
+                }
             });
             rightCol.addView(skipBtn);
 
@@ -1442,6 +1458,7 @@ public class JhcUpdateCheckPatch {
         if (lang.equals("uk") || lang.equals("ua")) {
             switch (key) {
                 case "title": return "Доступне оновлення";
+                case "title_latest": return "У вас остання версія";
                 case "subtitle_fmt": return "Збірка %s";
                 case "info_patch_label": return "Версія патчів:";
                 case "info_build_label": return "Номер збірки:";
@@ -1456,6 +1473,7 @@ public class JhcUpdateCheckPatch {
                 case "chip_1mo": return "1 міс";
                 case "chip_forever": return "Назавжди";
                 case "btn_reset_snooze": return "↺  Скинути";
+                case "btn_close": return "Закрити";
                 case "status_snoozed_forever": return "🔕  Вимкнено назавжди";
                 case "status_snoozed_days_fmt": return "🔕  Пауза: ще %d дн.";
                 case "status_snoozed_hours_fmt": return "🔕  Пауза: ще %d год.";
@@ -1478,6 +1496,7 @@ public class JhcUpdateCheckPatch {
         else if (lang.equals("ru") || lang.equals("be") || lang.equals("kk")) {
             switch (key) {
                 case "title": return "Доступно обновление";
+                case "title_latest": return "У вас последняя версия";
                 case "subtitle_fmt": return "Сборка %s";
                 case "info_patch_label": return "Версия патчей:";
                 case "info_build_label": return "Номер сборки:";
@@ -1492,6 +1511,7 @@ public class JhcUpdateCheckPatch {
                 case "chip_1mo": return "1 мес";
                 case "chip_forever": return "Навсегда";
                 case "btn_reset_snooze": return "↺  Сбросить";
+                case "btn_close": return "Закрыть";
                 case "status_snoozed_forever": return "🔕  Отключено навсегда";
                 case "status_snoozed_days_fmt": return "🔕  Пауза: ещё %d дн.";
                 case "status_snoozed_hours_fmt": return "🔕  Пауза: ещё %d ч.";
@@ -1514,6 +1534,7 @@ public class JhcUpdateCheckPatch {
         else if (lang.equals("es")) {
             switch (key) {
                 case "title": return "Actualización disponible";
+                case "title_latest": return "Tienes la última versión";
                 case "subtitle_fmt": return "Versión %s";
                 case "info_patch_label": return "Versión de parches:";
                 case "info_build_label": return "Número de build:";
@@ -1528,6 +1549,7 @@ public class JhcUpdateCheckPatch {
                 case "chip_1mo": return "1 mes";
                 case "chip_forever": return "Siempre";
                 case "btn_reset_snooze": return "↺  Restablecer";
+                case "btn_close": return "Cerrar";
                 case "status_snoozed_forever": return "🔕  Desactivado permanentemente";
                 case "status_snoozed_days_fmt": return "🔕  Pausa: quedan %d d";
                 case "status_snoozed_hours_fmt": return "🔕  Pausa: quedan %d h";
@@ -1550,6 +1572,7 @@ public class JhcUpdateCheckPatch {
         else if (lang.equals("de")) {
             switch (key) {
                 case "title": return "Update verfügbar";
+                case "title_latest": return "Sie haben die neueste Version";
                 case "subtitle_fmt": return "Build %s";
                 case "info_patch_label": return "Patch-Version:";
                 case "info_build_label": return "Build-Nummer:";
@@ -1564,6 +1587,7 @@ public class JhcUpdateCheckPatch {
                 case "chip_1mo": return "1 Monat";
                 case "chip_forever": return "Immer";
                 case "btn_reset_snooze": return "↺  Zurücksetzen";
+                case "btn_close": return "Schließen";
                 case "status_snoozed_forever": return "🔕  Dauerhaft deaktiviert";
                 case "status_snoozed_days_fmt": return "🔕  Pausiert: noch %d T";
                 case "status_snoozed_hours_fmt": return "🔕  Pausiert: noch %d Std";
@@ -1586,6 +1610,7 @@ public class JhcUpdateCheckPatch {
         // English default
         switch (key) {
             case "title": return "Update Available";
+            case "title_latest": return "You have the latest version";
             case "subtitle_fmt": return "Build %s";
             case "info_patch_label": return "Patches version:";
             case "info_build_label": return "Build number:";
@@ -1600,6 +1625,7 @@ public class JhcUpdateCheckPatch {
             case "chip_1mo": return "1 mo";
             case "chip_forever": return "Forever";
             case "btn_reset_snooze": return "↺  Reset";
+            case "btn_close": return "Close";
             case "status_snoozed_forever": return "🔕  Disabled permanently";
             case "status_snoozed_days_fmt": return "🔕  Paused: %d d left";
             case "status_snoozed_hours_fmt": return "🔕  Paused: %d h left";
