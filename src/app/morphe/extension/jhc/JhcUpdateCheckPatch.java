@@ -37,6 +37,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -385,31 +386,39 @@ public class JhcUpdateCheckPatch {
             pref.setPersistent(false);
             pref.setOrder(99999);
 
-            int iconRes = 0;
-            String[] candidates = new String[] {
-                "morphe_reload_video_button",
-                "morphe_reload_video_button_bold",
-                "quantum_ic_refresh_white_24",
-                "ic_offline_refresh",
-                "revanced_reload_video_button"
-            };
-            for (String name : candidates) {
-                try {
-                    int id = activity.getResources().getIdentifier(name, "drawable", activity.getPackageName());
-                    if (id != 0) {
-                        iconRes = id;
+            // 1. Копируем layoutResource из экрана, чтобы отступы и расположение иконки строго совпадали с другими пунктами меню
+            int layoutRes = 0;
+            if (screen.getPreferenceCount() > 0) {
+                for (int i = 0; i < screen.getPreferenceCount(); i++) {
+                    Preference p = screen.getPreference(i);
+                    if (p != null && p.getLayoutResource() != 0) {
+                        layoutRes = p.getLayoutResource();
                         break;
                     }
-                } catch (Throwable ignored) {}
+                }
+            }
+            if (layoutRes == 0) {
+                String[] layoutCandidates = new String[] {
+                    "morphe_preference_with_icon",
+                    "revanced_preference_with_icon"
+                };
+                for (String lName : layoutCandidates) {
+                    try {
+                        int id = activity.getResources().getIdentifier(lName, "layout", activity.getPackageName());
+                        if (id != 0) {
+                            layoutRes = id;
+                            break;
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            }
+            if (layoutRes != 0) {
+                pref.setLayoutResource(layoutRes);
             }
 
-            if (iconRes != 0) {
-                pref.setIcon(iconRes);
-            } else {
-                Drawable icon = createSettingsIcon(activity);
-                if (icon != null) {
-                    pref.setIcon(icon);
-                }
+            Drawable icon = createSettingsIcon(activity);
+            if (icon != null) {
+                pref.setIcon(icon);
             }
 
             try {
@@ -458,7 +467,7 @@ public class JhcUpdateCheckPatch {
     private static Drawable createSettingsIcon(Context context) {
         try {
             float density = context.getResources().getDisplayMetrics().density;
-            int size = (int) (24 * density);
+            int size = Math.round(24f * density);
             if (size <= 0) size = 48;
 
             Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
@@ -474,27 +483,53 @@ public class JhcUpdateCheckPatch {
 
             Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
             paint.setColor(color);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(2.2f * density);
-            paint.setStrokeCap(Paint.Cap.ROUND);
 
-            float pad = 3.5f * density;
-            RectF arcBounds = new RectF(pad, pad, size - pad, size - pad);
-            canvas.drawArc(arcBounds, 35, 275, false, paint);
+            Path path = null;
+            // 1. Попытка создать точный Material Design 'refresh' вектор через PathParser
+            try {
+                Class<?> ppClass = Class.forName("androidx.core.graphics.PathParser");
+                Method m = ppClass.getMethod("createPathFromPathData", String.class);
+                path = (Path) m.invoke(null, "M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0 -7.99,3.58 -7.99,8s3.57,8 7.99,8c3.73,0 6.84,-2.55 7.73,-6h-2.08c-.82,2.33 -3.04,4 -5.65,4-3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z");
+            } catch (Throwable t) {
+                try {
+                    Class<?> ppClass2 = Class.forName("android.util.PathParser");
+                    Method m2 = ppClass2.getMethod("createPathFromPathData", String.class);
+                    path = (Path) m2.invoke(null, "M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0 -7.99,3.58 -7.99,8s3.57,8 7.99,8c3.73,0 6.84,-2.55 7.73,-6h-2.08c-.82,2.33 -3.04,4 -5.65,4-3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z");
+                } catch (Throwable ignored) {}
+            }
 
-            Paint arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            arrowPaint.setColor(color);
-            arrowPaint.setStyle(Paint.Style.FILL);
+            if (path != null) {
+                paint.setStyle(Paint.Style.FILL);
+                Matrix matrix = new Matrix();
+                float scale = (float) size / 24f;
+                matrix.setScale(scale, scale);
+                path.transform(matrix);
+                canvas.drawPath(path, paint);
+            } else {
+                // 2. Резервная прямая отрисовка круговой стрелки обновления через Canvas
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(2.3f * density);
+                paint.setStrokeCap(Paint.Cap.ROUND);
 
-            float arrowSize = 3.2f * density;
-            Path arrow = new Path();
-            float tipX = size - pad;
-            float tipY = size / 2f;
-            arrow.moveTo(tipX, tipY - arrowSize * 1.4f);
-            arrow.lineTo(tipX + arrowSize * 1.5f, tipY + arrowSize * 0.4f);
-            arrow.lineTo(tipX - arrowSize * 1.2f, tipY + arrowSize * 0.4f);
-            arrow.close();
-            canvas.drawPath(arrow, arrowPaint);
+                float center = size / 2f;
+                float r = 7.5f * density;
+                RectF arcBounds = new RectF(center - r, center - r, center + r, center + r);
+                canvas.drawArc(arcBounds, 45, 275, false, paint);
+
+                Paint arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                arrowPaint.setColor(color);
+                arrowPaint.setStyle(Paint.Style.FILL);
+
+                float arrowSize = 3.2f * density;
+                float tipX = center + (float) (r * Math.cos(Math.toRadians(45)));
+                float tipY = center + (float) (r * Math.sin(Math.toRadians(45)));
+                Path arrow = new Path();
+                arrow.moveTo(tipX + arrowSize * 0.2f, tipY - arrowSize * 1.3f);
+                arrow.lineTo(tipX + arrowSize * 1.5f, tipY + arrowSize * 0.5f);
+                arrow.lineTo(tipX - arrowSize * 1.1f, tipY + arrowSize * 0.5f);
+                arrow.close();
+                canvas.drawPath(arrow, arrowPaint);
+            }
 
             return new BitmapDrawable(context.getResources(), bitmap);
         } catch (Throwable t) {
