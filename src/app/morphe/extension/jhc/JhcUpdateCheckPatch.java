@@ -259,75 +259,123 @@ public class JhcUpdateCheckPatch {
     private static void registerShortcut(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             try {
-                ShortcutManager sm = (ShortcutManager) context.getSystemService(Context.SHORTCUT_SERVICE);
+                Context appContext = (context != null && context.getApplicationContext() != null) 
+                    ? context.getApplicationContext() 
+                    : context;
+                if (appContext == null) return;
+
+                ShortcutManager sm = (ShortcutManager) appContext.getSystemService(Context.SHORTCUT_SERVICE);
                 if (sm == null) return;
 
-                Icon customIcon = createShortcutIcon(context);
+                Icon customIcon = createShortcutIcon(appContext);
                 if (customIcon == null) {
                     try {
-                        int iconRes = context.getApplicationInfo().icon;
+                        int iconRes = appContext.getApplicationInfo().icon;
                         if (iconRes != 0) {
-                            customIcon = Icon.createWithResource(context, iconRes);
+                            customIcon = Icon.createWithResource(appContext, iconRes);
                         }
                     } catch (Throwable ignored) {}
                 }
 
-                List<ShortcutInfo> shortcuts = new ArrayList<>();
-                PackageManager pm = context.getPackageManager();
-                String packageName = context.getPackageName();
+                PackageManager pm = appContext.getPackageManager();
+                String packageName = appContext.getPackageName();
 
-                Intent queryIntent = new Intent(Intent.ACTION_MAIN);
-                queryIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                queryIntent.setPackage(packageName);
-                List<ResolveInfo> resolveInfos = null;
+                // 1. Находим текущий активный launcher-компонент
+                ComponentName targetActivity = null;
                 try {
-                    resolveInfos = pm.queryIntentActivities(queryIntent, 0);
-                } catch (Throwable ignored) {}
+                    Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
+                    if (launchIntent != null && launchIntent.getComponent() != null) {
+                        ComponentName comp = launchIntent.getComponent();
+                        String cls = comp.getClassName();
+                        if (cls != null) {
+                            if (cls.startsWith(".")) {
+                                cls = packageName + cls;
+                            }
+                            targetActivity = new ComponentName(packageName, cls);
+                        }
+                    }
+                } catch (Throwable t) {
+                    Log.w(TAG, "Failed to get launch intent component", t);
+                }
 
-                if (resolveInfos != null && !resolveInfos.isEmpty()) {
-                    int idx = 0;
-                    for (ResolveInfo ri : resolveInfos) {
-                        if (ri.activityInfo == null) continue;
-                        ComponentName cn = new ComponentName(packageName, ri.activityInfo.name);
+                if (targetActivity == null) {
+                    try {
+                        Intent queryIntent = new Intent(Intent.ACTION_MAIN);
+                        queryIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        queryIntent.setPackage(packageName);
+                        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(queryIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                        if (resolveInfos != null) {
+                            for (ResolveInfo ri : resolveInfos) {
+                                if (ri.activityInfo != null && ri.activityInfo.name != null && ri.activityInfo.exported) {
+                                    String cls = ri.activityInfo.name;
+                                    if (cls.startsWith(".")) {
+                                        cls = packageName + cls;
+                                    }
+                                    targetActivity = new ComponentName(packageName, cls);
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (Throwable t) {
+                        Log.w(TAG, "Failed to query launcher activities", t);
+                    }
+                }
 
-                        Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
-                        shortcutIntent.setComponent(cn);
-                        shortcutIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                        shortcutIntent.setAction(ACTION_MANUAL_CHECK);
-                        shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Intent shortcutIntent = null;
+                if (targetActivity != null) {
+                    shortcutIntent = new Intent(Intent.ACTION_MAIN);
+                    shortcutIntent.setComponent(targetActivity);
+                    shortcutIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                } else {
+                    try {
+                        shortcutIntent = pm.getLaunchIntentForPackage(packageName);
+                    } catch (Throwable ignored) {}
+                }
+                if (shortcutIntent == null) {
+                    shortcutIntent = new Intent(appContext, appContext.getClass());
+                }
+                shortcutIntent.setAction(ACTION_MANUAL_CHECK);
+                shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                        String shortcutId = (idx == 0) ? "morphe_check_updates" : ("morphe_check_updates_" + idx);
-                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, shortcutId)
-                            .setActivity(cn)
+                final String shortcutId = "morphe_check_updates";
+                boolean published = false;
+
+                // Попытка 1: С явным targetActivity
+                if (targetActivity != null) {
+                    try {
+                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(appContext, shortcutId)
+                            .setActivity(targetActivity)
                             .setShortLabel(getString("shortcut_label"))
                             .setLongLabel(getString("shortcut_long_label"))
                             .setIntent(shortcutIntent);
-
                         if (customIcon != null) {
                             builder.setIcon(customIcon);
                         }
-                        shortcuts.add(builder.build());
-                        idx++;
+                        sm.setDynamicShortcuts(Collections.singletonList(builder.build()));
+                        published = true;
+                        Log.d(TAG, "Dynamic shortcut registered with activity: " + targetActivity.flattenToString());
+                    } catch (Throwable t) {
+                        Log.w(TAG, "Registration with explicit activity failed (" + targetActivity + "), trying fallback", t);
                     }
                 }
 
-                if (shortcuts.isEmpty()) {
-                    Intent shortcutIntent = new Intent(context, context.getClass());
-                    shortcutIntent.setAction(ACTION_MANUAL_CHECK);
-                    shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                    ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, "morphe_check_updates")
-                        .setShortLabel(getString("shortcut_label"))
-                        .setLongLabel(getString("shortcut_long_label"))
-                        .setIntent(shortcutIntent);
-
-                    if (customIcon != null) {
-                        builder.setIcon(customIcon);
+                // Попытка 2: Без явного setActivity (Android сама подставляет дефолтный лаунчер)
+                if (!published) {
+                    try {
+                        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(appContext, shortcutId)
+                            .setShortLabel(getString("shortcut_label"))
+                            .setLongLabel(getString("shortcut_long_label"))
+                            .setIntent(shortcutIntent);
+                        if (customIcon != null) {
+                            builder.setIcon(customIcon);
+                        }
+                        sm.setDynamicShortcuts(Collections.singletonList(builder.build()));
+                        published = true;
+                        Log.d(TAG, "Dynamic shortcut registered with default system activity");
+                    } catch (Throwable t) {
+                        Log.e(TAG, "Fallback registration without activity also failed", t);
                     }
-                    shortcuts.add(builder.build());
                 }
-
-                sm.setDynamicShortcuts(shortcuts);
             } catch (Throwable t) {
                 Log.e(TAG, "Failed to register shortcut", t);
             }
