@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -280,7 +281,24 @@ public class JhcUpdateCheckPatch {
                 }
             }
 
-            // 3. Попытка если сама Activity является PreferenceActivity
+            // 3. Попытка через SupportFragmentManager (AndroidX FragmentActivity)
+            try {
+                Method getSupportFm = activity.getClass().getMethod("getSupportFragmentManager");
+                Object sfm = getSupportFm.invoke(activity);
+                if (sfm != null) {
+                    Method getFragments = sfm.getClass().getMethod("getFragments");
+                    Object listObj = getFragments.invoke(sfm);
+                    if (listObj instanceof List) {
+                        for (Object f : (List<?>) listObj) {
+                            if (f != null && tryInjectIntoFragment(f, activity)) {
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {}
+
+            // 4. Попытка если сама Activity является PreferenceActivity
             if (activity instanceof PreferenceActivity) {
                 PreferenceScreen screen = ((PreferenceActivity) activity).getPreferenceScreen();
                 if (screen != null && isRootMorpheOrRvxScreen(screen, null)) {
@@ -296,6 +314,8 @@ public class JhcUpdateCheckPatch {
         if (activity == null) return;
         String[] knownFragmentClasses = new String[] {
             "app.morphe.extension.shared.settings.preference.AbstractPreferenceFragment",
+            "app.morphe.extension.shared.settings.preference.ToolbarPreferenceFragment",
+            "app.morphe.extension.music.settings.preference.YouTubeMusicPreferenceFragment",
             "app.revanced.extension.shared.settings.preference.AbstractPreferenceFragment",
             "anddea.extension.shared.settings.preference.AbstractPreferenceFragment"
         };
@@ -379,28 +399,45 @@ public class JhcUpdateCheckPatch {
                 return true;
             }
 
-            Preference pref = new Preference(activity);
+            Preference pref = new Preference(activity) {
+                @Override
+                public View getView(View convertView, ViewGroup parent) {
+                    View view = super.getView(convertView, parent);
+                    bindIconView(activity, view);
+                    return view;
+                }
+
+                @Override
+                protected void onBindView(View view) {
+                    super.onBindView(view);
+                    bindIconView(activity, view);
+                }
+            };
             pref.setKey(PREF_KEY_UPDATE);
             pref.setTitle(getString("update_settings_title"));
             pref.setSummary(getString("update_settings_summary"));
             pref.setPersistent(false);
             pref.setOrder(99999);
 
-            // 1. Копируем layoutResource из экрана, чтобы отступы и расположение иконки строго совпадали с другими пунктами меню
+            // 1. Копируем layoutResource из экрана только если он принадлежит пакету приложения (0x7f......)
             int layoutRes = 0;
             if (screen.getPreferenceCount() > 0) {
                 for (int i = 0; i < screen.getPreferenceCount(); i++) {
                     Preference p = screen.getPreference(i);
                     if (p != null && p.getLayoutResource() != 0) {
-                        layoutRes = p.getLayoutResource();
-                        break;
+                        int lr = p.getLayoutResource();
+                        if ((lr >>> 24) == 0x7f) {
+                            layoutRes = lr;
+                            break;
+                        }
                     }
                 }
             }
             if (layoutRes == 0) {
                 String[] layoutCandidates = new String[] {
                     "morphe_preference_with_icon",
-                    "revanced_preference_with_icon"
+                    "revanced_preference_with_icon",
+                    "preference_with_icon"
                 };
                 for (String lName : layoutCandidates) {
                     try {
@@ -448,6 +485,81 @@ public class JhcUpdateCheckPatch {
         }
     }
 
+    private static void bindIconView(Activity activity, View view) {
+        if (activity == null || view == null) return;
+        try {
+            Drawable icon = createSettingsIcon(activity);
+            if (icon == null) return;
+
+            // 1. Стандартный ID иконки Android (используется в Morphe YouTube и Morphe Music)
+            View iv = view.findViewById(android.R.id.icon);
+
+            // 2. Кастомный ID иконки RVX YouTube (revanced_custom_icon)
+            if (iv == null) {
+                try {
+                    int rvxIconId = activity.getResources().getIdentifier("revanced_custom_icon", "id", activity.getPackageName());
+                    if (rvxIconId != 0) {
+                        iv = view.findViewById(rvxIconId);
+                    }
+                } catch (Throwable ignored) {}
+            }
+
+            // 3. Если ImageView найдена в макете — устанавливаем иконку и отображаем
+            if (iv instanceof ImageView) {
+                ImageView img = (ImageView) iv;
+                img.setImageDrawable(icon);
+                img.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            // 4. Если в макете нет контейнера для иконки (RVX Music), динамически внедряем ImageView
+            if (view instanceof ViewGroup) {
+                ViewGroup vg = (ViewGroup) view;
+                View custom = vg.findViewWithTag("jhc_update_icon");
+                ImageView img;
+                if (custom instanceof ImageView) {
+                    img = (ImageView) custom;
+                } else {
+                    img = new ImageView(activity);
+                    img.setTag("jhc_update_icon");
+                    img.setFocusable(false);
+                    img.setClickable(false);
+
+                    float density = activity.getResources().getDisplayMetrics().density;
+                    int iconSize = Math.round(24f * density);
+                    if (iconSize <= 0) iconSize = 48;
+
+                    // Отступ 18dp строго под единый стиль Morphe и RVX
+                    int marginStart = Math.max(0, Math.round(18f * density) - vg.getPaddingStart());
+                    int marginEnd = Math.round(18f * density);
+
+                    if (vg instanceof LinearLayout) {
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(iconSize, iconSize);
+                        lp.gravity = Gravity.CENTER_VERTICAL;
+                        lp.setMarginStart(marginStart);
+                        lp.setMarginEnd(marginEnd);
+                        lp.leftMargin = marginStart;
+                        lp.rightMargin = marginEnd;
+                        img.setLayoutParams(lp);
+                    } else {
+                        ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(iconSize, iconSize);
+                        mlp.setMarginStart(marginStart);
+                        mlp.setMarginEnd(marginEnd);
+                        mlp.leftMargin = marginStart;
+                        mlp.rightMargin = marginEnd;
+                        img.setLayoutParams(mlp);
+                    }
+                    img.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    vg.addView(img, 0);
+                }
+                img.setImageDrawable(icon);
+                img.setVisibility(View.VISIBLE);
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "bindIconView error: " + t.getMessage(), t);
+        }
+    }
+
     private static void cleanupShortcuts(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && context != null) {
             try {
@@ -477,7 +589,21 @@ public class JhcUpdateCheckPatch {
             try {
                 TypedValue tv = new TypedValue();
                 if (context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, tv, true)) {
-                    if (tv.data != 0) color = tv.data;
+                    if (tv.type >= TypedValue.TYPE_FIRST_COLOR_INT && tv.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                        color = tv.data;
+                    } else if (tv.resourceId != 0) {
+                        try {
+                            if (Build.VERSION.SDK_INT >= 23) {
+                                color = context.getColor(tv.resourceId);
+                            } else {
+                                color = context.getResources().getColor(tv.resourceId);
+                            }
+                        } catch (Throwable ignored) {
+                            if (tv.data != 0) color = tv.data;
+                        }
+                    } else if (tv.data != 0) {
+                        color = tv.data;
+                    }
                 }
             } catch (Throwable ignored) {}
 
