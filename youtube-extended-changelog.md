@@ -1,6 +1,6 @@
 ## YouTube ReVanced Extended
 * **Version:** v21.07.247 (patches dev.5.mpp)
-* **Release:** [#411](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/411)
+* **Release:** [#413](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/413)
 
 ### Release Notes:
 YouTube-Extended: 21.07.247  
@@ -17,8 +17,8 @@ CLI: MorpheApp/morphe-desktop/morphe-desktop-1.15.1-all.jar
 Patches: anddea/revanced-patches/patches-4.3.0-dev.5.mpp  
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.3.0-dev.5)
 
-Patches: sashade8-ship-it/dual-vot-patches/patches-1.42.0-dualvot.8.4.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.42.0-dualvot.8.4)
+Patches: sashade8-ship-it/dual-vot-patches/patches-1.42.0-dualvot.8.5.1.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.42.0-dualvot.8.5.1)
 
-Patches: MorpheApp/morphe-patches/patches-1.42.0.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.42.0)  
+Patches: MorpheApp/morphe-patches/patches-1.42.1-dev.1.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.42.1-dev.1)  
