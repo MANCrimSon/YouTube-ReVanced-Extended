@@ -418,32 +418,36 @@ public class JhcUpdateCheckPatch {
             pref.setPersistent(false);
             pref.setOrder(99999);
 
-            // 1. Copy layoutResource from existing screen preference to guarantee 100% style, padding, and icon_frame parity
-            int layoutRes = 0;
-            if (screen.getPreferenceCount() > 0) {
-                for (int i = 0; i < screen.getPreferenceCount(); i++) {
-                    Preference p = screen.getPreference(i);
-                    if (p != null && p.getLayoutResource() != 0) {
-                        layoutRes = p.getLayoutResource();
-                        break;
-                    }
-                }
-            }
-            if (layoutRes != 0) {
-                pref.setLayoutResource(layoutRes);
-            } else {
-                String[] layoutCandidates = new String[] {
-                    "morphe_preference_with_icon",
-                    "preference_with_icon"
-                };
-                for (String lName : layoutCandidates) {
-                    try {
-                        int id = activity.getResources().getIdentifier(lName, "layout", activity.getPackageName());
-                        if (id != 0) {
-                            pref.setLayoutResource(id);
+            String pkg = activity.getPackageName();
+            boolean isMorphe = pkg != null && pkg.contains("morphe");
+
+            // Copy layoutResource ONLY for non-Morphe (RVX), because Morphe already uses its own custom layout without icon_frame
+            if (!isMorphe) {
+                int layoutRes = 0;
+                if (screen.getPreferenceCount() > 0) {
+                    for (int i = 0; i < screen.getPreferenceCount(); i++) {
+                        Preference p = screen.getPreference(i);
+                        if (p != null && p.getLayoutResource() != 0) {
+                            layoutRes = p.getLayoutResource();
                             break;
                         }
-                    } catch (Throwable ignored) {}
+                    }
+                }
+                if (layoutRes != 0) {
+                    pref.setLayoutResource(layoutRes);
+                } else {
+                    String[] layoutCandidates = new String[] {
+                        "preference_with_icon"
+                    };
+                    for (String lName : layoutCandidates) {
+                        try {
+                            int id = activity.getResources().getIdentifier(lName, "layout", activity.getPackageName());
+                            if (id != 0) {
+                                pref.setLayoutResource(id);
+                                break;
+                            }
+                        } catch (Throwable ignored) {}
+                    }
                 }
             }
 
@@ -584,9 +588,14 @@ public class JhcUpdateCheckPatch {
     private static Drawable createSettingsIcon(Context context) {
         try {
             float density = context.getResources().getDisplayMetrics().density;
-            // Standard Android Preference icon slot is 48dp (135px on FullHD)
-            int slotSize = Math.round(48f * density);
-            if (slotSize <= 0) slotSize = 96;
+            String pkg = context.getPackageName();
+            boolean isMorphe = pkg != null && pkg.contains("morphe");
+            boolean isYtmRvx = pkg != null && pkg.contains("music") && !isMorphe;
+
+            // In Morphe, the ImageView is fixed to 24dp in its custom layout.
+            // In RVX, the icon slot is standard 48dp (with icon_frame).
+            int slotSize = Math.round((isMorphe ? 24f : 48f) * density);
+            if (slotSize <= 0) slotSize = isMorphe ? 48 : 96;
 
             // Glyph size (circular arrow) is 24dp
             int iconSize = Math.round(24f * density);
@@ -633,9 +642,6 @@ public class JhcUpdateCheckPatch {
                     path = (Path) m2.invoke(null, "M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0 -7.99,3.58 -7.99,8s3.57,8 7.99,8c3.73,0 6.84,-2.55 7.73,-6h-2.08c-.82,2.33 -3.04,4 -5.65,4-3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z");
                 } catch (Throwable ignored) {}
             }
-
-            String pkg = context.getPackageName();
-            boolean isYtmRvx = pkg != null && pkg.contains("music") && !pkg.contains("morphe");
 
             float scale = (float) iconSize / 24f;
             float offsetX = (slotSize - iconSize) / 2f;
