@@ -1,6 +1,6 @@
 ## YouTube ReVanced Extended
 * **Version:** v21.07.247 (patches dev.5.mpp)
-* **Release:** [#415](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/415)
+* **Release:** [#416](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/416)
 
 ### Release Notes:
 YouTube-Extended: 21.07.247  
