@@ -415,7 +415,6 @@ public class JhcUpdateCheckPatch {
             };
             pref.setKey(PREF_KEY_UPDATE);
             pref.setTitle(getString("update_settings_title"));
-            pref.setSummary(getString("update_settings_summary"));
             pref.setPersistent(false);
             pref.setOrder(99999);
 
@@ -488,6 +487,12 @@ public class JhcUpdateCheckPatch {
     private static void bindIconView(Activity activity, View view) {
         if (activity == null || view == null) return;
         try {
+            // Принудительно скрываем строку summary, оставляя только заголовок
+            View summaryView = view.findViewById(android.R.id.summary);
+            if (summaryView != null) {
+                summaryView.setVisibility(View.GONE);
+            }
+
             Drawable icon = createSettingsIcon(activity);
             if (icon == null) return;
 
@@ -504,15 +509,16 @@ public class JhcUpdateCheckPatch {
                 } catch (Throwable ignored) {}
             }
 
-            // 3. Если ImageView найдена в макете — устанавливаем иконку и отображаем
+            // 3. Если ImageView найдена в макете — центрируем иконку без растягивания
             if (iv instanceof ImageView) {
                 ImageView img = (ImageView) iv;
                 img.setImageDrawable(icon);
+                img.setScaleType(ImageView.ScaleType.CENTER);
                 img.setVisibility(View.VISIBLE);
                 return;
             }
 
-            // 4. Если в макете нет контейнера для иконки (RVX Music), динамически внедряем ImageView
+            // 4. Если в макете нет контейнера для иконки (RVX Music), динамически внедряем слот 48dp
             if (view instanceof ViewGroup) {
                 ViewGroup vg = (ViewGroup) view;
                 View custom = vg.findViewWithTag("jhc_update_icon");
@@ -526,15 +532,15 @@ public class JhcUpdateCheckPatch {
                     img.setClickable(false);
 
                     float density = activity.getResources().getDisplayMetrics().density;
-                    int iconSize = Math.round(24f * density);
-                    if (iconSize <= 0) iconSize = 48;
+                    int slotSize = Math.round(48f * density);
+                    if (slotSize <= 0) slotSize = 96;
 
-                    // Отступ 18dp строго под единый стиль Morphe и RVX
-                    int marginStart = Math.max(0, Math.round(18f * density) - vg.getPaddingStart());
-                    int marginEnd = Math.round(18f * density);
+                    // Отступ 16dp и слот 48dp соответствуют сетке остальных пунктов RVX Music (центр 40dp, отступ до текста 16dp)
+                    int marginStart = Math.max(0, Math.round(16f * density) - vg.getPaddingStart());
+                    int marginEnd = Math.round(16f * density);
 
                     if (vg instanceof LinearLayout) {
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(iconSize, iconSize);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(slotSize, slotSize);
                         lp.gravity = Gravity.CENTER_VERTICAL;
                         lp.setMarginStart(marginStart);
                         lp.setMarginEnd(marginEnd);
@@ -542,14 +548,14 @@ public class JhcUpdateCheckPatch {
                         lp.rightMargin = marginEnd;
                         img.setLayoutParams(lp);
                     } else {
-                        ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(iconSize, iconSize);
+                        ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(slotSize, slotSize);
                         mlp.setMarginStart(marginStart);
                         mlp.setMarginEnd(marginEnd);
                         mlp.leftMargin = marginStart;
                         mlp.rightMargin = marginEnd;
                         img.setLayoutParams(mlp);
                     }
-                    img.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    img.setScaleType(ImageView.ScaleType.CENTER);
                     vg.addView(img, 0);
                 }
                 img.setImageDrawable(icon);
@@ -708,16 +714,15 @@ public class JhcUpdateCheckPatch {
                         if (matchedUrl == null) continue;
 
                         String body = rel.optString("body", "");
-                        String patchVer = extractPatchVersion(body);
+                        PatchInfo pInfo = extractPatchInfo(context, body);
 
                         targetTag = tag;
                         downloadUrl = matchedUrl;
                         appVersion = extractVersionFromUrl(matchedUrl);
-                        patchVersion = patchVer;
+                        patchVersion = pInfo.version;
 
-                        String extractedChangelog = extractChangelogUrl(body, patchVer);
-                        if (extractedChangelog != null && !extractedChangelog.isEmpty()) {
-                            changelogUrl = extractedChangelog;
+                        if (pInfo.changelogUrl != null && !pInfo.changelogUrl.isEmpty()) {
+                            changelogUrl = pInfo.changelogUrl;
                         } else {
                             changelogUrl = rel.optString("html_url", "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + tag);
                         }
@@ -762,10 +767,8 @@ public class JhcUpdateCheckPatch {
                         } else {
                             appVersion = "21.13.164";
                         }
-                        Matcher patchMatcher = Pattern.compile("patches-([0-9a-zA-Z._-]+)\\.mpp").matcher(atom);
-                        if (patchMatcher.find()) {
-                            patchVersion = patchMatcher.group(1);
-                        }
+                        PatchInfo atomPatchInfo = extractPatchInfo(context, atom);
+                        patchVersion = atomPatchInfo.version;
                         if (targetTag != null) {
                             // Try expanded_assets for direct APK link
                             try {
@@ -803,9 +806,8 @@ public class JhcUpdateCheckPatch {
                                 downloadUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/download/" + targetTag + "/" + appPrefix + ext;
                             }
 
-                            Matcher chMatcher = Pattern.compile("href=\"(https://github\\.com/[^\"]*patches/releases/tag/[^\"]+)\"").matcher(atom);
-                            if (chMatcher.find()) {
-                                changelogUrl = chMatcher.group(1);
+                            if (atomPatchInfo.changelogUrl != null && !atomPatchInfo.changelogUrl.isEmpty()) {
+                                changelogUrl = atomPatchInfo.changelogUrl;
                             } else {
                                 changelogUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + targetTag;
                             }
@@ -875,39 +877,70 @@ public class JhcUpdateCheckPatch {
         }
     }
 
-    private static String extractChangelogUrl(String body, String patchVersion) {
-        if (body == null) body = "";
+    private static class PatchInfo {
+        final String version;
+        final String changelogUrl;
 
-        // 1. If MorpheApp/morphe-patches changelog link exists in the release body, prefer it
-        try {
-            Pattern pMorphe = Pattern.compile("https://github\\.com/MorpheApp/morphe-patches/releases/tag/[^\\s)\"]+");
-            Matcher mMorphe = pMorphe.matcher(body);
-            if (mMorphe.find()) {
-                return mMorphe.group(0);
-            }
-        } catch (Exception ignored) {}
+        PatchInfo(String version, String changelogUrl) {
+            this.version = (version != null) ? version : "";
+            this.changelogUrl = (changelogUrl != null) ? changelogUrl : "";
+        }
+    }
 
-        // 2. If patches are dual-vot, link directly to Morphe upstream changelog
-        String verToCheck = (patchVersion != null && !patchVersion.isEmpty()) ? patchVersion : body;
-        if (verToCheck.toLowerCase(Locale.ROOT).contains("dualvot") || body.contains("dual-vot-patches")) {
-            String baseVer = patchVersion != null ? patchVersion : "";
-            baseVer = baseVer.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "")
-                             .replaceAll("^[vV]", "");
-            if (!baseVer.isEmpty()) {
-                return "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
-            }
+    private static PatchInfo extractPatchInfo(Context context, String body) {
+        if (body == null || body.isEmpty()) {
+            return new PatchInfo("", "");
         }
 
-        // 3. Fallback to any patch changelog link in body
-        try {
-            Pattern pAny = Pattern.compile("https://github\\.com/[^\\s)\"]+/releases/tag/[^\\s)\"]+");
-            Matcher mAny = pAny.matcher(body);
-            if (mAny.find()) {
-                return mAny.group(0);
-            }
-        } catch (Exception ignored) {}
+        String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
+        boolean isMusic = pkg.contains("music");
+        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
 
-        return null;
+        String[] targetRepos;
+        if (isAnddea) {
+            targetRepos = new String[] { "anddea/revanced-patches" };
+        } else if (isMusic) {
+            targetRepos = new String[] { "MorpheApp/morphe-patches", "sashade8-ship-it/dual-vot-patches" };
+        } else {
+            targetRepos = new String[] { "sashade8-ship-it/dual-vot-patches", "MorpheApp/morphe-patches" };
+        }
+
+        for (String repo : targetRepos) {
+            try {
+                Pattern pVer = Pattern.compile(Pattern.quote(repo) + "/patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
+                Matcher mVer = pVer.matcher(body);
+                if (mVer.find()) {
+                    String ver = mVer.group(1);
+                    String changelog = "";
+                    Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(repo) + "/releases/tag/[^\\s)\"<>]+");
+                    Matcher mCh = pCh.matcher(body);
+                    if (mCh.find()) {
+                        changelog = mCh.group(0);
+                    } else {
+                        changelog = "https://github.com/" + repo + "/releases";
+                    }
+                    return new PatchInfo(ver, changelog);
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        // Резервный поиск любых патчей и чейнджлога в описании
+        String fallbackVer = "";
+        String fallbackChangelog = "";
+        try {
+            Pattern pAnyVer = Pattern.compile("patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
+            Matcher mAnyVer = pAnyVer.matcher(body);
+            if (mAnyVer.find()) {
+                fallbackVer = mAnyVer.group(1);
+            }
+            Pattern pAnyCh = Pattern.compile("https://github\\.com/[^\\s)\"<>]+/releases/tag/[^\\s)\"<>]+");
+            Matcher mAnyCh = pAnyCh.matcher(body);
+            if (mAnyCh.find()) {
+                fallbackChangelog = mAnyCh.group(0);
+            }
+        } catch (Throwable ignored) {}
+
+        return new PatchInfo(fallbackVer, fallbackChangelog);
     }
 
     private static String findMatchingUrl(Context context, java.util.List<String> urls) {
@@ -986,23 +1019,6 @@ public class JhcUpdateCheckPatch {
                 if (endIdx != -1) {
                     return url.substring(vIdx + 2, endIdx);
                 }
-            }
-        } catch (Exception ignored) {}
-        return "";
-    }
-
-    private static String extractPatchVersion(String body) {
-        if (body == null || body.isEmpty()) return "";
-        try {
-            Pattern p = Pattern.compile("patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
-            Matcher m = p.matcher(body);
-            if (m.find()) {
-                return m.group(1);
-            }
-            Pattern p2 = Pattern.compile("Patches:[^\\n]*?([0-9]+\\.[0-9]+[0-9a-zA-Z._-]*)");
-            Matcher m2 = p2.matcher(body);
-            if (m2.find()) {
-                return m2.group(1);
             }
         } catch (Exception ignored) {}
         return "";
@@ -1868,7 +1884,7 @@ public class JhcUpdateCheckPatch {
                 case "toast_checking_updates": return "Перевірка оновлень патчів...";
                 case "toast_already_latest": return "У вас встановлені найновіші патчі";
                 case "toast_check_failed": return "Не вдалося перевірити оновлення. Перевірте мережу";
-                case "hint_shortcut_fmt": return "💡 Перевірка: Налаштування -> %s";
+                case "hint_shortcut_fmt": return "💡 Перевірка: Налаштування -> %s -> Оновлення патчів";
             }
         }
         // Russian, Belarusian, Kazakh
@@ -1908,7 +1924,7 @@ public class JhcUpdateCheckPatch {
                 case "toast_checking_updates": return "Проверка обновлений патчей...";
                 case "toast_already_latest": return "У вас установлены актуальные патчи";
                 case "toast_check_failed": return "Не удалось проверить обновления. Проверьте сеть";
-                case "hint_shortcut_fmt": return "💡 Проверка: Настройки -> %s";
+                case "hint_shortcut_fmt": return "💡 Проверка: Настройки -> %s -> Обновление патчей";
             }
         } 
         // Spanish
@@ -1948,7 +1964,7 @@ public class JhcUpdateCheckPatch {
                 case "toast_checking_updates": return "Buscando actualizaciones de parches...";
                 case "toast_already_latest": return "Tienes instalados los parches más recientes";
                 case "toast_check_failed": return "Error al buscar actualizaciones. Comprueba la red";
-                case "hint_shortcut_fmt": return "💡 Ajustes -> %s";
+                case "hint_shortcut_fmt": return "💡 Comprobar: Ajustes -> %s -> Actualización de parches";
             }
         } 
         // German
@@ -1988,7 +2004,7 @@ public class JhcUpdateCheckPatch {
                 case "toast_checking_updates": return "Suche nach Patch-Updates...";
                 case "toast_already_latest": return "Sie haben die neuesten Patches installiert";
                 case "toast_check_failed": return "Fehler bei der Update-Suche. Netzwerk prüfen";
-                case "hint_shortcut_fmt": return "💡 Einstellungen -> %s";
+                case "hint_shortcut_fmt": return "💡 Prüfung: Einstellungen -> %s -> Patch-Updates";
             }
         }
 
@@ -2028,7 +2044,7 @@ public class JhcUpdateCheckPatch {
             case "toast_checking_updates": return "Checking for patch updates...";
             case "toast_already_latest": return "You have the latest patches installed";
             case "toast_check_failed": return "Failed to check for updates. Check your network";
-            case "hint_shortcut_fmt": return "💡 Settings -> %s";
+            case "hint_shortcut_fmt": return "💡 Check: Settings -> %s -> Patch updates";
             default: return key;
         }
      }
