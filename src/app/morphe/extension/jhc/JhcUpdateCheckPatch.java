@@ -418,36 +418,31 @@ public class JhcUpdateCheckPatch {
             pref.setPersistent(false);
             pref.setOrder(99999);
 
-            String pkg = activity.getPackageName();
-            boolean isMorphe = pkg != null && pkg.contains("morphe");
-
-            // Copy layoutResource ONLY for non-Morphe (RVX), because Morphe already uses its own custom layout without icon_frame
-            if (!isMorphe) {
-                int layoutRes = 0;
-                if (screen.getPreferenceCount() > 0) {
-                    for (int i = 0; i < screen.getPreferenceCount(); i++) {
-                        Preference p = screen.getPreference(i);
-                        if (p != null && p.getLayoutResource() != 0) {
-                            layoutRes = p.getLayoutResource();
-                            break;
-                        }
+            // 1. Copy layoutResource from existing screen preference to guarantee 100% style, padding, and layout parity across all targets (RVX and Morphe)
+            int layoutRes = 0;
+            if (screen.getPreferenceCount() > 0) {
+                for (int i = 0; i < screen.getPreferenceCount(); i++) {
+                    Preference p = screen.getPreference(i);
+                    if (p != null && p.getLayoutResource() != 0) {
+                        layoutRes = p.getLayoutResource();
+                        break;
                     }
                 }
-                if (layoutRes != 0) {
-                    pref.setLayoutResource(layoutRes);
-                } else {
-                    String[] layoutCandidates = new String[] {
-                        "preference_with_icon"
-                    };
-                    for (String lName : layoutCandidates) {
-                        try {
-                            int id = activity.getResources().getIdentifier(lName, "layout", activity.getPackageName());
-                            if (id != 0) {
-                                pref.setLayoutResource(id);
-                                break;
-                            }
-                        } catch (Throwable ignored) {}
-                    }
+            }
+            if (layoutRes != 0) {
+                pref.setLayoutResource(layoutRes);
+            } else {
+                String[] layoutCandidates = new String[] {
+                    "preference_with_icon"
+                };
+                for (String lName : layoutCandidates) {
+                    try {
+                        int id = activity.getResources().getIdentifier(lName, "layout", activity.getPackageName());
+                        if (id != 0) {
+                            pref.setLayoutResource(id);
+                            break;
+                        }
+                    } catch (Throwable ignored) {}
                 }
             }
 
