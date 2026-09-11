@@ -912,12 +912,22 @@ public class JhcUpdateCheckPatch {
                 if (mVer.find()) {
                     String ver = mVer.group(1);
                     String changelog = "";
-                    Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(repo) + "/releases/tag/[^\\s)\"<>]+");
+
+                    // Если используются патчи dual-vot, чейнджлог ведёт на официальный upstream MorpheApp/morphe-patches
+                    String chRepo = repo;
+                    if (repo.contains("dual-vot") || ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
+                        chRepo = "MorpheApp/morphe-patches";
+                    }
+
+                    Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(chRepo) + "/releases/tag/[^\\s)\"<>]+");
                     Matcher mCh = pCh.matcher(body);
                     if (mCh.find()) {
                         changelog = mCh.group(0);
+                    } else if (ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
+                        String baseVer = ver.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "").replaceAll("^[vV]", "");
+                        changelog = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
                     } else {
-                        changelog = "https://github.com/" + repo + "/releases";
+                        changelog = "https://github.com/" + chRepo + "/releases";
                     }
                     return new PatchInfo(ver, changelog);
                 }
