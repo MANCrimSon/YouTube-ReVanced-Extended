@@ -8,7 +8,7 @@ Automated builds of modified **YouTube** and **YouTube Music** — on two patch 
 Every build ships in two flavors — **NonRoot** (a plain APK) and **Root** (a Magisk/KernelSU module) — and gets
 rebuilt automatically as soon as new patches are released.
 
-<!--release--><a href="../../releases/latest"><img src="https://img.shields.io/badge/release-v410-blue" alt="Latest release"></a><!--/release--> <!--downloads--><a href="../../releases"><img src="https://img.shields.io/badge/downloads-469.6k-success" alt="Downloads"></a><!--/downloads-->
+<!--release--><a href="../../releases/latest"><img src="https://img.shields.io/badge/release-v416-blue" alt="Latest release"></a><!--/release--> <!--downloads--><a href="../../releases"><img src="https://img.shields.io/badge/downloads-472.0k-success" alt="Downloads"></a><!--/downloads-->
 
 ## Download
 
@@ -17,10 +17,10 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures — pi
 
 | Build | NonRoot (APK) | Root (module) |
 |---|---|---|
-| YouTube — ReVanced Extended (anddea) | <!--yt-rvx-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-revanced-extended-v21.07.247-all.apk)<!--/yt-rvx-apk--> | <!--yt-rvx-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-revanced-extended-module-v21.07.247-all.zip)<!--/yt-rvx-zip--> |
-| YouTube Music — ReVanced Extended (anddea) | <!--ytm-rvx-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-music-revanced-extended-v9.15.51-arm64-v8a.apk)<!--/ytm-rvx-apk-arm64--><br><br><!--ytm-rvx-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-music-revanced-extended-v9.15.51-arm-v7a.apk)<!--/ytm-rvx-apk-armv7--> | <!--ytm-rvx-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-music-revanced-extended-module-v9.15.51-arm64-v8a.zip)<!--/ytm-rvx-zip-arm64--><br><br><!--ytm-rvx-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/403/youtube-music-revanced-extended-module-v9.15.51-arm-v7a.zip)<!--/ytm-rvx-zip-armv7--> |
-| YouTube — Morphe (+ Yandex VoT) | <!--yt-morphe-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/410/youtube-morphe-v21.13.164-all.apk)<!--/yt-morphe-apk--> | <!--yt-morphe-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/410/youtube-morphe-module-v21.13.164-all.zip)<!--/yt-morphe-zip--> |
-| YouTube Music — Morphe | <!--ytm-morphe-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/409/youtube-music-morphe-v9.15.51-arm64-v8a.apk)<!--/ytm-morphe-apk-arm64--><br><br><!--ytm-morphe-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/409/youtube-music-morphe-v9.15.51-arm-v7a.apk)<!--/ytm-morphe-apk-armv7--> | <!--ytm-morphe-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/409/youtube-music-morphe-module-v9.15.51-arm64-v8a.zip)<!--/ytm-morphe-zip-arm64--><br><br><!--ytm-morphe-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/409/youtube-music-morphe-module-v9.15.51-arm-v7a.zip)<!--/ytm-morphe-zip-armv7--> |
+| YouTube — ReVanced Extended (anddea) | <!--yt-rvx-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-revanced-extended-v21.07.247-all.apk)<!--/yt-rvx-apk--> | <!--yt-rvx-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-revanced-extended-module-v21.07.247-all.zip)<!--/yt-rvx-zip--> |
+| YouTube Music — ReVanced Extended (anddea) | <!--ytm-rvx-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-revanced-extended-v9.15.51-arm64-v8a.apk)<!--/ytm-rvx-apk-arm64--><br><br><!--ytm-rvx-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-revanced-extended-v9.15.51-arm-v7a.apk)<!--/ytm-rvx-apk-armv7--> | <!--ytm-rvx-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-revanced-extended-module-v9.15.51-arm64-v8a.zip)<!--/ytm-rvx-zip-arm64--><br><br><!--ytm-rvx-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-revanced-extended-module-v9.15.51-arm-v7a.zip)<!--/ytm-rvx-zip-armv7--> |
+| YouTube — Morphe (+ Yandex VoT) | <!--yt-morphe-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-morphe-v21.13.164-all.apk)<!--/yt-morphe-apk--> | <!--yt-morphe-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-morphe-module-v21.13.164-all.zip)<!--/yt-morphe-zip--> |
+| YouTube Music — Morphe | <!--ytm-morphe-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-morphe-v9.15.51-arm64-v8a.apk)<!--/ytm-morphe-apk-arm64--><br><br><!--ytm-morphe-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-morphe-v9.15.51-arm-v7a.apk)<!--/ytm-morphe-apk-armv7--> | <!--ytm-morphe-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-morphe-module-v9.15.51-arm64-v8a.zip)<!--/ytm-morphe-zip-arm64--><br><br><!--ytm-morphe-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/416/youtube-music-morphe-module-v9.15.51-arm-v7a.zip)<!--/ytm-morphe-zip-armv7--> |
 
 ## NonRoot — installation and auto-updates via Obtainium
 
@@ -42,6 +42,14 @@ opens directly in the app with the source and APK filter already configured, jus
 
 These links only work on a device with Obtainium installed (they're `obtainium://` deep links, they won't do
 anything in a desktop browser).
+
+> [!TIP]
+> **In-App Update Checker (Experimental / Beta):**  
+> All NonRoot builds now include a built-in update checker. You can manually check for new releases at any time directly in the app:
+> - **YouTube & YT Music (RVX / anddea):** `Settings` → `RVX` → `Patch updates`
+> - **YouTube & YT Music (Morphe):** `Settings` → `Morphe` → `Patch updates`
+>
+> The dialog displays the new build number, patch version, a direct changelog link, one-click APK download, and snooze options.
 
 <details>
 <summary><b>Troubleshooting playback issues (infinite buffering)</b></summary>
