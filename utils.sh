@@ -164,29 +164,40 @@ get_prebuilts() {
 		fi
 
 		if [ "$tag" = "Patches" ]; then
-			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
-				local extensions_ext
-				# Under set -e/pipefail, an unguarded "$(cmd1 | cmd2)" assignment
-				# aborts the whole script the instant grep finds no match - which
-				# happens whenever a bundle simply has no extensions/shared.* to
-				# patch (e.g. some patches sources never had it, or don't anymore).
-				# That's a "nothing to do here" case, not a fatal error.
-				extensions_ext=$(unzip -l "${file}" "extensions/shared.*" 2>/dev/null | grep -o "shared\..*" || :)
-				extensions_ext="${extensions_ext#*.}"
-				if [ -z "$extensions_ext" ]; then
-					pr "'${file}' has no extensions/shared.* to patch, skipping revanced-integrations check removal"
-				elif ! (
-					mkdir -p "${file}-zip" || return 1
-					unzip -qo "${file}" -d "${file}-zip" || return 1
-					java -cp "${BIN_DIR}/paccer.jar:${BIN_DIR}/dexlib2.jar" com.jhc.Main "${file}-zip/extensions/shared.${extensions_ext}" "${file}-zip/extensions/shared-patched.${extensions_ext}" || return 1
-					mv -f "${file}-zip/extensions/shared-patched.${extensions_ext}" "${file}-zip/extensions/shared.${extensions_ext}" || return 1
-					rm "${file}" || return 1
-					cd "${file}-zip" || abort
-					zip -0rq "${CWD}/${file}" . || return 1
-				) >&2; then
-					echo >&2 "Patching integrations checks failed"
+			local extensions_ext
+			# Under set -e/pipefail, an unguarded "$(cmd1 | cmd2)" assignment
+			# aborts the whole script the instant grep finds no match - which
+			# happens whenever a bundle simply has no extensions/shared.* to
+			# patch (e.g. some patches sources never had it, or don't anymore).
+			# That's a "nothing to do here" case, not a fatal error.
+			extensions_ext=$(unzip -l "${file}" "extensions/shared.*" 2>/dev/null | grep -o "shared\..*" || :)
+			extensions_ext="${extensions_ext#*.}"
+			if [ -z "$extensions_ext" ]; then
+				pr "'${file}' has no extensions/shared.* to process"
+			else
+				local needs_paccer=false needs_redirect=false
+				if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then needs_paccer=true; fi
+				if [ "$src" != "MorpheApp/morphe-patches" ]; then needs_redirect=true; fi
+
+				if [ "$needs_paccer" = true ] || [ "$needs_redirect" = true ]; then
+					if ! (
+						mkdir -p "${file}-zip" || return 1
+						unzip -qo "${file}" -d "${file}-zip" || return 1
+						if [ "$needs_paccer" = true ]; then
+							java -cp "${BIN_DIR}/paccer.jar:${BIN_DIR}/dexlib2.jar" com.jhc.Main "${file}-zip/extensions/shared.${extensions_ext}" "${file}-zip/extensions/shared-patched.${extensions_ext}" || return 1
+							mv -f "${file}-zip/extensions/shared-patched.${extensions_ext}" "${file}-zip/extensions/shared.${extensions_ext}" || return 1
+						fi
+						if [ "$needs_redirect" = true ]; then
+							java -cp "${BIN_DIR}/route-redirector.jar:${BIN_DIR}/dexlib2.jar" app.morphe.tools.RouteRedirector "${file}-zip/extensions/shared.${extensions_ext}" "${file}-zip/extensions/shared.${extensions_ext}" "MorpheApp/morphe-patches" "$src" || return 1
+						fi
+						rm "${file}" || return 1
+						cd "${file}-zip" || abort
+						zip -0rq "${CWD}/${file}" . || return 1
+					) >&2; then
+						echo >&2 "Post-processing patches bundle failed"
+					fi
+					rm -r "${file}-zip" 2>/dev/null || :
 				fi
-				rm -r "${file}-zip" 2>/dev/null || :
 			fi
 		fi
 		echo -n "$file "
