@@ -1019,11 +1019,27 @@ build_rv() {
 
 		module_config "$base_template" "$pkg_name" "$version" "$arch"
 
-		local patches_ver="${patches_jar##*-}"
+		local pt_name
+		pt_name=$(basename "${args[ptjar]:-$patches_jar}")
+		pt_name="${pt_name%.*}"
+		local pt_ver
+		pt_ver=$(sed -E 's/^patches(-[a-zA-Z0-9_]+)?-//' <<<"$pt_name")
+		pt_ver="${pt_ver#v}"
+
+		local build_tag=""
+		if [ -n "${NEXT_VER_CODE:-}" ]; then
+			build_tag=" b${NEXT_VER_CODE}"
+		fi
+
+		local display_ver="${version#v}"
+		if [ -n "$pt_ver" ]; then
+			display_ver="${display_ver} (p${pt_ver}${build_tag})"
+		fi
+
 		module_prop \
 			"${args[module_prop_name]}" \
 			"${app_name} ${args[rv_brand]}" \
-			"${version} (patches ${patches_ver})" \
+			"${display_ver}" \
 			"${app_name} ${args[rv_brand]} module" \
 			"https://raw.githubusercontent.com/${GITHUB_REPOSITORY-}/update/${upj}" \
 			"$base_template"
