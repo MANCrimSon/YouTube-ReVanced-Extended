@@ -22,86 +22,81 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures — pi
 | YouTube — Morphe (+ Yandex VoT) | <!--yt-morphe-apk-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-morphe-v21.13.164-all.apk)<!--/yt-morphe-apk--> | <!--yt-morphe-zip-->[Download](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-morphe-module-v21.13.164-all.zip)<!--/yt-morphe-zip--> |
 | YouTube Music — Morphe | <!--ytm-morphe-apk-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-music-morphe-v9.15.51-arm64-v8a.apk)<!--/ytm-morphe-apk-arm64--><br><br><!--ytm-morphe-apk-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-music-morphe-v9.15.51-arm-v7a.apk)<!--/ytm-morphe-apk-armv7--> | <!--ytm-morphe-zip-arm64-->[arm64-v8a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-music-morphe-module-v9.15.51-arm64-v8a.zip)<!--/ytm-morphe-zip-arm64--><br><br><!--ytm-morphe-zip-armv7-->[arm-v7a](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/download/419/youtube-music-morphe-module-v9.15.51-arm-v7a.zip)<!--/ytm-morphe-zip-armv7--> |
 
-## NonRoot — installation and auto-updates via Obtainium
-
-The APK installs like a regular app and needs no root, but YouTube/YouTube Music also need
-[**MicroG RE**](https://github.com/MorpheApp/MicroG-RE/releases) — it spoofs the Google services signature; without it
-the apps won't launch.
-
-You don't have to check for updates by hand — [**Obtainium**](https://github.com/ImranR98/Obtainium) can watch
-releases in this repository and prompt you when a new build is out. Install Obtainium, then tap each link below — it
-opens directly in the app with the source and APK filter already configured, just hit "Add":
-
-| What to import | Link |
-|---|---|
-| MicroG RE *(needed once, shared by every build)* | [Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.revanced.android.gms%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FMicroG-RE%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22MicroG%20RE%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Emicrog%28%3F%21.%2Anoicon%29%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D) |
-| YouTube — ReVanced Extended (anddea) | [Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22anddea.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%2C%5C%22appName%5C%22%3A%5C%22YouTube%20RVX%20%28anddea%29%5C%22%7D%22%7D) |
-| YouTube Music — ReVanced Extended (anddea) | [Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22anddea.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22YT%20Music%20RVX%20%28anddea%29%5C%22%7D%22%7D) |
-| YouTube — Morphe (+ Yandex VoT) | [Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.android.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%7D%22%7D) |
-| YouTube Music — Morphe | [Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.android.apps.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D) |
-
-These links only work on a device with Obtainium installed (they're `obtainium://` deep links, they won't do
-anything in a desktop browser).
-
-> [!TIP]
-> **In-App Update Checker (Experimental / Beta):**  
-> All NonRoot builds now include a built-in update checker. You can manually check for new releases at any time directly in the app:
-> - **YouTube & YT Music (RVX / anddea):** `Settings` → `RVX` → `Patch updates`
-> - **YouTube & YT Music (Morphe):** `Settings` → `Morphe` → `Patch updates`
->
-> The dialog displays the new build number, patch version, a direct changelog link, one-click APK download, and snooze options.
+## NonRoot (APK)
 
 <details>
-<summary><b>Troubleshooting playback issues (infinite buffering)</b></summary>
+<summary><b>Installation, Updating & Troubleshooting Instructions</b></summary>
+
+#### Installation
+1. Install [**MicroG RE**](https://github.com/MorpheApp/MicroG-RE/releases) *(required to run without Root and sign into your Google account)*.
+2. Download and install the matching APK from the download table above.
+
+#### Updating
+* **In-App Updater:** Check for updates directly inside the app:
+  * **YouTube & YouTube Music (RVX / anddea):** `Settings` → `RVX` → `Patch updates`
+  * **YouTube & YouTube Music (Morphe):** `Settings` → `Morphe` → `Patch updates`
+  * *Features: version comparison, changelog preview, direct APK download, and snooze options.*
+* **Via Obtainium (Auto-updates):**  
+  Install [**Obtainium**](https://github.com/ImranR98/Obtainium) and tap the links below directly on your Android device to import preconfigured update profiles:
+
+  | App & Patch Set | Obtainium Quick Import |
+  |---|---|
+  | **MicroG RE** *(shared across all builds)* | [Import MicroG RE](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.revanced.android.gms%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FMicroG-RE%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22MicroG%20RE%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Emicrog%28%3F%21.%2Anoicon%29%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D) |
+  | **YouTube** — ReVanced Extended (anddea) | [Import YouTube RVX](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22anddea.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%2C%5C%22appName%5C%22%3A%5C%22YouTube%20RVX%20%28anddea%29%5C%22%7D%22%7D) |
+  | **YouTube Music** — ReVanced Extended (anddea) | [Import YT Music RVX](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22anddea.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22YT%20Music%20RVX%20%28anddea%29%5C%22%7D%22%7D) |
+  | **YouTube** — Morphe (+ Yandex VoT) | [Import YouTube Morphe](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.android.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%7D%22%7D) |
+  | **YouTube Music** — Morphe | [Import YT Music Morphe](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.android.apps.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D) |
+
+#### Troubleshooting playback issues (infinite buffering)
 
 <details>
-<summary><b>YouTube & YouTube Music — ReVanced Extended (anddea)</b></summary>
+<summary><b>ReVanced Extended (anddea) — YouTube & YouTube Music</b></summary>
 
-If videos or music tracks stop playing after a few seconds or buffer infinitely, try the following solutions:
+##### 1. Primary solution — Built-in PoToken (Recommended)
+* **YouTube:**
+  1. Turn **OFF** stream spoofing: `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams` → `Spoof video streams` (**Off**).
+  2. Turn **ON** PoToken: `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams` → `PoToken provider` (**On**).
+* **YouTube Music:**
+  1. Turn **OFF** stream spoofing: `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams` (**Off**).
+  2. Turn **ON** PoToken: `Settings` → `RVX` → `Miscellaneous` → `PoToken provider` (**On**).
+* Restart the app (if buffering persists, force stop **MicroG RE** in Android system settings).
 
-#### 1. Primary solution — Built-in PoToken (Recommended)
-anddea patches include a built-in PoToken generator (no external PotHelper required):
-1. **YouTube:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
-   - Turn **OFF** stream spoofing: `Spoof video streams` (**Off**).
-   - Turn **ON** PoToken: `PoToken provider` (**On**).
-2. **YouTube Music:** Go to `Settings` → `RVX` → `Miscellaneous`:
-   - Turn **OFF** stream spoofing: `Spoof video streams` (**Off**).
-   - Turn **ON** PoToken: `PoToken provider` (**On**).
-3. Restart the app (if buffering persists, force stop **MicroG RE** in Android system settings).
-
-#### 2. Fallback solution — Spoof video streams
-1. **YouTube:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
-   - Turn **OFF** PoToken: `PoToken provider` (**Off**).
-   - Turn **ON** stream spoofing: `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
-2. **YouTube Music:** Go to `Settings` → `RVX` → `Miscellaneous`:
-   - Turn **OFF** PoToken: `PoToken provider` (**Off**).
-   - Turn **ON** stream spoofing: `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
-3. Restart the app.
+##### 2. Fallback solution — Spoof video streams
+* **YouTube:** `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
+  1. Turn **OFF** PoToken: `PoToken provider` (**Off**).
+  2. Turn **ON** stream spoofing: `Spoof video streams` (**On**) and select a suitable default client.
+* **YouTube Music:** `Settings` → `RVX` → `Miscellaneous`:
+  1. Turn **OFF** PoToken: `PoToken provider` (**Off**).
+  2. Turn **ON** stream spoofing: `Spoof video streams` (**On**) and select a suitable default client.
+* Restart the app.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters — verify your network bypass or VPN configuration if needed.
+
 </details>
 
 <details>
-<summary><b>YouTube & YouTube Music — Morphe</b></summary>
+<summary><b>Morphe — YouTube & YouTube Music</b></summary>
 
-If videos or music tracks stop playing after a few seconds or buffer infinitely, try the following solutions:
-
-#### 1. Primary solution — PoToken via PotHelper (Recommended)
+##### 1. Primary solution — External PoToken via PotHelper (Recommended)
 1. Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).
-2. Go to `Settings` → `Morphe` → `Miscellaneous`:
-   - Turn **OFF** stream spoofing: `Spoof video streams` → `Spoof video streams` (**Off**).
-   - Turn **ON** PoToken: `PoToken provider` → `External PoToken provider` (**On**).
+2. Configure settings:
+   * **YouTube:** `Settings` → `Morphe` → `Miscellaneous`:
+     - Turn **OFF** stream spoofing: `Spoof video streams` → `Spoof video streams` (**Off**).
+     - Turn **ON** PoToken: `PoToken provider` → `External PoToken provider` (**On**).
+   * **YouTube Music:** `Settings` → `Morphe` → `Miscellaneous`:
+     - Turn **OFF** stream spoofing: `Spoof video streams` → `Spoof video streams` (**Off**).
+     - Turn **ON** PoToken: `PoToken provider` → `External PoToken provider` (**On**).
 3. Restart the app.
 
-#### 2. Fallback solution — Spoof video streams
-1. Go to `Settings` → `Morphe` → `Miscellaneous`:
-   - Turn **OFF** PoToken: `PoToken provider` → `External PoToken provider` (**Off**).
-   - Turn **ON** stream spoofing: `Spoof video streams` → `Spoof video streams` (**On**), then select a suitable **Default client** (or try toggling the feature **Off**).
-2. Restart the app.
+##### 2. Fallback solution — Spoof video streams
+1. Turn **OFF** PoToken: `PoToken provider` → `External PoToken provider` (**Off**).
+2. Turn **ON** stream spoofing: `Spoof video streams` → `Spoof video streams` (**On**) and select a suitable default client.
+3. Restart the app.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters — verify your network bypass or VPN configuration if needed.
+
 </details>
 
 </details>
