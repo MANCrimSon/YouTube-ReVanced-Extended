@@ -104,7 +104,7 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures — pi
 ## Root (Magisk / KernelSU)
 
 <details>
-<summary><b>Installation & Usage Instructions</b></summary>
+<summary><b>Installation, Updating & Troubleshooting Instructions</b></summary>
 
 #### Installation
 1. Flash the module zip archive via **Magisk** or **KernelSU**.
