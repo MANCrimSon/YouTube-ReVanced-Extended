@@ -106,23 +106,32 @@ If videos or music tracks stop playing after a few seconds or buffer infinitely,
 
 </details>
 
-## Root — installation
+## Root (Magisk / KernelSU)
 
 <details>
-<summary>Instructions</summary>
+<summary><b>Installation & Usage Instructions</b></summary>
 
-1. Install the module archive via Magisk/KernelSU → reboot.
-2. Detach the app from Google Play updates, otherwise Play Store will overwrite the patch:
-   - Magisk: enable Zygisk.
-   - KernelSU: install [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases).
-   - Install [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) +
-     [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases), grant root → reboot.
-   - In zygisk-detach-app, pick the app → Detach.
-3. KernelSU only: KSU App → Superuser → app → Unmount modules: Off → reboot the device.
-4. To update: hit \"Update\" in Magisk/KernelSU, or just flash the new archive on top.
+#### Installation
+1. Flash the module zip archive via **Magisk** or **KernelSU**.
+2. Reboot the device.
 
-If you get a **\"Reflash needed\"** error after rebooting, or root detectors complain about a
-**\"Suspicious mount detected\"** — try [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount).
+#### Updating
+* **In Root Manager:** Tap the **Update** button in Magisk / KernelSU (modules check for updates automatically).
+* **Manually:** Flash the new zip archive on top of the existing one without uninstalling.
+
+#### Detach from Google Play (prevent automatic updates)
+1. Enable **Zygisk**:
+   * **Magisk:** Enable Zygisk in Magisk settings.
+   * **KernelSU / APatch:** Install the [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases) module.
+2. Install the [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) module and [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases) APK, grant Root permissions → reboot the device.
+3. Open **zygisk-detach-app**, select your target app (**YouTube** / **YouTube Music**) → tap **Detach**.
+
+#### Troubleshooting
+* **KernelSU only (blank/stock app or launch issues):**  
+  Open `KernelSU App` → `Superuser` → select target app (**YouTube** / **YouTube Music**) → *(Custom, if present)* → set `Unmount modules` to **Off** → reboot the device.
+* **Mounting errors (*"Reflash needed"* / *"Suspicious mount detected"*):**  
+  Install the [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount) module to resolve overlayfs / mount namespace conflicts.
+
 </details>
 
 ## Building your own config
