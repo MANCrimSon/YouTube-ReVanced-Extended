@@ -1,6 +1,6 @@
 ## YouTube Morphe
-* **Version:** v21.13.164 (p1.43.0-dev.4-dualvot.8.5.2 b2026091303)
-* **Release:** [#424](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/424)
+* **Version:** v21.13.164 (p1.43.0-dev.4-dualvot.8.5.2 b2026091304)
+* **Release:** [#427](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/427)
 
 ### Release Notes:
 YouTube-Extended: 21.07.247  

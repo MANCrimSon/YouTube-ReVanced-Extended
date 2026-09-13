@@ -1,6 +1,6 @@
 ## YouTube Music ReVanced Extended
-* **Version:** v9.15.51 (p4.3.0-dev.6 b2026091303)
-* **Release:** [#424](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/424)
+* **Version:** v9.15.51 (p4.3.0-dev.6 b2026091304)
+* **Release:** [#427](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/427)
 
 ### Release Notes:
 YouTube-Extended: 21.07.247  
