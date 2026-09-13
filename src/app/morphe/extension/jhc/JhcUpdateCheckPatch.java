@@ -62,12 +62,16 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 public class JhcUpdateCheckPatch {
     private static final String TAG = "MANCrimSon_update";
@@ -717,8 +721,59 @@ public class JhcUpdateCheckPatch {
         }
     }
 
+    private static volatile SSLSocketFactory cleanSslSocketFactory = null;
+
+    private static void tryInstallSecurityProvider(Context context) {
+        if (context == null) return;
+        try {
+            Class<?> piClass = Class.forName("com.google.android.gms.security.ProviderInstaller");
+            Method method = piClass.getMethod("installIfNeeded", Context.class);
+            method.invoke(null, context.getApplicationContext());
+            Log.d(TAG, "ProviderInstaller.installIfNeeded executed successfully");
+        } catch (Throwable ignored) {
+            // Expected on microG or systems without Google Play Services
+        }
+    }
+
+    private static SSLSocketFactory getCleanSslSocketFactory() {
+        if (cleanSslSocketFactory != null) {
+            return cleanSslSocketFactory;
+        }
+        synchronized (JhcUpdateCheckPatch.class) {
+            if (cleanSslSocketFactory != null) {
+                return cleanSslSocketFactory;
+            }
+            String[] protocols = new String[] { "TLS", "Default", "TLSv1.3", "TLSv1.2" };
+            for (String protocol : protocols) {
+                try {
+                    SSLContext sslContext = SSLContext.getInstance(protocol);
+                    sslContext.init(null, null, null);
+                    cleanSslSocketFactory = sslContext.getSocketFactory();
+                    Log.d(TAG, "Initialized clean TLS SSLSocketFactory using " + protocol);
+                    break;
+                } catch (Throwable t) {
+                    Log.w(TAG, "Failed to init SSLContext with " + protocol, t);
+                }
+            }
+            return cleanSslSocketFactory;
+        }
+    }
+
+    private static HttpURLConnection openCleanConnection(String urlStr) throws IOException {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        if (conn instanceof HttpsURLConnection) {
+            SSLSocketFactory sf = getCleanSslSocketFactory();
+            if (sf != null) {
+                ((HttpsURLConnection) conn).setSSLSocketFactory(sf);
+            }
+        }
+        return conn;
+    }
+
     private static void performCheck(Context context, boolean manualCheck) {
         try {
+            tryInstallSecurityProvider(context);
             Context appContext = context.getApplicationContext();
             SharedPreferences prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
@@ -730,7 +785,7 @@ public class JhcUpdateCheckPatch {
 
             // Channel 1 (Primary / Fastly CDN): raw.githubusercontent.com README.md
             try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(RAW_README_URL).openConnection();
+                HttpURLConnection conn = openCleanConnection(RAW_README_URL);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
                 conn.setConnectTimeout(NETWORK_TIMEOUT_MS);
@@ -784,7 +839,7 @@ public class JhcUpdateCheckPatch {
                             }
                             String encFname = java.net.URLEncoder.encode(jsonFname, "UTF-8").replace("+", "%20");
                             String jsonUrl = RAW_UPDATE_BASE_URL + encFname;
-                            HttpURLConnection jConn = (HttpURLConnection) new URL(jsonUrl).openConnection();
+                            HttpURLConnection jConn = openCleanConnection(jsonUrl);
                             jConn.setRequestMethod("GET");
                             jConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
                             jConn.setConnectTimeout(6000);
@@ -822,7 +877,7 @@ public class JhcUpdateCheckPatch {
             if (targetTag == null || downloadUrl == null) {
                 try {
                     String atomUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases.atom";
-                    HttpURLConnection atomConn = (HttpURLConnection) new URL(atomUrl).openConnection();
+                    HttpURLConnection atomConn = openCleanConnection(atomUrl);
                     atomConn.setRequestMethod("GET");
                     atomConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
                     atomConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
@@ -861,7 +916,7 @@ public class JhcUpdateCheckPatch {
                             // Query expanded_assets for this candidate tag
                             try {
                                 String assetsUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/expanded_assets/" + candidateTag;
-                                HttpURLConnection expConn = (HttpURLConnection) new URL(assetsUrl).openConnection();
+                                HttpURLConnection expConn = openCleanConnection(assetsUrl);
                                 expConn.setRequestMethod("GET");
                                 expConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
                                 expConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
@@ -908,7 +963,7 @@ public class JhcUpdateCheckPatch {
             // Channel 3 (Backup REST API): GitHub JSON API
             if (targetTag == null || downloadUrl == null) {
                 try {
-                    HttpURLConnection conn = (HttpURLConnection) new URL(REPO_RELEASES_API).openConnection();
+                    HttpURLConnection conn = openCleanConnection(REPO_RELEASES_API);
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Accept", "application/vnd.github+json");
                     conn.setRequestProperty("User-Agent", "MANCrimSon-Update-Checker");
