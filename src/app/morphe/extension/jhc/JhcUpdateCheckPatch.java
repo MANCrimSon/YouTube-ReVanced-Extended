@@ -81,6 +81,9 @@ public class JhcUpdateCheckPatch {
     // Target repository
     private static final String REPO_OWNER_NAME = "MANCrimSon/YouTube-ReVanced-Extended";
     private static final String REPO_RELEASES_API = "https://api.github.com/repos/" + REPO_OWNER_NAME + "/releases?per_page=10";
+    private static final String RAW_README_URL = "https://raw.githubusercontent.com/" + REPO_OWNER_NAME + "/main/README.md";
+    private static final String RAW_UPDATE_BASE_URL = "https://raw.githubusercontent.com/" + REPO_OWNER_NAME + "/update/";
+    private static final int NETWORK_TIMEOUT_MS = 12000;
 
     public static boolean isRvxTarget(Context context) {
         if (context == null) return false;
@@ -725,117 +728,144 @@ public class JhcUpdateCheckPatch {
             String patchVersion = "";
             String changelogUrl = null;
 
-            // Channel 1: GitHub JSON API
+            // Channel 1 (Primary / Fastly CDN): raw.githubusercontent.com README.md
             try {
-                HttpURLConnection conn = (HttpURLConnection) new URL(REPO_RELEASES_API).openConnection();
+                HttpURLConnection conn = (HttpURLConnection) new URL(RAW_README_URL).openConnection();
                 conn.setRequestMethod("GET");
-                conn.setRequestProperty("Accept", "application/vnd.github+json");
-                conn.setRequestProperty("User-Agent", "MANCrimSon-Update-Checker");
-                conn.setConnectTimeout(6000);
-                conn.setReadTimeout(6000);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                conn.setConnectTimeout(NETWORK_TIMEOUT_MS);
+                conn.setReadTimeout(NETWORK_TIMEOUT_MS);
 
-                int code = conn.getResponseCode();
-                if (code == 200) {
+                if (conn.getResponseCode() == 200) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line);
+                        sb.append(line).append("\n");
                     }
                     reader.close();
                     conn.disconnect();
 
-                    JSONArray releases = new JSONArray(sb.toString());
-                    for (int i = 0; i < releases.length(); i++) {
-                        JSONObject rel = releases.getJSONObject(i);
-                        String tag = rel.optString("tag_name", "").trim();
-                        if (tag.isEmpty()) continue;
+                    String content = sb.toString();
+                    String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
+                    boolean isMusic = pkg.contains("music");
+                    boolean isRvx = isRvxTarget(context);
+                    boolean is64Bit = isDevice64Bit();
 
-                        JSONArray assets = rel.optJSONArray("assets");
-                        if (assets == null || assets.length() == 0) continue;
-
-                        String matchedUrl = findMatchingAsset(context, assets);
-                        if (matchedUrl == null) continue;
-
-                        String body = rel.optString("body", "");
-                        PatchInfo pInfo = extractPatchInfo(context, body);
-                        if (pInfo.version.isEmpty()) {
-                            // Release does not contain matching patches for target brand
-                            continue;
-                        }
-
-                        targetTag = tag;
-                        downloadUrl = matchedUrl;
-                        appVersion = extractVersionFromUrl(matchedUrl);
-                        patchVersion = pInfo.version;
-
-                        if (pInfo.changelogUrl != null && !pInfo.changelogUrl.isEmpty()) {
-                            changelogUrl = pInfo.changelogUrl;
+                    String marker;
+                    if (isMusic) {
+                        if (isRvx) {
+                            marker = is64Bit ? "<!--ytm-rvx-apk-arm64-->" : "<!--ytm-rvx-apk-armv7-->";
                         } else {
-                            changelogUrl = rel.optString("html_url", "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + tag);
+                            marker = is64Bit ? "<!--ytm-morphe-apk-arm64-->" : "<!--ytm-morphe-apk-armv7-->";
                         }
-                        break;
+                    } else {
+                        marker = isRvx ? "<!--yt-rvx-apk-->" : "<!--yt-morphe-apk-->";
+                    }
+
+                    String endMarker = marker.replace("<!--", "<!--/");
+                    String patStr = Pattern.quote(marker) + ".*?\\[.*?\\]\\((https://github\\.com/[^/]+/[^/]+/releases/download/([0-9]+)/([^\\)]+))\\).*?" + Pattern.quote(endMarker);
+                    Matcher m = Pattern.compile(patStr, Pattern.DOTALL).matcher(content);
+                    if (m.find()) {
+                        downloadUrl = m.group(1);
+                        targetTag = m.group(2);
+                        String fname = m.group(3);
+                        appVersion = extractVersionFromUrl(fname);
+                        changelogUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + targetTag;
+
+                        // Fetch exact patch version and changelog from update JSON
+                        try {
+                            String jsonFname;
+                            if (isMusic) {
+                                String arch = is64Bit ? "arm64-v8a" : "arm-v7a";
+                                jsonFname = (isRvx ? "youtube-music-extended (" : "youtube-music-morphe (") + arch + ")-update.json";
+                            } else {
+                                jsonFname = isRvx ? "youtube-extended-update.json" : "youtube-morphe-update.json";
+                            }
+                            String encFname = java.net.URLEncoder.encode(jsonFname, "UTF-8").replace("+", "%20");
+                            String jsonUrl = RAW_UPDATE_BASE_URL + encFname;
+                            HttpURLConnection jConn = (HttpURLConnection) new URL(jsonUrl).openConnection();
+                            jConn.setRequestMethod("GET");
+                            jConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                            jConn.setConnectTimeout(6000);
+                            jConn.setReadTimeout(6000);
+                            if (jConn.getResponseCode() == 200) {
+                                BufferedReader jReader = new BufferedReader(new InputStreamReader(jConn.getInputStream()));
+                                StringBuilder jSb = new StringBuilder();
+                                String jLine;
+                                while ((jLine = jReader.readLine()) != null) jSb.append(jLine);
+                                jReader.close();
+                                jConn.disconnect();
+                                JSONObject jObj = new JSONObject(jSb.toString());
+                                String verStr = jObj.optString("version", "");
+                                Matcher pMat = Pattern.compile("\\(p([0-9a-zA-Z._-]+)").matcher(verStr);
+                                if (pMat.find()) {
+                                    patchVersion = pMat.group(1);
+                                }
+                                String ch = jObj.optString("changelog", "");
+                                if (!ch.isEmpty()) changelogUrl = ch;
+                            } else {
+                                jConn.disconnect();
+                            }
+                        } catch (Throwable ignored) {}
+
+                        Log.d(TAG, "Channel 1 (raw README CDN) matched successfully! Tag=" + targetTag + ", ver=" + appVersion);
                     }
                 } else {
-                    Log.w(TAG, "GitHub API returned " + code + ", falling back to releases.atom");
                     conn.disconnect();
                 }
             } catch (Throwable t) {
-                Log.w(TAG, "GitHub API check failed, falling back to releases.atom", t);
+                Log.w(TAG, "Channel 1 (raw README CDN) check failed, falling back", t);
             }
 
-            // Channel 2 (Backup without rate limits): releases.atom + expanded_assets
+            // Channel 2 (Backup / Zero Rate Limit): releases.atom with Lookback Scan
             if (targetTag == null || downloadUrl == null) {
                 try {
                     String atomUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases.atom";
                     HttpURLConnection atomConn = (HttpURLConnection) new URL(atomUrl).openConnection();
                     atomConn.setRequestMethod("GET");
                     atomConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                    atomConn.setConnectTimeout(6000);
-                    atomConn.setReadTimeout(6000);
+                    atomConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
+                    atomConn.setReadTimeout(NETWORK_TIMEOUT_MS);
 
                     if (atomConn.getResponseCode() == 200) {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(atomConn.getInputStream()));
                         StringBuilder sb = new StringBuilder();
                         String line;
                         while ((line = reader.readLine()) != null) {
-                            sb.append(line);
+                            sb.append(line).append("\n");
                         }
                         reader.close();
                         atomConn.disconnect();
 
                         String atom = sb.toString();
-                        Matcher tagMatcher = Pattern.compile("/releases/tag/([^\"'\\s]+)").matcher(atom);
-                        if (tagMatcher.find()) {
-                            targetTag = tagMatcher.group(1);
-                        }
+                        Matcher entryMatcher = Pattern.compile("<entry>(.*?)</entry>", Pattern.DOTALL).matcher(atom);
+                        while (entryMatcher.find()) {
+                            String entry = entryMatcher.group(1);
+                            Matcher tagMatcher = Pattern.compile("/releases/tag/([0-9]+)").matcher(entry);
+                            if (!tagMatcher.find()) {
+                                tagMatcher = Pattern.compile("tag:github\\.com,[0-9]+:Repository/[0-9]+/([0-9]+)").matcher(entry);
+                                if (!tagMatcher.find()) continue;
+                            }
+                            String candidateTag = tagMatcher.group(1);
 
-                        boolean fbMusic = (context != null) && context.getPackageName().toLowerCase(Locale.ROOT).contains("music");
-                        boolean fbRvx = isRvxTarget(context);
+                            Matcher contentMatcher = Pattern.compile("<content[^>]*>(.*?)</content>", Pattern.DOTALL).matcher(entry);
+                            String entryContent = contentMatcher.find() ? contentMatcher.group(1) : "";
 
-                        String verPatternStr;
-                        if (fbRvx) {
-                            verPatternStr = fbMusic ? "YouTube-Music-Extended:\\s*([0-9.]+)" : "YouTube-Extended:\\s*([0-9.]+)";
-                        } else {
-                            verPatternStr = fbMusic ? "YouTube-Music-Morphe:\\s*([0-9.]+)" : "YouTube-Morphe:\\s*([0-9.]+)";
-                        }
-                        Matcher verMatcher = Pattern.compile(verPatternStr).matcher(atom);
-                        if (verMatcher.find()) {
-                            appVersion = verMatcher.group(1);
-                        } else {
-                            appVersion = fbMusic ? "9.15.51" : "21.13.164";
-                        }
-                        PatchInfo atomPatchInfo = extractPatchInfo(context, atom);
-                        patchVersion = atomPatchInfo.version;
-                        if (targetTag != null) {
-                            // Try expanded_assets for direct APK link
+                            PatchInfo pInfo = extractPatchInfo(context, entryContent);
+                            if (pInfo.version.isEmpty()) {
+                                // Release entry does not contain patches for target brand (skip partial release)
+                                continue;
+                            }
+
+                            // Query expanded_assets for this candidate tag
                             try {
-                                String assetsUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/expanded_assets/" + targetTag;
+                                String assetsUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/expanded_assets/" + candidateTag;
                                 HttpURLConnection expConn = (HttpURLConnection) new URL(assetsUrl).openConnection();
                                 expConn.setRequestMethod("GET");
                                 expConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                                expConn.setConnectTimeout(5000);
-                                expConn.setReadTimeout(5000);
+                                expConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
+                                expConn.setReadTimeout(NETWORK_TIMEOUT_MS);
                                 if (expConn.getResponseCode() == 200) {
                                     BufferedReader expReader = new BufferedReader(new InputStreamReader(expConn.getInputStream()));
                                     StringBuilder expSb = new StringBuilder();
@@ -843,43 +873,96 @@ public class JhcUpdateCheckPatch {
                                     while ((expLine = expReader.readLine()) != null) expSb.append(expLine);
                                     expReader.close();
                                     expConn.disconnect();
+
                                     Matcher linkMatcher = Pattern.compile("href=\"([^\"]*releases/download/[^\"]+)\"").matcher(expSb.toString());
-                                    java.util.List<String> expUrls = new java.util.ArrayList<>();
+                                    List<String> expUrls = new ArrayList<>();
                                     while (linkMatcher.find()) {
                                         String foundHref = linkMatcher.group(1);
                                         expUrls.add(foundHref.startsWith("/") ? ("https://github.com" + foundHref) : foundHref);
                                     }
-                                    downloadUrl = findMatchingUrl(context, expUrls);
+                                    String matchedUrl = findMatchingUrl(context, expUrls);
+                                    if (matchedUrl != null) {
+                                        targetTag = candidateTag;
+                                        downloadUrl = matchedUrl;
+                                        appVersion = extractVersionFromUrl(matchedUrl);
+                                        patchVersion = pInfo.version;
+                                        changelogUrl = !pInfo.changelogUrl.isEmpty() ? pInfo.changelogUrl : ("https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + candidateTag);
+                                        Log.d(TAG, "Channel 2 (releases.atom lookback) matched successfully! Tag=" + targetTag);
+                                        break;
+                                    }
                                 } else {
                                     expConn.disconnect();
                                 }
-                            } catch (Throwable ignored) {}
-
-                            if (downloadUrl == null) {
-                                String appPrefix;
-                                if (fbRvx) {
-                                    appPrefix = fbMusic ? "youtube-music-revanced-extended" : "youtube-revanced-extended";
-                                } else {
-                                    appPrefix = fbMusic ? "youtube-music-morphe" : "youtube-morphe";
-                                }
-                                boolean is64Bit = isDevice64Bit();
-                                String archSuffix = fbMusic ? (is64Bit ? "-arm64-v8a" : "-arm-v7a") : "-all";
-                                String ext = "-v" + appVersion + archSuffix + ".apk";
-                                downloadUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/download/" + targetTag + "/" + appPrefix + ext;
-                            }
-
-                            if (atomPatchInfo.changelogUrl != null && !atomPatchInfo.changelogUrl.isEmpty()) {
-                                changelogUrl = atomPatchInfo.changelogUrl;
-                            } else {
-                                changelogUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + targetTag;
+                            } catch (Throwable expErr) {
+                                Log.w(TAG, "expanded_assets check failed for tag " + candidateTag, expErr);
                             }
                         }
-                        Log.d(TAG, "Extracted release from releases.atom successfully! Tag=" + targetTag);
                     } else {
                         atomConn.disconnect();
                     }
                 } catch (Throwable t) {
-                    Log.e(TAG, "releases.atom fallback failed", t);
+                    Log.e(TAG, "Channel 2 (releases.atom) failed", t);
+                }
+            }
+
+            // Channel 3 (Backup REST API): GitHub JSON API
+            if (targetTag == null || downloadUrl == null) {
+                try {
+                    HttpURLConnection conn = (HttpURLConnection) new URL(REPO_RELEASES_API).openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Accept", "application/vnd.github+json");
+                    conn.setRequestProperty("User-Agent", "MANCrimSon-Update-Checker");
+                    conn.setConnectTimeout(NETWORK_TIMEOUT_MS);
+                    conn.setReadTimeout(NETWORK_TIMEOUT_MS);
+
+                    int code = conn.getResponseCode();
+                    if (code == 200) {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            sb.append(line);
+                        }
+                        reader.close();
+                        conn.disconnect();
+
+                        JSONArray releases = new JSONArray(sb.toString());
+                        for (int i = 0; i < releases.length(); i++) {
+                            JSONObject rel = releases.getJSONObject(i);
+                            String tag = rel.optString("tag_name", "").trim();
+                            if (tag.isEmpty()) continue;
+
+                            JSONArray assets = rel.optJSONArray("assets");
+                            if (assets == null || assets.length() == 0) continue;
+
+                            String matchedUrl = findMatchingAsset(context, assets);
+                            if (matchedUrl == null) continue;
+
+                            String body = rel.optString("body", "");
+                            PatchInfo pInfo = extractPatchInfo(context, body);
+                            if (pInfo.version.isEmpty()) {
+                                continue;
+                            }
+
+                            targetTag = tag;
+                            downloadUrl = matchedUrl;
+                            appVersion = extractVersionFromUrl(matchedUrl);
+                            patchVersion = pInfo.version;
+
+                            if (pInfo.changelogUrl != null && !pInfo.changelogUrl.isEmpty()) {
+                                changelogUrl = pInfo.changelogUrl;
+                            } else {
+                                changelogUrl = rel.optString("html_url", "https://github.com/" + REPO_OWNER_NAME + "/releases/tag/" + tag);
+                            }
+                            Log.d(TAG, "Channel 3 (GitHub API) matched successfully! Tag=" + targetTag);
+                            break;
+                        }
+                    } else {
+                        Log.w(TAG, "GitHub API returned " + code);
+                        conn.disconnect();
+                    }
+                } catch (Throwable t) {
+                    Log.w(TAG, "Channel 3 (GitHub API) check failed", t);
                 }
             }
 
