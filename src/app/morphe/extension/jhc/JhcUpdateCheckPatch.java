@@ -72,6 +72,8 @@ import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import java.security.Provider;
+import java.security.Security;
 
 public class JhcUpdateCheckPatch {
     private static final String TAG = "MANCrimSon_update";
@@ -743,18 +745,86 @@ public class JhcUpdateCheckPatch {
             if (cleanSslSocketFactory != null) {
                 return cleanSslSocketFactory;
             }
-            String[] protocols = new String[] { "TLS", "Default", "TLSv1.3", "TLSv1.2" };
-            for (String protocol : protocols) {
+
+            List<Provider> candidates = new ArrayList<>();
+
+            // 1. System Conscrypt / AndroidOpenSSL providers
+            try {
+                Provider androidOpenSsl = Security.getProvider("AndroidOpenSSL");
+                if (androidOpenSsl != null) candidates.add(androidOpenSsl);
+                Provider conscrypt = Security.getProvider("Conscrypt");
+                if (conscrypt != null) candidates.add(conscrypt);
+            } catch (Throwable ignored) {}
+
+            // 2. Direct instantiation of platform Conscrypt provider classes
+            String[] conscryptClasses = new String[] {
+                "com.android.org.conscrypt.OpenSSLProvider",
+                "org.conscrypt.OpenSSLProvider"
+            };
+            for (String clsName : conscryptClasses) {
                 try {
-                    SSLContext sslContext = SSLContext.getInstance(protocol);
-                    sslContext.init(null, null, null);
-                    cleanSslSocketFactory = sslContext.getSocketFactory();
-                    Log.d(TAG, "Initialized clean TLS SSLSocketFactory using " + protocol);
-                    break;
-                } catch (Throwable t) {
-                    Log.w(TAG, "Failed to init SSLContext with " + protocol, t);
+                    Class<?> cls = Class.forName(clsName);
+                    Provider p = (Provider) cls.getDeclaredConstructor().newInstance();
+                    candidates.add(p);
+                    Log.d(TAG, "Instantiated platform provider directly: " + clsName);
+                } catch (Throwable ignored) {}
+            }
+
+            // 3. Registered non-GMS providers
+            try {
+                for (Provider p : Security.getProviders()) {
+                    String pName = p.getName().toLowerCase(Locale.ROOT);
+                    if (!pName.contains("gms") && !pName.contains("google")) {
+                        if (!candidates.contains(p)) {
+                            candidates.add(p);
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {}
+
+            String[] protocols = new String[] { "TLS", "Default", "TLSv1.3", "TLSv1.2" };
+
+            // Attempt candidates, prioritizing clean platform providers
+            for (Provider p : candidates) {
+                for (String protocol : protocols) {
+                    try {
+                        SSLContext sc = SSLContext.getInstance(protocol, p);
+                        sc.init(null, null, null);
+                        SSLSocketFactory sf = sc.getSocketFactory();
+                        String sfClass = sf.getClass().getName();
+                        if (!sfClass.contains("xxb") && !sfClass.startsWith("xx") && (sfClass.contains(".") && sfClass.length() > 5)) {
+                            cleanSslSocketFactory = sf;
+                            Log.d(TAG, "Acquired clean platform SSLSocketFactory: " + sfClass + " via " + p.getName() + " (" + protocol + ")");
+                            return cleanSslSocketFactory;
+                        }
+                    } catch (Throwable t) {
+                        Log.w(TAG, "Provider " + p.getName() + " (" + protocol + ") failed: " + t.getMessage());
+                    }
                 }
             }
+
+            // Fallback: try candidates without strict class name filter
+            for (Provider p : candidates) {
+                for (String protocol : protocols) {
+                    try {
+                        SSLContext sc = SSLContext.getInstance(protocol, p);
+                        sc.init(null, null, null);
+                        SSLSocketFactory sf = sc.getSocketFactory();
+                        cleanSslSocketFactory = sf;
+                        Log.d(TAG, "Acquired fallback SSLSocketFactory: " + sf.getClass().getName() + " via " + p.getName());
+                        return cleanSslSocketFactory;
+                    } catch (Throwable ignored) {}
+                }
+            }
+
+            // Final fallback
+            try {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, null, null);
+                cleanSslSocketFactory = sslContext.getSocketFactory();
+                Log.d(TAG, "Using default SSLSocketFactory fallback: " + cleanSslSocketFactory.getClass().getName());
+            } catch (Throwable ignored) {}
+
             return cleanSslSocketFactory;
         }
     }
