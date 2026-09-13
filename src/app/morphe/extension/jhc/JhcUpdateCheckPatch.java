@@ -82,10 +82,32 @@ public class JhcUpdateCheckPatch {
     private static final String REPO_OWNER_NAME = "MANCrimSon/YouTube-ReVanced-Extended";
     private static final String REPO_RELEASES_API = "https://api.github.com/repos/" + REPO_OWNER_NAME + "/releases?per_page=10";
 
+    public static boolean isRvxTarget(Context context) {
+        if (context == null) return false;
+        try {
+            String pkg = context.getPackageName().toLowerCase(Locale.ROOT);
+            if (pkg.contains("anddea") || pkg.contains("rvx") || pkg.contains("revanced")) {
+                return true;
+            }
+            if (pkg.contains("morphe")) {
+                return false;
+            }
+        } catch (Throwable ignored) {}
+        try {
+            Class.forName("anddea.extension.shared.settings.preference.AbstractPreferenceFragment");
+            return true;
+        } catch (Throwable ignored) {}
+        try {
+            Class.forName("app.revanced.extension.shared.settings.preference.AbstractPreferenceFragment");
+            return true;
+        } catch (Throwable ignored) {}
+        return false;
+    }
+
     private static String getObtainiumDeepLink(Context context) {
         String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
         boolean isMusic = pkg.contains("music");
-        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
+        boolean isAnddea = isRvxTarget(context);
 
         if (isMusic) {
             if (isAnddea) {
@@ -104,7 +126,7 @@ public class JhcUpdateCheckPatch {
     private static String getAppDisplayName(Context context) {
         String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
         boolean isMusic = pkg.contains("music");
-        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
+        boolean isAnddea = isRvxTarget(context);
         if (isMusic) {
             return isAnddea ? "YT Music RVX" : "YT Music Morphe";
         } else {
@@ -112,9 +134,7 @@ public class JhcUpdateCheckPatch {
         }
     }
     private static String getSettingsBrandName(Context context) {
-        String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
-        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
-        return isAnddea ? "RVX" : "Morphe";
+        return isRvxTarget(context) ? "RVX" : "Morphe";
     }
     private static final String OBTAINIUM_DOWNLOAD_URL = "https://github.com/ImranR98/Obtainium/releases/latest";
 
@@ -584,8 +604,9 @@ public class JhcUpdateCheckPatch {
         try {
             float density = context.getResources().getDisplayMetrics().density;
             String pkg = context.getPackageName();
-            boolean isMorphe = pkg != null && pkg.contains("morphe");
-            boolean isYtmRvx = pkg != null && pkg.contains("music") && !isMorphe;
+            boolean isRvx = isRvxTarget(context);
+            boolean isMorphe = !isRvx;
+            boolean isYtmRvx = isRvx && pkg != null && pkg.contains("music");
 
             // In Morphe, the ImageView is fixed to 24dp in its custom layout.
             // In RVX, the icon slot is standard 48dp (with icon_frame).
@@ -738,6 +759,10 @@ public class JhcUpdateCheckPatch {
 
                         String body = rel.optString("body", "");
                         PatchInfo pInfo = extractPatchInfo(context, body);
+                        if (pInfo.version.isEmpty()) {
+                            // Release does not contain matching patches for target brand
+                            continue;
+                        }
 
                         targetTag = tag;
                         downloadUrl = matchedUrl;
@@ -784,11 +809,21 @@ public class JhcUpdateCheckPatch {
                         if (tagMatcher.find()) {
                             targetTag = tagMatcher.group(1);
                         }
-                        Matcher verMatcher = Pattern.compile("YouTube-Morphe:\\s*([0-9.]+)").matcher(atom);
+
+                        boolean fbMusic = (context != null) && context.getPackageName().toLowerCase(Locale.ROOT).contains("music");
+                        boolean fbRvx = isRvxTarget(context);
+
+                        String verPatternStr;
+                        if (fbRvx) {
+                            verPatternStr = fbMusic ? "YouTube-Music-Extended:\\s*([0-9.]+)" : "YouTube-Extended:\\s*([0-9.]+)";
+                        } else {
+                            verPatternStr = fbMusic ? "YouTube-Music-Morphe:\\s*([0-9.]+)" : "YouTube-Morphe:\\s*([0-9.]+)";
+                        }
+                        Matcher verMatcher = Pattern.compile(verPatternStr).matcher(atom);
                         if (verMatcher.find()) {
                             appVersion = verMatcher.group(1);
                         } else {
-                            appVersion = "21.13.164";
+                            appVersion = fbMusic ? "9.15.51" : "21.13.164";
                         }
                         PatchInfo atomPatchInfo = extractPatchInfo(context, atom);
                         patchVersion = atomPatchInfo.version;
@@ -821,11 +856,15 @@ public class JhcUpdateCheckPatch {
                             } catch (Throwable ignored) {}
 
                             if (downloadUrl == null) {
-                                String fbPkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
-                                boolean fbMusic = fbPkg.contains("music");
-                                boolean fbRoot = fbPkg.startsWith("com.google.android");
-                                String appPrefix = fbMusic ? "youtube-music-morphe" : "youtube-morphe";
-                                String ext = fbRoot ? "-module-v" + appVersion + "-all.zip" : "-v" + appVersion + "-all.apk";
+                                String appPrefix;
+                                if (fbRvx) {
+                                    appPrefix = fbMusic ? "youtube-music-revanced-extended" : "youtube-revanced-extended";
+                                } else {
+                                    appPrefix = fbMusic ? "youtube-music-morphe" : "youtube-morphe";
+                                }
+                                boolean is64Bit = isDevice64Bit();
+                                String archSuffix = fbMusic ? (is64Bit ? "-arm64-v8a" : "-arm-v7a") : "-all";
+                                String ext = "-v" + appVersion + archSuffix + ".apk";
                                 downloadUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/download/" + targetTag + "/" + appPrefix + ext;
                             }
 
@@ -917,7 +956,7 @@ public class JhcUpdateCheckPatch {
 
         String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
         boolean isMusic = pkg.contains("music");
-        boolean isAnddea = pkg.contains("anddea") || pkg.contains("rvx");
+        boolean isAnddea = isRvxTarget(context);
 
         String[] targetRepos;
         if (isAnddea) {
@@ -957,44 +996,61 @@ public class JhcUpdateCheckPatch {
             } catch (Throwable ignored) {}
         }
 
-        // Fallback search for any patches and changelog in release body
-        String fallbackVer = "";
-        String fallbackChangelog = "";
-        try {
-            Pattern pAnyVer = Pattern.compile("patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
-            Matcher mAnyVer = pAnyVer.matcher(body);
-            if (mAnyVer.find()) {
-                fallbackVer = mAnyVer.group(1);
-            }
-            Pattern pAnyCh = Pattern.compile("https://github\\.com/[^\\s)\"<>]+/releases/tag/[^\\s)\"<>]+");
-            Matcher mAnyCh = pAnyCh.matcher(body);
-            if (mAnyCh.find()) {
-                fallbackChangelog = mAnyCh.group(0);
-            }
-        } catch (Throwable ignored) {}
+        // Strict brand-aware fallback: NEVER cross Morphe and anddea
+        if (isAnddea) {
+            try {
+                Pattern pAnyVer = Pattern.compile("anddea/[^/\\s]+/patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
+                Matcher mAnyVer = pAnyVer.matcher(body);
+                if (mAnyVer.find()) {
+                    String ver = mAnyVer.group(1);
+                    Pattern pAnyCh = Pattern.compile("https://github\\.com/anddea/[^/\\s]+/releases/tag/[^\\s)\"<>]+");
+                    Matcher mAnyCh = pAnyCh.matcher(body);
+                    String ch = mAnyCh.find() ? mAnyCh.group(0) : "https://github.com/anddea/revanced-patches/releases";
+                    return new PatchInfo(ver, ch);
+                }
+            } catch (Throwable ignored) {}
+            return new PatchInfo("", "");
+        } else {
+            try {
+                Pattern pAnyVer = Pattern.compile("(?:MorpheApp|sashade8-ship-it)/[^/\\s]+/patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
+                Matcher mAnyVer = pAnyVer.matcher(body);
+                if (mAnyVer.find()) {
+                    String ver = mAnyVer.group(1);
+                    Pattern pAnyCh = Pattern.compile("https://github\\.com/(?:MorpheApp|sashade8-ship-it)/[^/\\s]+/releases/tag/[^\\s)\"<>]+");
+                    Matcher mAnyCh = pAnyCh.matcher(body);
+                    String ch = mAnyCh.find() ? mAnyCh.group(0) : "https://github.com/MorpheApp/morphe-patches/releases";
+                    return new PatchInfo(ver, ch);
+                }
+            } catch (Throwable ignored) {}
+            return new PatchInfo("", "");
+        }
+    }
 
-        return new PatchInfo(fallbackVer, fallbackChangelog);
+    private static boolean isDevice64Bit() {
+        if (Build.SUPPORTED_ABIS != null && Build.SUPPORTED_ABIS.length > 0) {
+            for (String abi : Build.SUPPORTED_ABIS) {
+                if (abi != null) {
+                    String a = abi.toLowerCase(Locale.ROOT);
+                    if (a.contains("arm64") || a.contains("aarch64") || a.contains("x86_64") || a.contains("mips64")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private static String findMatchingUrl(Context context, java.util.List<String> urls) {
         if (urls == null || urls.isEmpty()) return null;
 
-        boolean is64Bit = false;
-        if (Build.SUPPORTED_ABIS != null) {
-            for (String abi : Build.SUPPORTED_ABIS) {
-                if (abi.contains("arm64")) {
-                    is64Bit = true;
-                    break;
-                }
-            }
-        }
-
+        boolean is64Bit = isDevice64Bit();
         String pkg = (context != null) ? context.getPackageName().toLowerCase(Locale.ROOT) : "";
         boolean isMusic = pkg.contains("music");
-        boolean isRoot = pkg.startsWith("com.google.android");
+        boolean isRvx = isRvxTarget(context);
 
-        String allApkUrl = null;
-        String archApkUrl = null;
+        String exactArchUrl = null;
+        String universalUrl = null;
+        String fallbackArchUrl = null;
 
         for (String url : urls) {
             if (url == null || url.isEmpty()) continue;
@@ -1002,33 +1058,60 @@ public class JhcUpdateCheckPatch {
             int lastSlash = name.lastIndexOf('/');
             if (lastSlash != -1) name = name.substring(lastSlash + 1);
 
-            // If root: look for Magisk/KernelSU module .zip
-            if (isRoot) {
-                if (!name.endsWith(".zip") || !name.contains("module")) continue;
-                if (isMusic && !name.contains("music")) continue;
-                if (!isMusic && name.contains("music")) continue;
-                return url;
-            }
-
-            // If non-root: look for .apk (excluding modules)
-            if (!name.endsWith(".apk") || name.contains("module")) {
+            // 1. Only look for non-root .apk packages; strictly ignore Magisk/KernelSU .zip modules
+            if (!name.endsWith(".apk") || name.contains("module") || name.endsWith(".zip")) {
                 continue;
             }
 
+            // 2. Music vs YouTube separation:
             if (isMusic && !name.contains("music")) continue;
             if (!isMusic && name.contains("music")) continue;
 
-            if (name.contains("-all.apk")) {
-                allApkUrl = url;
+            // 3. Brand separation (RVX vs Morphe):
+            if (isRvx) {
+                if (name.contains("morphe")) continue;
+                if (!name.contains("revanced-extended") && !name.contains("extended")) continue;
+            } else {
+                if (!name.contains("morphe")) continue;
+                if (name.contains("revanced-extended") || name.contains("extended")) continue;
             }
-            if (is64Bit && name.contains("arm64")) {
-                archApkUrl = url;
-            } else if (!is64Bit && (name.contains("arm-v7a") || name.contains("armeabi-v7a"))) {
-                archApkUrl = url;
+
+            // 4. Architecture matching (arm64-v8a vs arm-v7a vs all):
+            boolean isArm64Asset = name.contains("arm64") || name.contains("aarch64");
+            boolean isArmV7Asset = name.contains("arm-v7a") || name.contains("armeabi-v7a") || name.contains("armv7");
+            boolean isUniversalAsset = name.contains("-all.") || name.contains("universal");
+
+            if (is64Bit) {
+                // 64-bit device:
+                // Primary: arm64
+                // Secondary: universal (-all)
+                // Fallback: arm-v7a (32-bit compat)
+                if (isArm64Asset) {
+                    exactArchUrl = url;
+                } else if (isUniversalAsset) {
+                    universalUrl = url;
+                } else if (isArmV7Asset) {
+                    fallbackArchUrl = url;
+                }
+            } else {
+                // 32-bit device:
+                // Primary: arm-v7a
+                // Secondary: universal (-all)
+                // STRICTLY DISALLOW arm64 (cannot run on 32-bit hardware)
+                if (isArm64Asset) {
+                    continue;
+                }
+                if (isArmV7Asset) {
+                    exactArchUrl = url;
+                } else if (isUniversalAsset) {
+                    universalUrl = url;
+                }
             }
         }
 
-        return archApkUrl != null ? archApkUrl : allApkUrl;
+        if (exactArchUrl != null) return exactArchUrl;
+        if (universalUrl != null) return universalUrl;
+        return fallbackArchUrl;
     }
 
     private static String findMatchingAsset(Context context, JSONArray assets) {
@@ -1420,11 +1503,8 @@ public class JhcUpdateCheckPatch {
             infoCard.addView(changelogBtn);
             leftCol.addView(infoCard);
 
-            // 3. Primary Download Button (APK for NonRoot, Magisk Module for Root)
-            String pkgName = activity.getPackageName().toLowerCase(Locale.ROOT);
-            boolean isRootApp = pkgName.startsWith("com.google.android");
-            String dlBtnText = isRootApp ? getString("download_btn_root") : getString("download_btn");
-            TextView downloadBtn = createButton(activity, dlBtnText, colPrimaryBtnBg, colPrimaryBtnText, density, 14);
+            // 3. Primary Download Button
+            TextView downloadBtn = createButton(activity, getString("download_btn"), colPrimaryBtnBg, colPrimaryBtnText, density, 14);
             LinearLayout.LayoutParams dlLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42, density));
             dlLp.topMargin = dp(10, density);
             downloadBtn.setLayoutParams(dlLp);
