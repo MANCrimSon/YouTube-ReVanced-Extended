@@ -1705,15 +1705,40 @@ public class JhcUpdateCheckPatch {
             cardDivider.setLayoutParams(cDivLp);
             infoCard.addView(cardDivider);
 
+            LinearLayout linksRow = new LinearLayout(activity);
+            linksRow.setOrientation(LinearLayout.HORIZONTAL);
+            linksRow.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams linksRowLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            linksRowLp.topMargin = dp(2, density);
+            linksRow.setLayoutParams(linksRowLp);
+
             TextView changelogBtn = new TextView(activity);
             changelogBtn.setText(getString("info_changelog_btn"));
             changelogBtn.setTextColor(colAccentText);
-            changelogBtn.setTextSize(12);
+            changelogBtn.setTextSize(11.5f);
             changelogBtn.setTypeface(Typeface.DEFAULT_BOLD);
             changelogBtn.setOnClickListener(v -> {
                 openUrl(activity, changelogUrl);
             });
-            infoCard.addView(changelogBtn);
+            linksRow.addView(changelogBtn);
+
+            TextView bulletSep = new TextView(activity);
+            bulletSep.setText("  •  ");
+            bulletSep.setTextColor(colSubtitle);
+            bulletSep.setTextSize(11.5f);
+            linksRow.addView(bulletSep);
+
+            TextView authorBtn = new TextView(activity);
+            authorBtn.setText(getString("info_github_author_btn"));
+            authorBtn.setTextColor(colAccentText);
+            authorBtn.setTextSize(11.5f);
+            authorBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            authorBtn.setOnClickListener(v -> {
+                openUrl(activity, "https://github.com/" + REPO_OWNER_NAME);
+            });
+            linksRow.addView(authorBtn);
+
+            infoCard.addView(linksRow);
             leftCol.addView(infoCard);
 
             // 3. Primary Download Button
@@ -2181,7 +2206,8 @@ public class JhcUpdateCheckPatch {
                 case "subtitle_fmt": return "Збірка %s";
                 case "info_patch_label": return "Версія патчів:";
                 case "info_build_label": return "Номер збірки:";
-                case "info_changelog_btn": return "🐙  Список змін на GitHub  ↗";
+                case "info_changelog_btn": return emoji(0x1F4CB) + "  Список змін  ↗";
+                case "info_github_author_btn": return emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB) + "  GitHub автора  ↗";
                 case "download_btn": return "⬇️  Завантажити APK";
                 case "download_btn_root": return "⬇️  Завантажити модуль (Root)";
                 case "obtainium_label": return "ОНОВЛЕННЯ ЧЕРЕЗ OBTAINIUM:";
@@ -2221,7 +2247,8 @@ public class JhcUpdateCheckPatch {
                 case "subtitle_fmt": return "Сборка %s";
                 case "info_patch_label": return "Версия патчей:";
                 case "info_build_label": return "Номер сборки:";
-                case "info_changelog_btn": return "🐙  Список изменений на GitHub  ↗";
+                case "info_changelog_btn": return emoji(0x1F4CB) + "  Список изменений  ↗";
+                case "info_github_author_btn": return emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB) + "  GitHub автора  ↗";
                 case "download_btn": return "⬇️  Скачать APK";
                 case "download_btn_root": return "⬇️  Скачать модуль (Root)";
                 case "obtainium_label": return "ОБНОВЛЕНИЕ ЧЕРЕЗ OBTAINIUM:";
@@ -2261,7 +2288,8 @@ public class JhcUpdateCheckPatch {
                 case "subtitle_fmt": return "Versión %s";
                 case "info_patch_label": return "Versión de parches:";
                 case "info_build_label": return "Número de build:";
-                case "info_changelog_btn": return "🐙  Registro de cambios en GitHub  ↗";
+                case "info_changelog_btn": return emoji(0x1F4CB) + "  Registro de cambios  ↗";
+                case "info_github_author_btn": return emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB) + "  GitHub del autor  ↗";
                 case "download_btn": return "⬇️  Descargar APK";
                 case "download_btn_root": return "⬇️  Descargar módulo (Root)";
                 case "obtainium_label": return "ACTUALIZACIÓN VÍA OBTAINIUM:";
@@ -2301,7 +2329,8 @@ public class JhcUpdateCheckPatch {
                 case "subtitle_fmt": return "Build %s";
                 case "info_patch_label": return "Patch-Version:";
                 case "info_build_label": return "Build-Nummer:";
-                case "info_changelog_btn": return "🐙  Changelog auf GitHub  ↗";
+                case "info_changelog_btn": return emoji(0x1F4CB) + "  Changelog  ↗";
+                case "info_github_author_btn": return emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB) + "  GitHub des Autors  ↗";
                 case "download_btn": return "⬇️  APK herunterladen";
                 case "download_btn_root": return "⬇️  Modul herunterladen (Root)";
                 case "obtainium_label": return "AKTUALISIERUNG ÜBER OBTAINIUM:";
@@ -2341,7 +2370,8 @@ public class JhcUpdateCheckPatch {
             case "subtitle_fmt": return "Build %s";
             case "info_patch_label": return "Patches version:";
             case "info_build_label": return "Build number:";
-            case "info_changelog_btn": return "🐙  Changelog on GitHub  ↗";
+            case "info_changelog_btn": return emoji(0x1F4CB) + "  Changelog  ↗";
+            case "info_github_author_btn": return emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB) + "  Author GitHub  ↗";
             case "download_btn": return "⬇️  Download APK";
             case "download_btn_root": return "⬇️  Download Module (Root)";
             case "obtainium_label": return "UPDATE VIA OBTAINIUM:";
