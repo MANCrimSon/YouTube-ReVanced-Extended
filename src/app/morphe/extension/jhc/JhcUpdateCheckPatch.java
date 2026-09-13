@@ -975,21 +975,22 @@ public class JhcUpdateCheckPatch {
                     String ver = mVer.group(1);
                     String changelog = "";
 
-                    // If dual-vot patches are used, changelog points to official upstream MorpheApp/morphe-patches
-                    String chRepo = repo;
+                    // For dual-vot patches, link strictly to official upstream MorpheApp base version
                     if (repo.contains("dual-vot") || ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
-                        chRepo = "MorpheApp/morphe-patches";
-                    }
-
-                    Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(chRepo) + "/releases/tag/[^\\s)\"<>]+");
-                    Matcher mCh = pCh.matcher(body);
-                    if (mCh.find()) {
-                        changelog = mCh.group(0);
-                    } else if (ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
                         String baseVer = ver.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "").replaceAll("^[vV]", "");
                         changelog = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
                     } else {
-                        changelog = "https://github.com/" + chRepo + "/releases";
+                        int startIdx = mVer.end();
+                        int nextPatchesIdx = body.indexOf("Patches:", startIdx);
+                        String section = (nextPatchesIdx != -1) ? body.substring(startIdx, nextPatchesIdx) : body.substring(startIdx);
+                        Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(repo) + "/releases/tag/[^\\s)\"<>]+");
+                        Matcher mCh = pCh.matcher(section);
+                        if (mCh.find()) {
+                            changelog = mCh.group(0);
+                        } else {
+                            String cleanVer = ver.replaceAll("^[vV]", "");
+                            changelog = "https://github.com/" + repo + "/releases/tag/v" + cleanVer;
+                        }
                     }
                     return new PatchInfo(ver, changelog);
                 }
@@ -1003,9 +1004,8 @@ public class JhcUpdateCheckPatch {
                 Matcher mAnyVer = pAnyVer.matcher(body);
                 if (mAnyVer.find()) {
                     String ver = mAnyVer.group(1);
-                    Pattern pAnyCh = Pattern.compile("https://github\\.com/anddea/[^/\\s]+/releases/tag/[^\\s)\"<>]+");
-                    Matcher mAnyCh = pAnyCh.matcher(body);
-                    String ch = mAnyCh.find() ? mAnyCh.group(0) : "https://github.com/anddea/revanced-patches/releases";
+                    String cleanVer = ver.replaceAll("^[vV]", "");
+                    String ch = "https://github.com/anddea/revanced-patches/releases/tag/v" + cleanVer;
                     return new PatchInfo(ver, ch);
                 }
             } catch (Throwable ignored) {}
@@ -1016,9 +1016,14 @@ public class JhcUpdateCheckPatch {
                 Matcher mAnyVer = pAnyVer.matcher(body);
                 if (mAnyVer.find()) {
                     String ver = mAnyVer.group(1);
-                    Pattern pAnyCh = Pattern.compile("https://github\\.com/(?:MorpheApp|sashade8-ship-it)/[^/\\s]+/releases/tag/[^\\s)\"<>]+");
-                    Matcher mAnyCh = pAnyCh.matcher(body);
-                    String ch = mAnyCh.find() ? mAnyCh.group(0) : "https://github.com/MorpheApp/morphe-patches/releases";
+                    String ch;
+                    if (ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
+                        String baseVer = ver.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "").replaceAll("^[vV]", "");
+                        ch = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
+                    } else {
+                        String cleanVer = ver.replaceAll("^[vV]", "");
+                        ch = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + cleanVer;
+                    }
                     return new PatchInfo(ver, ch);
                 }
             } catch (Throwable ignored) {}
