@@ -980,6 +980,27 @@ build_rv() {
 			fi
 		fi
 
+		if [ "$build_mode" = module ]; then
+			local stock_branding_patches=(
+				"Custom branding"
+				"Change header"
+				"Custom branding for YouTube"
+				"Custom branding for YouTube Music"
+				"Custom branding icon for YouTube"
+				"Custom branding icon for YouTube Music"
+				"Custom branding name for YouTube"
+				"Custom branding name for YouTube Music"
+				"Custom header for YouTube"
+				"Custom header for YouTube Music"
+			)
+			local bp
+			for bp in "${stock_branding_patches[@]}"; do
+				if grep -qi -E "^Name:[[:space:]]*${bp}[[:space:]]*$" <<<"$list_patches"; then
+					patcher_args+=("-d \"${bp}\"")
+				fi
+			done
+		fi
+
 		local stock_apk_to_patch="${stock_apk}.stripped.apk"
 		cp -f "$stock_apk" "$stock_apk_to_patch"
 		if [ "$build_mode" = module ]; then
