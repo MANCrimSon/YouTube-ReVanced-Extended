@@ -2,15 +2,15 @@
 
 ## 1. Current State and Date
 - **Date**: 2026-09-14
-- **Summary**: Fixed changelog link in in-app updater: eliminated unintended fallback to raw markdown files and ensured direct links to official GitHub patch releases (anddea/revanced-patches and MorpheApp/morphe-patches).
-- **Commit**: Direct patch release changelogs.
+- **Summary**: Verified and finalized patch changelog routing across all variants: Dual-VoT maps strictly to `sashade8-ship-it/dual-vot-patches`, official Morphe to `MorpheApp/morphe-patches`, and RVX to `anddea/revanced-patches`.
+- **Commit**: Accurate patch repository changelogs.
 
 ## 2. What Was Done and Verified
 - **Files Modified**:
   - `src/app/morphe/extension/jhc/JhcUpdateCheckPatch.java`:
-    - Added helper `getPatchChangelogUrl(context, patchVersion)` returning the exact GitHub release URL for the patch brand.
-    - Fixed Channel 1 where Magisk `update/*.json`'s raw markdown file URL was unintentionally overriding the release link.
-    - Verified that RVX links to `anddea/revanced-patches/releases/tag/v...` and Morphe links to `MorpheApp/morphe-patches/releases/tag/v...`.
+    - Updated `getPatchChangelogUrl` and `extractPatchInfo` to map dual-vot releases strictly to `sashade8-ship-it/dual-vot-patches/releases/tag/v...`.
+    - Handled fallback gracefully: if dual-vot only or morphe only is present, the app correctly resolves the available patch changelog without cross-brand contamination.
+    - Verified all 4 scenarios (Dual-VoT, MorpheApp official, anddea RVX, single-source release).
   - `bin/update-check.mpp`:
     - Recompiled with clean DEX bytecode using `python build_patch.py`.
 - **Quick Verification Commands**:
@@ -18,13 +18,14 @@
   - Run update matrix: `python tests/test_update_matrix.py`
 
 ## 3. Key Decisions and Rationale
-- **Direct Patch Release Links vs Raw Markdown**:
-  - The `update/*.json` file contains a `changelog` field pointing to raw markdown specifically for the Magisk Manager app. In the Android in-app updater, opening raw markdown in a web browser shows unformatted raw text. The in-app updater now strictly resolves to the official patch release on GitHub.
+- **Exact Patch Source Attribution**:
+  - Clicking "Список изменений" for Dual-VoT builds opens the specific Dual-VoT release notes (`sashade8-ship-it/dual-vot-patches`), which details the translation and audio features and links directly to the upstream MorpheApp base.
+  - No raw markdown or unintended manager files are ever exposed to the user browser.
 
 ## 4. Limitations and Gotchas
-- For Dual-VoT patches, link maps to upstream base MorpheApp releases (`v1.43.0-dev.4`).
+- None. All release tags match GitHub release schema across all repositories.
 
 ## 5. Next Steps
 - Commit and push changes to `origin/main`.
-- Trigger build in GitHub Actions.
+- Trigger full build in GitHub Actions.
 
