@@ -1,6 +1,6 @@
 ## YouTube Music Morphe
-* **Version:** v9.15.51 (p1.43.0-dev.4 b2026091304)
-* **Release:** [#427](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/427)
+* **Version:** v9.15.51 (p1.43.0-dev.6 b2026091401)
+* **Release:** [#428](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/428)
 
 ### Release Notes:
 YouTube-Extended: 21.07.247  
@@ -17,8 +17,8 @@ CLI: MorpheApp/morphe-desktop/morphe-desktop-1.15.2-dev.3-all.jar
 Patches: anddea/revanced-patches/patches-4.3.0-dev.6.mpp  
 [Changelog](https://github.com/anddea/revanced-patches/releases/tag/v4.3.0-dev.6)
 
-Patches: sashade8-ship-it/dual-vot-patches/patches-1.43.0-dev.4-dualvot.8.5.2.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.43.0-dev.4-dualvot.8.5.2)
+Patches: sashade8-ship-it/dual-vot-patches/patches-1.43.0-dev.6-dualvot.8.5.2.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.43.0-dev.6-dualvot.8.5.2)
 
-Patches: MorpheApp/morphe-patches/patches-1.43.0-dev.4.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.43.0-dev.4)  
+Patches: MorpheApp/morphe-patches/patches-1.43.0-dev.6.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.43.0-dev.6)  
