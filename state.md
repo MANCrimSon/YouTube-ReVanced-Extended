@@ -2,15 +2,15 @@
 
 ## 1. Current State and Date
 - **Date**: 2026-09-14
-- **Summary**: Confirmed 100% operational in-app update checks on Samsung SM-S938B (Android 16) with Release 426! Added author GitHub repository link alongside changelog link in the update dialog with full multilingual support.
-- **Commit**: Adding author GitHub link to info card.
+- **Summary**: Fixed changelog link in in-app updater: eliminated unintended fallback to raw markdown files and ensured direct links to official GitHub patch releases (anddea/revanced-patches and MorpheApp/morphe-patches).
+- **Commit**: Direct patch release changelogs.
 
 ## 2. What Was Done and Verified
 - **Files Modified**:
   - `src/app/morphe/extension/jhc/JhcUpdateCheckPatch.java`:
-    - Updated info card with a horizontal row: `[ 📋 Список изменений ↗ ] • [ 🧑‍💻 GitHub автора ↗ ]`.
-    - Maintained non-dismissing behavior on click so that browsing links leaves the update sheet active.
-    - Added full multilingual translations for Ukrainian, Russian, Belarusian, Kazakh, Spanish, German, and English.
+    - Added helper `getPatchChangelogUrl(context, patchVersion)` returning the exact GitHub release URL for the patch brand.
+    - Fixed Channel 1 where Magisk `update/*.json`'s raw markdown file URL was unintentionally overriding the release link.
+    - Verified that RVX links to `anddea/revanced-patches/releases/tag/v...` and Morphe links to `MorpheApp/morphe-patches/releases/tag/v...`.
   - `bin/update-check.mpp`:
     - Recompiled with clean DEX bytecode using `python build_patch.py`.
 - **Quick Verification Commands**:
@@ -18,13 +18,13 @@
   - Run update matrix: `python tests/test_update_matrix.py`
 
 ## 3. Key Decisions and Rationale
-- **Non-dismissing Links**: Clicking either link opens the browser via system Intent without calling `dialog.dismiss()`, preserving the update interface when returning to the app.
-- **Unicode Resilience**: Used `emoji(0x1F4CB)` for clipboard and `emoji(0x1F9D1) + "\u200D" + emoji(0x1F4BB)` for developer emoji to prevent codepage corruption on Windows CP1251 environments.
+- **Direct Patch Release Links vs Raw Markdown**:
+  - The `update/*.json` file contains a `changelog` field pointing to raw markdown specifically for the Magisk Manager app. In the Android in-app updater, opening raw markdown in a web browser shows unformatted raw text. The in-app updater now strictly resolves to the official patch release on GitHub.
 
 ## 4. Limitations and Gotchas
-- Keep links layout constrained to 11.5sp to avoid wrapping on narrow 360dp screens.
+- For Dual-VoT patches, link maps to upstream base MorpheApp releases (`v1.43.0-dev.4`).
 
 ## 5. Next Steps
 - Commit and push changes to `origin/main`.
-- Trigger GitHub Actions build when requested.
+- Trigger build in GitHub Actions.
 

@@ -926,9 +926,11 @@ public class JhcUpdateCheckPatch {
                                 Matcher pMat = Pattern.compile("\\(p([0-9a-zA-Z._-]+)").matcher(verStr);
                                 if (pMat.find()) {
                                     patchVersion = pMat.group(1);
+                                    String patchCh = getPatchChangelogUrl(context, patchVersion);
+                                    if (!patchCh.isEmpty()) {
+                                        changelogUrl = patchCh;
+                                    }
                                 }
-                                String ch = jObj.optString("changelog", "");
-                                if (!ch.isEmpty()) changelogUrl = ch;
                             } else {
                                 jConn.disconnect();
                             }
@@ -1154,6 +1156,20 @@ public class JhcUpdateCheckPatch {
         PatchInfo(String version, String changelogUrl) {
             this.version = (version != null) ? version : "";
             this.changelogUrl = (changelogUrl != null) ? changelogUrl : "";
+        }
+    }
+
+    private static String getPatchChangelogUrl(Context context, String patchVersion) {
+        if (patchVersion == null || patchVersion.isEmpty()) {
+            return "";
+        }
+        boolean isAnddea = isRvxTarget(context);
+        if (isAnddea) {
+            String cleanVer = patchVersion.replaceAll("^[vV]", "");
+            return "https://github.com/anddea/revanced-patches/releases/tag/v" + cleanVer;
+        } else {
+            String baseVer = patchVersion.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "").replaceAll("^[vV]", "");
+            return "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
         }
     }
 
