@@ -1167,10 +1167,9 @@ public class JhcUpdateCheckPatch {
         boolean isAnddea = isRvxTarget(context);
         if (isAnddea) {
             return "https://github.com/anddea/revanced-patches/releases/tag/v" + cleanVer;
-        } else if (cleanVer.toLowerCase(Locale.ROOT).contains("dualvot")) {
-            return "https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v" + cleanVer;
         } else {
-            return "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + cleanVer;
+            String baseVer = cleanVer.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "");
+            return "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
         }
     }
 
@@ -1200,16 +1199,22 @@ public class JhcUpdateCheckPatch {
                     String ver = mVer.group(1);
                     String changelog = "";
 
-                    int startIdx = mVer.end();
-                    int nextPatchesIdx = body.indexOf("Patches:", startIdx);
-                    String section = (nextPatchesIdx != -1) ? body.substring(startIdx, nextPatchesIdx) : body.substring(startIdx);
-                    Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(repo) + "/releases/tag/[^\\s)\"<>]+");
-                    Matcher mCh = pCh.matcher(section);
-                    if (mCh.find()) {
-                        changelog = mCh.group(0);
+                    // For dual-vot patches, link strictly to official upstream MorpheApp base version
+                    if (repo.contains("dual-vot") || ver.toLowerCase(Locale.ROOT).contains("dualvot")) {
+                        String baseVer = ver.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "").replaceAll("^[vV]", "");
+                        changelog = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
                     } else {
-                        String cleanVer = ver.replaceAll("^[vV]", "");
-                        changelog = "https://github.com/" + repo + "/releases/tag/v" + cleanVer;
+                        int startIdx = mVer.end();
+                        int nextPatchesIdx = body.indexOf("Patches:", startIdx);
+                        String section = (nextPatchesIdx != -1) ? body.substring(startIdx, nextPatchesIdx) : body.substring(startIdx);
+                        Pattern pCh = Pattern.compile("https://github\\.com/" + Pattern.quote(repo) + "/releases/tag/[^\\s)\"<>]+");
+                        Matcher mCh = pCh.matcher(section);
+                        if (mCh.find()) {
+                            changelog = mCh.group(0);
+                        } else {
+                            String cleanVer = ver.replaceAll("^[vV]", "");
+                            changelog = "https://github.com/" + repo + "/releases/tag/v" + cleanVer;
+                        }
                     }
                     return new PatchInfo(ver, changelog);
                 }
@@ -1238,7 +1243,8 @@ public class JhcUpdateCheckPatch {
                     String cleanVer = ver.replaceAll("^[vV]", "");
                     String ch;
                     if (cleanVer.toLowerCase(Locale.ROOT).contains("dualvot")) {
-                        ch = "https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v" + cleanVer;
+                        String baseVer = cleanVer.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "");
+                        ch = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
                     } else {
                         ch = "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + cleanVer;
                     }
