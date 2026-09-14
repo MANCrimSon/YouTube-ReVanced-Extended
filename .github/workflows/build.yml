@@ -109,7 +109,7 @@ jobs:
             if [ -f "config.json" ] && [ -z "${{ inputs.only_apps }}" ]; then
               CFG_FILE="config.json"
             fi
-            NEXT_VER_CODE="${{ steps.next_ver_code.outputs.MODULE_VER_CODE }}" ./build.sh "${{ github.workspace }}/${CFG_FILE}"
+            NEXT_VER_CODE="${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" MODULE_VER_CODE="${{ steps.next_ver_code.outputs.MODULE_VER_CODE }}" ./build.sh "${{ github.workspace }}/${CFG_FILE}"
 
       # build_rv() upserts each successfully downloaded/used apk into
       # stock-apks/.manifest during build. Any cached apk NOT recorded there

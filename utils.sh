@@ -13,7 +13,8 @@ STOCK_CACHE_DIR="stock-apks"
 DL_SRCS=("direct" "archive" "apkmirror" "uptodown")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
-NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
+NEXT_VER_CODE=${NEXT_VER_CODE:-}
+MODULE_VER_CODE=${MODULE_VER_CODE:-$(date +'%Y%m%d01')}
 OS=$(uname -o)
 
 toml_prep() {
@@ -1066,6 +1067,8 @@ build_rv() {
 		local display_ver="${version#v}"
 		if [ -n "$pt_ver" ]; then
 			display_ver="${display_ver} (p${pt_ver}${build_tag})"
+		elif [ -n "$build_tag" ]; then
+			display_ver="${display_ver} (${build_tag# })"
 		fi
 
 		module_prop \
@@ -1135,7 +1138,7 @@ module_prop() {
 	echo "id=${1}
 name=${2}
 version=v${3}
-versionCode=${NEXT_VER_CODE}
+versionCode=${MODULE_VER_CODE}
 author=j-hc
 description=${4}" >"${6}/module.prop"
 
