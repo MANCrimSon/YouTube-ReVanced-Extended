@@ -6,8 +6,8 @@ on:
         description: Comma separated list of apps to build (e.g. YouTube-Morphe, YouTube-Extended)
         required: false
         type: string
-  schedule:
-    - cron: "23 20 * * *"
+#  schedule:
+#    - cron: "23 20 * * *"
 
 jobs:
   cleanup:
