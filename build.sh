@@ -177,7 +177,7 @@ wait
 _clean_tmp
 if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
 
-log "\nInstall instructions: [NonRoot](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#nonroot-apk) · [Root](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#root-magisk--kernelsu)\n"
+log "\nInstall instructions: [NonRoot](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#nonroot) · [Root](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#root)\n"
 if [ -s "$TEMP_DIR/cli.md" ]; then
 	log "$(cat "$TEMP_DIR/cli.md")\n"
 fi
