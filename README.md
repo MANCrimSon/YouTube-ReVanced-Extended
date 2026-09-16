@@ -32,16 +32,15 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 <summary><b>Installation & Updating Guide</b></summary>
 
 #### Installation
-1. Install [**MicroG RE**](https://github.com/MorpheApp/MicroG-RE/releases) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.revanced.android.gms%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FMicroG-RE%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22MicroG%20RE%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Emicrog%28%3F%21.%2Anoicon%29%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D)) *(required to run without Root and sign into your Google account)*.
-2. Download and install the matching APK from the download table above.
+**1.** Install [**MicroG RE**](https://github.com/MorpheApp/MicroG-RE/releases) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.revanced.android.gms%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FMicroG-RE%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22MicroG%20RE%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Emicrog%28%3F%21.%2Anoicon%29%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D)) *(required to run without Root and sign into your Google account)*.  
+**2.** Download and install the matching APK from the download table above.
 
 #### Updating
-* **In-App Updater:** Check for updates directly inside the app:
-  * **RVX (anddea):** `Settings` → `RVX` → `Patch updates`
-  * **Morphe:** `Settings` → `Morphe` → `Patch updates`  
-  *(Features: version comparison, changelog preview, direct APK download, and snooze)*
-* **Via Obtainium (Auto-updates):**  
-  Install [**Obtainium**](https://github.com/ImranR98/Obtainium) and tap the **[Import]** links in the main Download table above to add automatic update profiles directly on your Android device.
+• **In-App Updater:** Check for updates directly inside the app:  
+— **RVX (anddea):** `Settings` → `RVX` → `Patch updates`  
+— **Morphe:** `Settings` → `Morphe` → `Patch updates`  
+*(Features: version comparison, changelog preview, direct APK download, and snooze)*  
+• **Via Obtainium (Auto-updates):** Install [**Obtainium**](https://github.com/ImranR98/Obtainium) and tap the **[Import]** links in the main Download table above to add automatic update profiles directly on your Android device.
 
 </details>
 
@@ -50,34 +49,34 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 
 ### ReVanced Extended (anddea) – YouTube & YouTube Music
 
-**Method 1: Built-in PoToken (Recommended)**
-* **YouTube & YT Music:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
-  1. Turn **OFF** `Spoof video streams`
-  2. Turn **ON** `PoToken provider`
-  3. Restart the app (if buffering persists, force stop **MicroG RE** in Android system settings)
+**Method 1: Built-in PoToken (Recommended)**  
+Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:  
+**1.** Turn **OFF** `Spoof video streams`  
+**2.** Turn **ON** `PoToken provider`  
+**3.** Restart the app *(if buffering persists, force stop **MicroG RE** in Android system settings)*
 
-**Method 2: Spoof video streams (Fallback)**
-* **YouTube & YT Music:** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:
-  1. Turn **OFF** `PoToken provider`
-  2. Turn **ON** `Spoof video streams` and select a suitable default client
-  3. Restart the app
+**Method 2: Spoof video streams (Fallback)**  
+Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`:  
+**1.** Turn **OFF** `PoToken provider`  
+**2.** Turn **ON** `Spoof video streams` and select a suitable default client  
+**3.** Restart the app
 
 ---
 
 ### Morphe – YouTube & YouTube Music
 
-**Method 1: External PoToken via PotHelper (Recommended)**
-1. Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).
-2. Go to `Settings` → `Morphe` → `Miscellaneous`:
-   * Turn **OFF** `Spoof video streams` → `Spoof video streams`
-   * Turn **ON** `PoToken provider` → `External PoToken provider`
-3. Restart the app.
+**Method 1: External PoToken via PotHelper (Recommended)**  
+**1.** Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).  
+**2.** Go to `Settings` → `Morphe` → `Miscellaneous`:  
+— Turn **OFF** `Spoof video streams` → `Spoof video streams`  
+— Turn **ON** `PoToken provider` → `External PoToken provider`  
+**3.** Restart the app.
 
-**Method 2: Spoof video streams (Fallback)**
-1. Go to `Settings` → `Morphe` → `Miscellaneous`:
-   * Turn **OFF** `PoToken provider` → `External PoToken provider`
-   * Turn **ON** `Spoof video streams` → `Spoof video streams` and select a default client
-2. Restart the app.
+**Method 2: Spoof video streams (Fallback)**  
+**1.** Go to `Settings` → `Morphe` → `Miscellaneous`:  
+— Turn **OFF** `PoToken provider` → `External PoToken provider`  
+— Turn **ON** `Spoof video streams` → `Spoof video streams` and select a default client  
+**2.** Restart the app.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters – verify your network bypass or VPN configuration if needed.
@@ -90,12 +89,12 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 <summary><b>Installation & Updating Guide</b></summary>
 
 #### Installation
-1. Flash the module zip archive via **Magisk**, **KernelSU**, or **APatch**.
-2. Reboot the device.
+**1.** Flash the module zip archive via **Magisk**, **KernelSU**, or **APatch**.  
+**2.** Reboot the device.
 
 #### Updating
-* **In Root Manager:** Tap the **Update** button in Magisk / KernelSU / APatch (modules check for updates automatically).
-* **Manually:** Flash the new zip archive on top of the existing one without uninstalling.
+• **In Root Manager:** Tap the **Update** button in Magisk / KernelSU / APatch (modules check for updates automatically).  
+• **Manually:** Flash the new zip archive on top of the existing one without uninstalling.
 
 </details>
 
@@ -103,20 +102,20 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 <summary><b>Detach from Google Play & Troubleshooting</b></summary>
 
 #### Detach from Google Play (prevent automatic updates)
-1. **Enable Zygisk:**
-   * **Magisk:** Enable Zygisk in Magisk settings.
-   * **KernelSU / APatch:** Install the [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases) module.
-2. **Install Detach Tools:**
-   * Flash the [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) module.
-   * Install the [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases) APK, grant Root permissions → reboot the device.
-3. **Detach Target Apps:**
-   * Open **zygisk-detach-app**, select your target app (**YouTube** / **YouTube Music**) → tap **Detach**.
+**1. Enable Zygisk:**  
+— **Magisk:** Enable Zygisk in Magisk settings.  
+— **KernelSU / APatch:** Install the [**ZygiskNext**](https://github.com/Dr-TSNG/ZygiskNext/releases) module.  
+**2. Install Detach Tools:**  
+— Flash the [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) module.  
+— Install the [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases) APK, grant Root permissions → reboot the device.  
+**3. Detach Target Apps:**  
+— Open **zygisk-detach-app**, select your target app (**YouTube** / **YouTube Music**) → tap **Detach**.
 
 #### Troubleshooting
-* **KernelSU only (blank/stock app or launch issues):**  
-  Open `KernelSU App` → `Superuser` → select target app (**YouTube** / **YouTube Music**) → *(Custom, if present)* → set `Unmount modules` to **Off** → reboot the device.
-* **Mounting errors (*"Reflash needed"* / *"Suspicious mount detected"*):**  
-  Install the [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount) module to resolve overlayfs / mount namespace conflicts.
+• **KernelSU only (blank/stock app or launch issues):**  
+Open `KernelSU App` → `Superuser` → select target app (**YouTube** / **YouTube Music**) → *(Custom, if present)* → set `Unmount modules` to **Off** → reboot the device.  
+• **Mounting errors (*"Reflash needed"* / *"Suspicious mount detected"*):**  
+Install the [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount) module to resolve overlayfs / mount namespace conflicts.
 
 </details>
 
