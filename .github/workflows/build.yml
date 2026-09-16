@@ -196,16 +196,16 @@ jobs:
           targets = {
               "yt-rvx-apk": ("youtube-revanced-extended-v*-all.apk", "universal"),
               "yt-rvx-zip": ("youtube-revanced-extended-module-v*-all.zip", "universal"),
-              "ytm-rvx-apk-arm64": ("youtube-music-revanced-extended-v*-arm64-v8a.apk", "arm64-v8a"),
-              "ytm-rvx-apk-armv7": ("youtube-music-revanced-extended-v*-arm-v7a.apk", "arm-v7a"),
-              "ytm-rvx-zip-arm64": ("youtube-music-revanced-extended-module-v*-arm64-v8a.zip", "arm64-v8a"),
-              "ytm-rvx-zip-armv7": ("youtube-music-revanced-extended-module-v*-arm-v7a.zip", "arm-v7a"),
+              "ytm-rvx-apk-arm64": ("youtube-music-revanced-extended-v*-arm64-v8a.apk", "arm64&#8209;v8a"),
+              "ytm-rvx-apk-armv7": ("youtube-music-revanced-extended-v*-arm-v7a.apk", "arm&#8209;v7a"),
+              "ytm-rvx-zip-arm64": ("youtube-music-revanced-extended-module-v*-arm64-v8a.zip", "arm64&#8209;v8a"),
+              "ytm-rvx-zip-armv7": ("youtube-music-revanced-extended-module-v*-arm-v7a.zip", "arm&#8209;v7a"),
               "yt-morphe-apk": ("youtube-morphe-v*-all.apk", "universal"),
               "yt-morphe-zip": ("youtube-morphe-module-v*-all.zip", "universal"),
-              "ytm-morphe-apk-arm64": ("youtube-music-morphe-v*-arm64-v8a.apk", "arm64-v8a"),
-              "ytm-morphe-apk-armv7": ("youtube-music-morphe-v*-arm-v7a.apk", "arm-v7a"),
-              "ytm-morphe-zip-arm64": ("youtube-music-morphe-module-v*-arm64-v8a.zip", "arm64-v8a"),
-              "ytm-morphe-zip-armv7": ("youtube-music-morphe-module-v*-arm-v7a.zip", "arm-v7a"),
+              "ytm-morphe-apk-arm64": ("youtube-music-morphe-v*-arm64-v8a.apk", "arm64&#8209;v8a"),
+              "ytm-morphe-apk-armv7": ("youtube-music-morphe-v*-arm-v7a.apk", "arm&#8209;v7a"),
+              "ytm-morphe-zip-arm64": ("youtube-music-morphe-module-v*-arm64-v8a.zip", "arm64&#8209;v8a"),
+              "ytm-morphe-zip-armv7": ("youtube-music-morphe-module-v*-arm-v7a.zip", "arm&#8209;v7a"),
           }
 
           with open("README.md", encoding="utf-8") as f:
