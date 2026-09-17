@@ -168,17 +168,28 @@ jobs:
 
       - name: Upload release
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          retry_on: error
-          command: |
-            gh release delete "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" --yes --cleanup-tag 2>/dev/null || :
-            gh release create "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
-              --title "Release" \
-              --notes-file "build.md" \
-              ${{ steps.out.outputs.OUTPUT }}
+        run: |
+          TAG="${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Release" --notes-file "build.md"
+          
+          for f in build/*; do
+            [ -f "$f" ] || continue
+            echo "Uploading $f..."
+            uploaded=false
+            for attempt in 1 2 3 4 5; do
+              if gh release upload "$TAG" "$f" --clobber; then
+                uploaded=true
+                echo "Successfully uploaded $f"
+                break
+              fi
+              echo "Attempt $attempt failed for $f, retrying in 10s..."
+              sleep 10
+            done
+            if [ "$uploaded" = false ]; then
+              echo "Failed to upload $f after 5 attempts"
+              exit 1
+            fi
+          done
 
       - name: Update README download links
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
