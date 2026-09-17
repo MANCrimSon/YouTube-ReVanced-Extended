@@ -168,11 +168,17 @@ jobs:
 
       - name: Upload release
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
-        run: |
-          gh release create "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
-            --title "Release" \
-            --notes-file "build.md" \
-            ${{ steps.out.outputs.OUTPUT }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          retry_on: error
+          command: |
+            gh release delete "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" --yes --cleanup-tag 2>/dev/null || :
+            gh release create "${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" \
+              --title "Release" \
+              --notes-file "build.md" \
+              ${{ steps.out.outputs.OUTPUT }}
 
       - name: Update README download links
         if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
