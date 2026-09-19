@@ -112,7 +112,11 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 • **KernelSU only (blank/stock app or launch issues):**  
 Open `KernelSU App` → `Superuser` → select target app (**YouTube** / **YouTube Music**) → *(Custom, if present)* → set `Unmount modules` to **Off** → reboot the device.  
 • **Mounting errors (*"Reflash needed"* / *"Suspicious mount detected"*):**  
-Install the [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount) module to resolve overlayfs / mount namespace conflicts.
+Install the [**rvmm-zygisk-mount**](https://github.com/j-hc/rvmm-zygisk-mount) module to resolve overlayfs / mount namespace conflicts.  
+• **Playback issues & buffering:**  
+Go to `Settings` → `RVX` / `Morphe` → `Miscellaneous` → `Spoof video streams`:  
+1. Try turning **OFF** `Spoof video streams` and restart the app.  
+2. If playback issues persist, turn **ON** `Spoof video streams`, change the **Default client**, and restart the app.
 
 </details>
 
