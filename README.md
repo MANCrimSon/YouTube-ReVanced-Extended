@@ -104,7 +104,7 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 <summary><b>Detach from Google Play & Troubleshooting</b></summary>
 
 #### Detach from Google Play (prevent automatic updates)
-**1.** Enable **Zygisk** in Magisk settings (or install a standalone Zygisk module like [**ReZygisk**](https://github.com/PerformanC/ReZygisk/releases) for KernelSU / APatch).  
+**1.** Enable **Zygisk** in Magisk settings (or install a standalone module for KernelSU / APatch: open-source [**ReZygisk**](https://github.com/PerformanC/ReZygisk/releases) or **Zygisk Next**).  
 **2.** Flash the [**zygisk-detach**](https://github.com/j-hc/zygisk-detach/releases) module and install [**zygisk-detach-app**](https://github.com/j-hc/zygisk-detach-app/releases) APK, grant Root permissions → reboot the device.  
 **3.** Open **zygisk-detach-app**, select your target app (**YouTube** / **YouTube Music**) → tap **Detach**.
 
