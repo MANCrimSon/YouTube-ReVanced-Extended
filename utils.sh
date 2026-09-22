@@ -200,11 +200,7 @@ get_prebuilts() {
 					rm -r "${file}-zip" 2>/dev/null || :
 				fi
 			fi
-			local py_bin
-			py_bin=$(command -v python3 || command -v python || :)
-			if [ -n "$py_bin" ] && [ -f "${CWD}/patch_branding.py" ]; then
-				"$py_bin" "${CWD}/patch_branding.py" "${file}" >&2 || :
-			fi
+
 		fi
 		echo -n "$file "
 	done
