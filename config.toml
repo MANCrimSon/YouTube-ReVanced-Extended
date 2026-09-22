@@ -43,7 +43,7 @@ archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android
 # uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 # apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 addon-patches = "bin/update-check.mpp"
-patcher-args = '-O "Custom branding:appIcon=original" -e "Custom branding"'
+patcher-args = '-O appIcon=original -e "Custom branding"'
 
 [YouTube-Music-Morphe]
 enabled = true
@@ -58,4 +58,4 @@ archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android
 # uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 # apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 addon-patches = "bin/update-check.mpp"
-patcher-args = '-O "Custom branding:appIcon=original" -e "Custom branding"'
+patcher-args = '-O appIcon=original -e "Custom branding"'
