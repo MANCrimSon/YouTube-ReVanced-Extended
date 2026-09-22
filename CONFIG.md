@@ -70,12 +70,16 @@ Each section `[App-Name]` configures a specific application target:
   excluded-patches = "'Custom branding icon for YouTube' 'Custom header'"
   ```
 * **`exclusive-patches`** *(boolean, default: `false`)* – When `true`, excludes all patches by default and enables *only* those in `included-patches`.
-* **`patcher-args`** *(multiline string)* – Custom options passed directly to the patcher CLI:
-  ```toml
-  patcher-args = """\
-    -OdarkThemeBackgroundColor=#FF0F0F0F \
-    """
-  ```
+* **`patcher-args`** *(string or multiline string)* – Custom options passed directly to the patcher CLI:
+  * For **Morphe Desktop CLI** (`YouTube-Morphe`, `YouTube-Music-Morphe`): options use Picocli syntax tied to a patch, using lowercase machine values:
+    ```toml
+    patcher-args = '-O appIcon=original -e "Custom branding"'
+    ```
+  * For **ReVanced CLI** (`YouTube-Extended`, `YouTube-Music-Extended`): options use global patch-prefixed syntax:
+    ```toml
+    patcher-args = '-O "Custom branding:appIcon=Original"'
+    ```
+
 * **`addon-patches-source`** *(string)* – Extra `.mpp` patch bundles to apply on top (e.g. `"sashade8-ship-it/morphe-patches-yavot"` for Yandex translation).
 
 > [!NOTE]
