@@ -1,6 +1,6 @@
 ## YouTube Music Morphe
-* **Version:** v9.15.51 (p1.45.0-dev.2 b437)
-* **Release:** [#437](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/437)
+* **Version:** v9.15.51 (p1.45.0-dev.2 b438)
+* **Release:** [#438](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/438)
 
 ### Release Notes:
 YouTube-Morphe: 21.16.256  

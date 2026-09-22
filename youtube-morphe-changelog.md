@@ -1,6 +1,6 @@
 ## YouTube Morphe
-* **Version:** v21.16.256 (p1.45.0-dev.2-dualvot.8.5.3 b437)
-* **Release:** [#437](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/437)
+* **Version:** v21.16.256 (p1.45.0-dev.2-dualvot.8.5.3 b438)
+* **Release:** [#438](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/438)
 
 ### Release Notes:
 YouTube-Morphe: 21.16.256  
