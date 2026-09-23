@@ -315,8 +315,10 @@ jobs:
           git add README.md
           if ! git diff --cached --quiet; then
             git commit -m "Update README download links"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            git reset --hard HEAD
+            for attempt in 1 2 3; do
+              git pull --rebase origin main && git push origin HEAD:main && break || sleep 2
+            done
           else
             echo "no changes!"
           fi
@@ -376,8 +378,10 @@ jobs:
       
           if ! git diff --cached --quiet; then
             git commit -m "Bump version ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}"
-            git pull --rebase origin update || :
-            git push origin HEAD:update
+            git reset --hard HEAD
+            for attempt in 1 2 3; do
+              git pull --rebase origin update && git push origin HEAD:update && break || sleep 2
+            done
           else
             echo "no changes!"
           fi
