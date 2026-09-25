@@ -1,9 +1,9 @@
 Patches: anddea/patches-4.3.0-dev.2.mpp  
 Patches: sashade8-ship-it/patches-1.40.0-dev.22-dualvot.8.3.mpp  
 Patches: MorpheApp/patches-1.40.0-dev.22.mpp  
-YouTube-Extended: 21.13.164 [patches-4.3.0-dev.7.mpp]  
-YouTube-Music-Extended (arm64-v8a): 9.15.51 [patches-4.3.0-dev.7.mpp]  
-YouTube-Music-Extended (arm-v7a): 9.15.51 [patches-4.3.0-dev.7.mpp]  
-YouTube-Morphe: 21.16.256 [patches-1.45.0-dev.13-dualvot.8.5.3.mpp]  
-YouTube-Music-Morphe (arm64-v8a): 9.15.51 [patches-1.45.0-dev.13.mpp]  
-YouTube-Music-Morphe (arm-v7a): 9.15.51 [patches-1.45.0-dev.13.mpp]  
+YouTube-Extended: 21.13.164 [patches-4.3.0-dev.8.mpp]  
+YouTube-Morphe: 21.16.256 [patches-1.45.0-dev.15-dualvot.8.5.3.mpp]  
+YouTube-Music-Extended (arm64-v8a): 9.15.51 [patches-4.3.0-dev.8.mpp]  
+YouTube-Music-Extended (arm-v7a): 9.15.51 [patches-4.3.0-dev.8.mpp]  
+YouTube-Music-Morphe (arm64-v8a): 9.15.51 [patches-1.45.0-dev.15.mpp]  
+YouTube-Music-Morphe (arm-v7a): 9.15.51 [patches-1.45.0-dev.15.mpp]  
