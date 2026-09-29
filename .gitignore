@@ -2,8 +2,15 @@
 *.zip
 /temp
 /build
+/stock-apks
 test*
 /logs
 build.md
+state.md
 cmpr
 *-temporary-files
+/libs
+/tools
+/build_work
+/.build_tmp
+bin/patches-*.mpp
