@@ -5,7 +5,8 @@ shopt -s nullglob
 
 source utils.sh
 
-trap "abort" INT
+export MAIN_PID=$$
+trap "abort 'Aborted by signal'" INT TERM
 
 if [ "${1-}" = "clean" ]; then
 	rm -r "$TEMP_DIR" "$BUILD_DIR" build.md
@@ -87,8 +88,7 @@ for table_name in $(toml_get_table_names); do
 	cli_ver=$(toml_get "$tt" cli-version) || cli_ver=$DEF_CLI_VER
 
 	if ! PREBUILTS="$(get_prebuilts "$cli_src" "$cli_ver" "$patches_src" "$patches_ver")"; then
-		epr "Could not get prebuilts"
-		continue
+		abort "Could not get prebuilts for '$table_name'"
 	fi
 	read -r patches_jar cli_jar <<<"$PREBUILTS"
 	app_args[cli]=$cli_jar
@@ -175,7 +175,12 @@ for table_name in $(toml_get_table_names); do
 done
 wait
 _clean_tmp
-if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "All builds failed."; fi
+
+FAILED=$(sort -u "$TEMP_DIR/failed" 2>/dev/null || :)
+if [ -n "$FAILED" ]; then
+	abort "Build failed for: $(echo "$FAILED" | tr '\n' ' ')"
+fi
+if [ -z "$(ls -A1 "${BUILD_DIR}")" ]; then abort "No files were built."; fi
 
 log "\nInstall instructions: [NonRoot](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#nonroot) · [Root](https://github.com/${GITHUB_REPOSITORY:-MANCrimSon/YouTube-ReVanced-Extended}#root)\n"
 if [ -s "$TEMP_DIR/cli.md" ]; then
@@ -189,12 +194,6 @@ SKIPPED=$(cat "$TEMP_DIR"/skipped 2>/dev/null || :)
 if [ -n "$SKIPPED" ]; then
 	log "\nSkipped:"
 	log "$SKIPPED"
-fi
-
-FAILED=$(sort -u "$TEMP_DIR/failed" 2>/dev/null || :)
-if [ -n "$FAILED" ]; then
-	log "\nFailed to build (see workflow run log for details):"
-	log "$FAILED"
 fi
 
 pr "Done"

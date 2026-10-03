@@ -60,7 +60,10 @@ abort() {
 	epr "ABORT: ${1-}"
 	_clean_tmp
 	trap - SIGTERM SIGINT EXIT
-	kill -9 -- -$$ 2>/dev/null
+	if [ -n "${MAIN_PID:-}" ] && [ "$MAIN_PID" != "$BASHPID" ]; then
+		kill -TERM "$MAIN_PID" 2>/dev/null || :
+	fi
+	kill -9 -- -$$ 2>/dev/null || :
 	exit 1
 }
 java() {
@@ -849,20 +852,20 @@ build_rv() {
 	if [ -z "$pkg_name" ]; then
 		epr "empty pkg name, not building ${table}."
 		mark_failed "$table"
-		return 0
+		abort "empty pkg name, not building ${table}."
 	fi
 	pr "Package name of '${table}' is '$pkg_name'"
 	local list_patches
 
 	local is_experimental="false"
 	if [ "$version_mode" = "experimental" ]; then is_experimental="true"; fi
-	list_patches=$(patches_list "$cli_jar" "$patches_jar" "$pkg_name" "$is_experimental") || { mark_failed "$table"; return 1; }
+	list_patches=$(patches_list "$cli_jar" "$patches_jar" "$pkg_name" "$is_experimental") || { mark_failed "$table"; abort "patches_list failed for ${table}"; }
 	local get_latest_ver=false
 	if isoneof "$version_mode" "auto" "experimental"; then
 		if ! version=$(get_patch_last_supported_ver "$list_patches" "$pkg_name" "${args[included_patches]}" "$is_experimental"); then
 			epr "get_patch_last_supported_ver failed '$list_patches'"
 			mark_failed "$table"
-			return
+			abort "get_patch_last_supported_ver failed for ${table}"
 		elif [ -z "$version" ]; then get_latest_ver="true"; fi
 	elif [ "$version_mode" = "latest" ]; then
 		get_latest_ver="true"
@@ -878,7 +881,7 @@ build_rv() {
 	if [ -z "$version" ]; then
 		epr "empty version, not building ${table}."
 		mark_failed "$table"
-		return 0
+		abort "empty version, not building ${table}."
 	fi
 
 	if [ "$mode_arg" = module ]; then
@@ -912,7 +915,7 @@ build_rv() {
 		if [ ! -f "$stock_apk" ]; then
 			epr "Stock apk not found ($stock_apk)"
 			mark_failed "$table"
-			return 0
+			abort "Stock apk not found ($stock_apk)"
 		fi
 	else
 		pr "Using cached stock apk for '${table}': '${stock_apk}'"
@@ -942,7 +945,7 @@ build_rv() {
 				rm -f "$stock_apk" "${stock_apk}.apkm" 2>/dev/null || :
 				rm -rf "${stock_apk}-zip" 2>/dev/null || :
 				mark_failed "$table"
-				return 0
+				abort "Apk signature mismatch for $table ($a): $sig_op"
 			fi
 		done
 		rm -rf "${stock_apk}-zip" || :
@@ -951,7 +954,7 @@ build_rv() {
 			epr "Not building $table, apk signature mismatch '$stock_apk': $sig_op"
 			rm -f "$stock_apk" "${stock_apk}.apkm" 2>/dev/null || :
 			mark_failed "$table"
-			return 0
+			abort "Apk signature mismatch for $table: $sig_op"
 		fi
 	fi
 
@@ -1033,7 +1036,7 @@ build_rv() {
 			if ! patch_apk "$stock_apk_to_patch" "$patched_apk" "${patcher_args[*]}" "${args[cli]}" "${args[ptjar]}" "$cur_addon_patches"; then
 				epr "Building '${table}' failed!"
 				mark_failed "$table"
-				return 0
+				abort "Building '${table}' failed!"
 			fi
 		fi
 		rm "$stock_apk_to_patch"
@@ -1042,6 +1045,11 @@ build_rv() {
 				mv -f "$patched_apk" "$apk_output"
 			else
 				cp -f "$patched_apk" "$apk_output"
+			fi
+			if [ ! -f "$apk_output" ]; then
+				epr "Output APK missing: $apk_output"
+				mark_failed "$table"
+				abort "Output APK missing: $apk_output"
 			fi
 			pr "Built ${table} (non-root): '${apk_output}'"
 			continue
@@ -1092,7 +1100,7 @@ build_rv() {
 				if [ ! -f "${stock_apk}.apkm" ]; then
 					epr "Cannot include as 'split' because stock apk of $table_name is not a bundle"
 					mark_failed "$table"
-					return 0
+					abort "Cannot include as 'split' because stock apk of $table_name is not a bundle"
 				fi
 				if [ "$arch" = "arm64-v8a" ]; then
 					unzip -j "${stock_apk}.apkm" '*.apk' -x '*x86_64.apk' -x '*x86.apk' -x '*armeabi_v7a.apk' -d "${base_template}/stock/" >/dev/null 2>&1
@@ -1111,6 +1119,11 @@ build_rv() {
 		pushd >/dev/null "$base_template" || abort "Module template dir not found"
 		zip -"$COMPRESSION_LEVEL" -FSqr "${CWD}/${BUILD_DIR}/${module_output}" .
 		popd >/dev/null || :
+		if [ ! -f "${CWD}/${BUILD_DIR}/${module_output}" ]; then
+			epr "Output module missing: ${BUILD_DIR}/${module_output}"
+			mark_failed "$table"
+			abort "Output module missing: ${BUILD_DIR}/${module_output}"
+		fi
 		pr "Built ${table} (root): '${BUILD_DIR}/${module_output}'"
 	done
 	log "${table}: ${version}"

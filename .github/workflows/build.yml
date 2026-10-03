@@ -120,7 +120,7 @@ jobs:
       # target), so even if this run is a partial build (via ONLY_TABLES/only_apps),
       # the untouched tables' active stock APKs won't be pruned.
       - name: Prune stale stock APKs from cache
-        if: ${{ always() && (inputs.only_apps || steps.cfg.outputs.should_build != 'false') }}
+        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         run: |
           # Seed manifest from state.md if present, so any table not touched in
           # this run (partial build) still has its active stock APK protected from pruning
