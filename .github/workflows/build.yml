@@ -7,15 +7,39 @@ on:
         description: Comma separated list of apps to build. (youtube, youtube-music, ...)
         required: false
         type: string
+      force_rebuild:
+        description: Force rebuild all targets (ignore cached state)
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       only_apps:
         description: Comma separated list of apps to build. (youtube, youtube-music, ...)
         required: false
         type: string
+      force_rebuild:
+        description: Force rebuild all targets (ignore cached state)
+        required: false
+        type: boolean
+        default: false
 
 jobs:
+  cleanup:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear older runs and caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run list -L400 --json databaseId -q '.[].databaseId' | tail -n+10 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/runs/ID" -X DELETE || :
+          gh api -H "Accept: application/vnd.github+json" "repos/$GITHUB_REPOSITORY/actions/caches" -q '.actions_caches[].id' | tail -n+4 | xargs -IID gh api "repos/$GITHUB_REPOSITORY/actions/caches/ID" -X DELETE || :
+
   run:
+    needs: cleanup
+    if: always()
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -47,10 +71,21 @@ jobs:
             cp -f ../state.md state.md
           fi
 
+          only_apps_val="${{ inputs.only_apps }}"
+          if [ "$only_apps_val" = "all" ]; then
+            only_apps_val=""
+          fi
+
+          if [ "${{ inputs.force_rebuild }}" = "true" ] || [ "${{ inputs.only_apps }}" = "all" ]; then
+            echo "Force rebuild requested: resetting state cache"
+            rm -f ../state.md state.md
+            touch state.md
+          fi
+
           chmod +x ./build.sh
           UPDATE_CFG=$(./build.sh "${{ github.workspace }}/config.toml" --config-update)
-          if [ -n "$UPDATE_CFG" ] || [ -n "${{ inputs.only_apps }}" ]; then
-            if [ -n "$UPDATE_CFG" ] && [ -z "${{ inputs.only_apps }}" ]; then
+          if [ -n "$UPDATE_CFG" ] || [ -n "$only_apps_val" ] || [ "${{ inputs.force_rebuild }}" = "true" ]; then
+            if [ -n "$UPDATE_CFG" ] && [ -z "$only_apps_val" ]; then
               echo "$UPDATE_CFG" > config.json
             fi
             echo "should_build=true" >> "$GITHUB_OUTPUT"
@@ -60,7 +95,7 @@ jobs:
 
       - name: Get next version code
         id: next_ver_code
-        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        if: ${{ inputs.force_rebuild || inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -80,7 +115,7 @@ jobs:
           echo "MODULE_VER_CODE=$module_ver_code" >> "$GITHUB_OUTPUT"
 
       - name: Restore stock APK cache
-        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        if: ${{ inputs.force_rebuild || inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: actions/cache/restore@v4
         with:
           path: stock-apks
@@ -90,23 +125,27 @@ jobs:
           restore-keys: stock-apks-
 
       - name: Build update-check patch
-        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        if: ${{ inputs.force_rebuild || inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         env:
           NEXT_VER_CODE: ${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}
         run: |
           python3 build_patch.py
 
       - name: Build modules/APKs
-        if: ${{ inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
+        if: ${{ inputs.force_rebuild || inputs.only_apps || steps.cfg.outputs.should_build != 'false' }}
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 60
           max_attempts: 2
           retry_on: error
           command: |
-            export ONLY_TABLES="${{ inputs.only_apps }}"
+            only_apps_val="${{ inputs.only_apps }}"
+            if [ "$only_apps_val" = "all" ]; then
+              only_apps_val=""
+            fi
+            export ONLY_TABLES="$only_apps_val"
             CFG_FILE="config.toml"
-            if [ -f "config.json" ] && [ -z "${{ inputs.only_apps }}" ]; then
+            if [ -f "config.json" ] && [ -z "$only_apps_val" ]; then
               CFG_FILE="config.json"
             fi
             NEXT_VER_CODE="${{ steps.next_ver_code.outputs.NEXT_VER_CODE }}" MODULE_VER_CODE="${{ steps.next_ver_code.outputs.MODULE_VER_CODE }}" ./build.sh "${{ github.workspace }}/${CFG_FILE}"
