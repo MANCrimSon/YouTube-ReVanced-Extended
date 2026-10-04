@@ -1,6 +1,8 @@
 name: Build Modules
 
 on:
+#  schedule:
+#    - cron: "23 20 * * *"
   workflow_dispatch:
     inputs:
       only_apps:
