@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       only_apps:
-        description: Comma separated list of apps to build. (youtube, youtube-music, ...)
+        description: Comma separated table names from config.toml (e.g. YouTube-Morphe, YouTube-Extended, YouTube-Music-Morphe), or 'all'
         required: false
         type: string
       force_rebuild:
@@ -15,7 +15,7 @@ on:
   workflow_call:
     inputs:
       only_apps:
-        description: Comma separated list of apps to build. (youtube, youtube-music, ...)
+        description: Comma separated table names from config.toml (e.g. YouTube-Morphe, YouTube-Extended, YouTube-Music-Morphe), or 'all'
         required: false
         type: string
       force_rebuild:
