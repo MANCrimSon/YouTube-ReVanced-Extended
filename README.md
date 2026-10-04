@@ -124,8 +124,7 @@ Go to `Settings` → `RVX` / `Morphe` → `Miscellaneous` → `Spoof video strea
 
 Want to build a different set of apps/patches? Use this repository as a base and edit
 [`config.toml`](./config.toml) – the key format is documented in [`CONFIG.md`](./CONFIG.md). Manual builds run from
-[Actions → Build Modules](../../actions/workflows/build.yml) (workflow_dispatch; pass `only_apps` to build a single
-app instead of everything).
+[Actions → Build Modules](../../actions/workflows/build.yml) (workflow_dispatch; pass table names in `only_apps` to build specific targets, use `all` or enable `force_rebuild` to rebuild everything).
 
 ## Credits
 
