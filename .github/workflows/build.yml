@@ -2,7 +2,7 @@ name: Build Modules
 
 on:
   schedule:
-    - cron: "23 3 * * *"
+    - cron: "23 */8 * * *"
   workflow_dispatch:
     inputs:
       only_apps:
