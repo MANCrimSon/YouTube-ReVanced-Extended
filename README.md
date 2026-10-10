@@ -120,12 +120,6 @@ Go to `Settings` → `RVX` / `Morphe` → `Miscellaneous` → `Spoof video strea
 
 </details>
 
-## Building your own config
-
-Want to build a different set of apps/patches? Use this repository as a base and edit
-[`config.toml`](./config.toml) – the key format is documented in [`CONFIG.md`](./CONFIG.md). Manual builds run from
-[Actions → Build Modules](../../actions/workflows/build.yml) (workflow_dispatch; pass table names in `only_apps` to build specific targets, use `all` or enable `force_rebuild` to rebuild everything).
-
 ## Credits
 
 This build system started as a fork of [**j-hc/revanced-magisk-module**](https://github.com/j-hc/revanced-magisk-module) –

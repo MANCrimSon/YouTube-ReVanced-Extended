@@ -86,6 +86,31 @@ jobs:
 
           chmod +x ./build.sh
           UPDATE_CFG=$(./build.sh "${{ github.workspace }}/config.toml" --config-update)
+
+          # Filter out Morphe targets on cron if MorpheApp and Dual-VoT versions mismatch
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -n "$UPDATE_CFG" ]; then
+            if jq -e '."YouTube-Morphe" // ."YouTube-Music-Morphe"' <<<"$UPDATE_CFG" >/dev/null 2>&1; then
+              source ./utils.sh
+              morphe_resp=$(gh api "repos/MorpheApp/morphe-patches/releases" -q '.[].tag_name' 2>/dev/null || :)
+              dualvot_resp=$(gh api "repos/sashade8-ship-it/dual-vot-patches/releases" -q '.[].tag_name' 2>/dev/null || :)
+              morphe_tag=$(get_highest_ver <<<"$morphe_resp") || :
+              dualvot_tag=$(get_highest_ver <<<"$dualvot_resp") || :
+              morphe_base=$(echo "$morphe_tag" | sed 's/^v//')
+              dualvot_base=$(echo "$dualvot_tag" | sed -E 's/^v//; s/-dualvot\..*//')
+
+              echo "Morphe parity check (cron): morphe-patches=$morphe_base, dual-vot base=$dualvot_base"
+
+              if [ -n "$morphe_base" ] && [ -n "$dualvot_base" ] && [ "$morphe_base" != "$dualvot_base" ]; then
+                echo "::warning::Morphe version mismatch (morphe: $morphe_base vs dual-vot: $dualvot_base). Excluding Morphe targets from this cron run."
+                UPDATE_CFG=$(jq 'del(."YouTube-Morphe", ."YouTube-Music-Morphe")' <<<"$UPDATE_CFG")
+                has_apps=$(jq '[to_entries[] | select(.value | type == "object")] | length' <<<"$UPDATE_CFG")
+                if [ "$has_apps" -eq 0 ]; then
+                  UPDATE_CFG=""
+                fi
+              fi
+            fi
+          fi
+
           if [ -n "$UPDATE_CFG" ] || [ -n "$only_apps_val" ] || [ "${{ inputs.force_rebuild }}" = "true" ]; then
             if [ -n "$UPDATE_CFG" ] && [ -z "$only_apps_val" ]; then
               echo "$UPDATE_CFG" > config.json
