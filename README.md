@@ -48,17 +48,17 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 
 ### ReVanced Extended (anddea) – YouTube & YouTube Music
 
-**Method 1: Built-in PoToken (Recommended)**  
-**1.** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`.  
-**2.** Turn **OFF** `Spoof video streams`.  
-**3.** Turn **ON** `PoToken provider`.  
-**4.** Restart the app *(if buffering persists, force stop **MicroG RE** in Android system settings)*.
-
-**Method 2: Spoof video streams (Fallback)**  
+**Method 1: Spoof video streams (Recommended)**  
 **1.** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`.  
 **2.** Turn **OFF** `PoToken provider`.  
 **3.** Turn **ON** `Spoof video streams` and select a suitable default client.  
 **4.** Restart the app.
+
+**Method 2: Built-in PoToken (Fallback)**  
+**1.** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`.  
+**2.** Turn **OFF** `Spoof video streams`.  
+**3.** Turn **ON** `PoToken provider`.  
+**4.** Restart the app *(if buffering persists, force stop **MicroG RE** in Android system settings)*.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters – verify your network bypass or VPN configuration if needed.
@@ -67,18 +67,18 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 
 ### Morphe – YouTube & YouTube Music
 
-**Method 1: External PoToken via PotHelper (Recommended)**  
+**Method 1: Spoof video streams (Recommended)**  
+**1.** Go to `Settings` → `Morphe` → `Miscellaneous`.  
+**2.** Turn **OFF** `PoToken provider` → `External PoToken provider`.  
+**3.** Turn **ON** `Spoof video streams` → `Spoof video streams` and select a default client.  
+**4.** Restart the app.
+
+**Method 2: External PoToken via PotHelper (Fallback)**  
 **1.** Install [**PotHelper**](https://github.com/MorpheApp/PotHelper/releases/latest) ([Import into Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.morphe.pot.helper%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMorpheApp%2FPotHelper%22%2C%22author%22%3A%22MorpheApp%22%2C%22name%22%3A%22PotHelper%22%2C%22additionalSettings%22%3A%22%7B%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D)).  
 **2.** Go to `Settings` → `Morphe` → `Miscellaneous`.  
 **3.** Turn **OFF** `Spoof video streams` → `Spoof video streams`.  
 **4.** Turn **ON** `PoToken provider` → `External PoToken provider`.  
 **5.** Restart the app.
-
-**Method 2: Spoof video streams (Fallback)**  
-**1.** Go to `Settings` → `Morphe` → `Miscellaneous`.  
-**2.** Turn **OFF** `PoToken provider` → `External PoToken provider`.  
-**3.** Turn **ON** `Spoof video streams` → `Spoof video streams` and select a default client.  
-**4.** Restart the app.
 
 > [!NOTE]
 > Due to regional network restrictions or DPI blocking, playback may still be affected by ISP filters – verify your network bypass or VPN configuration if needed.
