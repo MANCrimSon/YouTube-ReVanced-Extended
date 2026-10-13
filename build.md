@@ -6,8 +6,8 @@ Install instructions: [NonRoot](https://github.com/MANCrimSon/YouTube-ReVanced-E
   
 CLI: MorpheApp/morphe-desktop/morphe-desktop-1.18.2-dev.4-all.jar  
   
-Patches: sashade8-ship-it/dual-vot-patches/patches-1.48.0-dev.4-dualvot.8.5.3.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.48.0-dev.4-dualvot.8.5.3)
+Patches: sashade8-ship-it/dual-vot-patches/patches-1.48.0-dev.6-dualvot.8.5.3.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v1.48.0-dev.6-dualvot.8.5.3)
 
-Patches: MorpheApp/morphe-patches/patches-1.48.0-dev.4.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.48.0-dev.4)  
+Patches: MorpheApp/morphe-patches/patches-1.48.0-dev.6.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v1.48.0-dev.6)  
