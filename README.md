@@ -38,7 +38,7 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 **2.** Install the matching app: download the APK from the table above, or simply tap **[Import]** to install and manage updates directly via Obtainium.
 
 #### Updating
-• **In-App Updater:** Check for updates directly inside the app (`Settings` → `RVX` / `Morphe` → `Patch updates`). Features: version comparison, changelog preview, direct APK download, and snooze.  
+• **In-App Updater:** Check for updates directly inside the app (`Settings` → `RVX` / `Morphe` → `Build update`). Features: version comparison, changelog preview, direct APK download, and snooze.  
 • **Via Obtainium (Auto-updates):** Install [**Obtainium**](https://github.com/ImranR98/Obtainium) and tap the **[Import]** links in the main Download table above to add automatic update profiles directly on your Android device.
 
 </details>
