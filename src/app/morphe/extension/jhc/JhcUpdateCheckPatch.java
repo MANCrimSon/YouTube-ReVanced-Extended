@@ -2245,14 +2245,14 @@ public class JhcUpdateCheckPatch {
                 case "toast_snooze_reset": return "Паузу скинуто. Сповіщення увімкнено";
                 case "toast_skipped": return "Збірку %s пропущено";
                 case "toast_install_obtainium": return "Встановіть Obtainium для автооновлень";
-                case "update_settings_title": return "Оновлення патчів";
+                case "update_settings_title": return "Оновлення збірки";
                 case "update_settings_summary": return "Перевірити наявність нових збірок";
-                case "shortcut_label": return "Оновити патчі";
-                case "shortcut_long_label": return "🔄  Оновити патчі";
-                case "toast_checking_updates": return "Перевірка оновлень патчів...";
-                case "toast_already_latest": return "У вас встановлені найновіші патчі";
+                case "shortcut_label": return "Оновити збірку";
+                case "shortcut_long_label": return "🔄  Оновити збірку";
+                case "toast_checking_updates": return "Перевірка оновлень збірки...";
+                case "toast_already_latest": return "У вас встановлена найновіша збірка";
                 case "toast_check_failed": return "Не вдалося перевірити оновлення. Перевірте мережу";
-                case "hint_shortcut_fmt": return "💡 Перевірка: Налаштування -> %s -> Оновлення патчів";
+                case "hint_shortcut_fmt": return "💡 Перевірка: Налаштування -> %s -> Оновлення збірки";
             }
         }
         // Russian, Belarusian, Kazakh
@@ -2284,16 +2284,16 @@ public class JhcUpdateCheckPatch {
                 case "toast_snoozed": return "Уведомления отключены на %s";
                 case "toast_snoozed_forever": return "Уведомления отключены навсегда";
                 case "toast_snooze_reset": return "Пауза сброшена. Уведомления включены";
-                case "toast_skipped": return "Билд %s пропущен";
+                case "toast_skipped": return "Сборка %s пропущена";
                 case "toast_install_obtainium": return "Установите Obtainium для автообновлений";
-                case "update_settings_title": return "Обновление патчей";
-                case "update_settings_summary": return "Проверить наличие новой версии сборок";
-                case "shortcut_label": return "Обновить патчи";
-                case "shortcut_long_label": return "🔄  Обновить патчи";
-                case "toast_checking_updates": return "Проверка обновлений патчей...";
-                case "toast_already_latest": return "У вас установлены актуальные патчи";
+                case "update_settings_title": return "Обновление сборки";
+                case "update_settings_summary": return "Проверить наличие новой версии сборки";
+                case "shortcut_label": return "Обновить сборку";
+                case "shortcut_long_label": return "🔄  Обновить сборку";
+                case "toast_checking_updates": return "Проверка обновлений сборки...";
+                case "toast_already_latest": return "У вас установлена актуальная сборка";
                 case "toast_check_failed": return "Не удалось проверить обновления. Проверьте сеть";
-                case "hint_shortcut_fmt": return "💡 Проверка: Настройки -> %s -> Обновление патчей";
+                case "hint_shortcut_fmt": return "💡 Проверка: Настройки -> %s -> Обновление сборки";
             }
         } 
         // Spanish
@@ -2327,14 +2327,14 @@ public class JhcUpdateCheckPatch {
                 case "toast_snooze_reset": return "Pausa restablecida. Notificaciones activadas";
                 case "toast_skipped": return "Versión %s omitida";
                 case "toast_install_obtainium": return "Instala Obtainium para actualizaciones";
-                case "update_settings_title": return "Actualización de parches";
+                case "update_settings_title": return "Actualización de compilación";
                 case "update_settings_summary": return "Buscar nuevas compilaciones";
-                case "shortcut_label": return "Actualizar parches";
-                case "shortcut_long_label": return "🔄  Actualizar parches";
-                case "toast_checking_updates": return "Buscando actualizaciones de parches...";
-                case "toast_already_latest": return "Tienes instalados los parches más recientes";
+                case "shortcut_label": return "Actualizar compilación";
+                case "shortcut_long_label": return "🔄  Actualizar compilación";
+                case "toast_checking_updates": return "Buscando actualizaciones de compilación...";
+                case "toast_already_latest": return "Tienes instalada la compilación más reciente";
                 case "toast_check_failed": return "Error al buscar actualizaciones. Comprueba la red";
-                case "hint_shortcut_fmt": return "💡 Comprobar: Ajustes -> %s -> Actualización de parches";
+                case "hint_shortcut_fmt": return "💡 Comprobar: Ajustes -> %s -> Actualización de compilación";
             }
         } 
         // German
@@ -2368,14 +2368,14 @@ public class JhcUpdateCheckPatch {
                 case "toast_snooze_reset": return "Pause zurückgesetzt. Benachrichtigungen aktiviert";
                 case "toast_skipped": return "Build %s übersprungen";
                 case "toast_install_obtainium": return "Installiere Obtainium für Updates";
-                case "update_settings_title": return "Patch-Updates";
+                case "update_settings_title": return "Build-Update";
                 case "update_settings_summary": return "Nach neuen Builds suchen";
-                case "shortcut_label": return "Patches aktualisieren";
-                case "shortcut_long_label": return "🔄  Patches aktualisieren";
-                case "toast_checking_updates": return "Suche nach Patch-Updates...";
-                case "toast_already_latest": return "Sie haben die neuesten Patches installiert";
+                case "shortcut_label": return "Build aktualisieren";
+                case "shortcut_long_label": return "🔄  Build aktualisieren";
+                case "toast_checking_updates": return "Suche nach Build-Updates...";
+                case "toast_already_latest": return "Sie haben den neuesten Build installiert";
                 case "toast_check_failed": return "Fehler bei der Update-Suche. Netzwerk prüfen";
-                case "hint_shortcut_fmt": return "💡 Prüfung: Einstellungen -> %s -> Patch-Updates";
+                case "hint_shortcut_fmt": return "💡 Prüfung: Einstellungen -> %s -> Build-Update";
             }
         }
 
@@ -2409,14 +2409,14 @@ public class JhcUpdateCheckPatch {
             case "toast_snooze_reset": return "Pause reset. Notifications enabled";
             case "toast_skipped": return "Build %s skipped";
             case "toast_install_obtainium": return "Install Obtainium for auto-updates";
-            case "update_settings_title": return "Patch updates";
+            case "update_settings_title": return "Build update";
             case "update_settings_summary": return "Check for new builds";
-            case "shortcut_label": return "Update Patches";
-            case "shortcut_long_label": return "🔄  Update Patches";
-            case "toast_checking_updates": return "Checking for patch updates...";
-            case "toast_already_latest": return "You have the latest patches installed";
+            case "shortcut_label": return "Update Build";
+            case "shortcut_long_label": return "🔄  Update Build";
+            case "toast_checking_updates": return "Checking for build updates...";
+            case "toast_already_latest": return "You have the latest build installed";
             case "toast_check_failed": return "Failed to check for updates. Check your network";
-            case "hint_shortcut_fmt": return "💡 Check: Settings -> %s -> Patch updates";
+            case "hint_shortcut_fmt": return "💡 Check: Settings -> %s -> Build update";
             default: return key;
         }
      }
