@@ -1,6 +1,6 @@
 ## YouTube Music Morphe
-* **Version:** v9.30.53 (p2.3.0-dev.1 b495)
-* **Release:** [#495](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/495)
+* **Version:** v9.30.53 (p2.3.0-dev.2 b496)
+* **Release:** [#496](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/496)
 
 ### Release Notes:
 YouTube-Morphe: 21.30.216  
@@ -11,8 +11,8 @@ Install instructions: [NonRoot](https://github.com/MANCrimSon/YouTube-ReVanced-E
   
 CLI: MorpheApp/morphe-desktop/morphe-desktop-2.2.0-dev.12-all.jar  
   
-Patches: sashade8-ship-it/dual-vot-patches/patches-2.3.0-dev.1-dualvot.8.5.4.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.3.0-dev.1-dualvot.8.5.4)
+Patches: sashade8-ship-it/dual-vot-patches/patches-2.3.0-dev.2-dualvot.8.5.4.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.3.0-dev.2-dualvot.8.5.4)
 
-Patches: MorpheApp/morphe-patches/patches-2.3.0-dev.1.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.3.0-dev.1)  
+Patches: MorpheApp/morphe-patches/patches-2.3.0-dev.2.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.3.0-dev.2)  
