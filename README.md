@@ -45,7 +45,7 @@ in [**Releases**](../../releases)). YouTube Music ships two architectures – pi
 <details>
 <summary><b>Troubleshooting: Infinite Buffering / Playback Fix</b></summary>
 
-### ReVanced Extended (lavinhoque33) – YouTube & YouTube Music
+### RVX – YouTube & YouTube Music
 
 **Method 1: Spoof video streams (Recommended)**  
 **1.** Go to `Settings` → `RVX` → `Miscellaneous` → `Spoof video streams`.  
