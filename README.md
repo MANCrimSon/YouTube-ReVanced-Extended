@@ -1,7 +1,7 @@
 # YouTube & YT Music Mod Builder
 
 Automated builds of modified **YouTube** and **YouTube Music** – on two patch sets:
-[**lavinhoque33/revanced-patches**](https://github.com/lavinhoque33/revanced-patches) (ReVanced Extended fork with built-in Yandex & Google VoT) and
+[**lavinhoque33/revanced-patches**](https://github.com/lavinhoque33/revanced-patches) (ReVanced Extended anddea fork) and
 [**MorpheApp/morphe-patches**](https://github.com/MorpheApp/morphe-patches) (Morphe), with voice-over translation via
 [**Yandex VoT**](https://github.com/sashade8-ship-it/morphe-patches-yavot).
 
