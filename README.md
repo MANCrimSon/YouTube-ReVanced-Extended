@@ -1,9 +1,8 @@
 # YouTube & YT Music Mod Builder
 
 Automated builds of modified **YouTube** and **YouTube Music** – on two patch sets:
-[**lavinhoque33/revanced-patches**](https://github.com/lavinhoque33/revanced-patches) (ReVanced Extended (fork of anddea)) and
-[**MorpheApp/morphe-patches**](https://github.com/MorpheApp/morphe-patches) (Morphe), with voice-over translation via
-[**Yandex VoT**](https://github.com/sashade8-ship-it/morphe-patches-yavot).
+[**lavinhoque33/revanced-patches**](https://github.com/lavinhoque33/revanced-patches) (ReVanced Extended, fork of anddea with built-in VoT) and
+[**MorpheApp/morphe-patches**](https://github.com/MorpheApp/morphe-patches) (Morphe, with [**Dual VoT**](https://github.com/sashade8-ship-it/dual-vot-patches)).
 
 Every build ships in two flavors – **NonRoot** (a plain APK) and **Root** (a Magisk/KernelSU/APatch module) – and gets
 rebuilt automatically as soon as new patches are released.
@@ -127,4 +126,4 @@ huge thanks to [**j-hc**](https://github.com/j-hc) for the original builder, the
 (`zygisk-detach`, `rvmm-zygisk-mount`) this repo still relies on.
 
 Patches and translation add-on come from [**lavinhoque33**](https://github.com/lavinhoque33/revanced-patches) (fork of [**anddea**](https://github.com/anddea/revanced-patches)),
-[**MorpheApp**](https://github.com/MorpheApp/morphe-patches), and [**sashade8-ship-it**](https://github.com/sashade8-ship-it/morphe-patches-yavot).
+[**MorpheApp**](https://github.com/MorpheApp/morphe-patches), and [**sashade8-ship-it**](https://github.com/sashade8-ship-it/dual-vot-patches).
