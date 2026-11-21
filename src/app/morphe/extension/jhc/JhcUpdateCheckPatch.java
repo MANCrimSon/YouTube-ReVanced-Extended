@@ -86,10 +86,11 @@ public class JhcUpdateCheckPatch {
 
     // Target repository
     private static final String REPO_OWNER_NAME = "MANCrimSon/YouTube-ReVanced-Extended";
-    private static final String REPO_RELEASES_API = "https://api.github.com/repos/" + REPO_OWNER_NAME + "/releases?per_page=10";
+    private static final String REPO_RELEASES_API = "https://api.github.com/repos/" + REPO_OWNER_NAME + "/releases?per_page=25";
     private static final String RAW_README_URL = "https://raw.githubusercontent.com/" + REPO_OWNER_NAME + "/main/README.md";
     private static final String RAW_UPDATE_BASE_URL = "https://raw.githubusercontent.com/" + REPO_OWNER_NAME + "/update/";
-    private static final int NETWORK_TIMEOUT_MS = 12000;
+    private static final int CONNECT_TIMEOUT_MS = 7000;
+    private static final int READ_TIMEOUT_MS = 10000;
 
     public static boolean isRvxTarget(Context context) {
         if (context == null) return false;
@@ -120,13 +121,13 @@ public class JhcUpdateCheckPatch {
 
         if (isMusic) {
             if (isAnddea) {
-                return "obtainium://app/%7B%22id%22%3A%22anddea.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22YT%20Music%20RVX%20%28anddea%29%5C%22%7D%22%7D";
+                return "obtainium://app/%7B%22id%22%3A%22anddea.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20RVX%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22YT%20Music%20RVX%5C%22%7D%22%7D";
             } else {
                 return "obtainium://app/%7B%22id%22%3A%22app.morphe.android.apps.youtube.music%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YT%20Music%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-music-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%7D%22%7D";
             }
         } else {
             if (isAnddea) {
-                return "obtainium://app/%7B%22id%22%3A%22anddea.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20RVX%20%28anddea%29%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%2C%5C%22appName%5C%22%3A%5C%22YouTube%20RVX%20%28anddea%29%5C%22%7D%22%7D";
+                return "obtainium://app/%7B%22id%22%3A%22anddea.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20RVX%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-revanced-extended%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%2C%5C%22appName%5C%22%3A%5C%22YouTube%20RVX%5C%22%7D%22%7D";
             } else {
                 return "obtainium://app/%7B%22id%22%3A%22app.morphe.android.youtube%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FMANCrimSon%2FYouTube-ReVanced-Extended%22%2C%22author%22%3A%22MANCrimSon%22%2C%22name%22%3A%22YouTube%20Morphe%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22versionDetection%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5Eyoutube-morphe%5C%22%2C%5C%22autoApkFilterByArch%5C%22%3Afalse%7D%22%7D";
             }
@@ -858,8 +859,8 @@ public class JhcUpdateCheckPatch {
                 HttpURLConnection conn = openCleanConnection(RAW_README_URL);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                conn.setConnectTimeout(NETWORK_TIMEOUT_MS);
-                conn.setReadTimeout(NETWORK_TIMEOUT_MS);
+                conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                conn.setReadTimeout(READ_TIMEOUT_MS);
 
                 if (conn.getResponseCode() == 200) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -952,8 +953,8 @@ public class JhcUpdateCheckPatch {
                     HttpURLConnection atomConn = openCleanConnection(atomUrl);
                     atomConn.setRequestMethod("GET");
                     atomConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                    atomConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
-                    atomConn.setReadTimeout(NETWORK_TIMEOUT_MS);
+                    atomConn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                    atomConn.setReadTimeout(READ_TIMEOUT_MS);
 
                     if (atomConn.getResponseCode() == 200) {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(atomConn.getInputStream()));
@@ -967,6 +968,7 @@ public class JhcUpdateCheckPatch {
 
                         String atom = sb.toString();
                         Matcher entryMatcher = Pattern.compile("<entry>(.*?)</entry>", Pattern.DOTALL).matcher(atom);
+                        int expAttempts = 0;
                         while (entryMatcher.find()) {
                             String entry = entryMatcher.group(1);
                             Matcher tagMatcher = Pattern.compile("/releases/tag/([0-9]+)").matcher(entry);
@@ -985,14 +987,18 @@ public class JhcUpdateCheckPatch {
                                 continue;
                             }
 
+                            if (expAttempts++ >= 5) {
+                                break;
+                            }
+
                             // Query expanded_assets for this candidate tag
                             try {
                                 String assetsUrl = "https://github.com/" + REPO_OWNER_NAME + "/releases/expanded_assets/" + candidateTag;
                                 HttpURLConnection expConn = openCleanConnection(assetsUrl);
                                 expConn.setRequestMethod("GET");
                                 expConn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                                expConn.setConnectTimeout(NETWORK_TIMEOUT_MS);
-                                expConn.setReadTimeout(NETWORK_TIMEOUT_MS);
+                                expConn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                                expConn.setReadTimeout(READ_TIMEOUT_MS);
                                 if (expConn.getResponseCode() == 200) {
                                     BufferedReader expReader = new BufferedReader(new InputStreamReader(expConn.getInputStream()));
                                     StringBuilder expSb = new StringBuilder();
@@ -1039,8 +1045,8 @@ public class JhcUpdateCheckPatch {
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Accept", "application/vnd.github+json");
                     conn.setRequestProperty("User-Agent", "MANCrimSon-Update-Checker");
-                    conn.setConnectTimeout(NETWORK_TIMEOUT_MS);
-                    conn.setReadTimeout(NETWORK_TIMEOUT_MS);
+                    conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                    conn.setReadTimeout(READ_TIMEOUT_MS);
 
                     int code = conn.getResponseCode();
                     if (code == 200) {
@@ -1093,8 +1099,6 @@ public class JhcUpdateCheckPatch {
                 }
             }
 
-            prefs.edit().putLong(KEY_LAST_CHECK_TIME, System.currentTimeMillis()).apply();
-
             if (targetTag == null || downloadUrl == null) {
                 Log.d(TAG, "No matching APK found in releases or network unreachable");
                 if (manualCheck && context instanceof Activity) {
@@ -1103,6 +1107,9 @@ public class JhcUpdateCheckPatch {
                 }
                 return;
             }
+
+            // Record last successful check timestamp only when a valid release response was obtained
+            prefs.edit().putLong(KEY_LAST_CHECK_TIME, System.currentTimeMillis()).apply();
 
             boolean isLatest = false;
             if (!FORCE_TEST_ALWAYS_SHOW && !manualCheck) {
@@ -1166,7 +1173,7 @@ public class JhcUpdateCheckPatch {
         String cleanVer = patchVersion.replaceAll("^[vV]", "");
         boolean isAnddea = isRvxTarget(context);
         if (isAnddea) {
-            return "https://github.com/anddea/revanced-patches/releases/tag/v" + cleanVer;
+            return "https://github.com/lavinhoque33/revanced-patches/releases/tag/v" + cleanVer;
         } else {
             String baseVer = cleanVer.replaceAll("-dualvot\\.[0-9a-zA-Z._-]+", "");
             return "https://github.com/MorpheApp/morphe-patches/releases/tag/v" + baseVer;
@@ -1184,7 +1191,7 @@ public class JhcUpdateCheckPatch {
 
         String[] targetRepos;
         if (isAnddea) {
-            targetRepos = new String[] { "anddea/revanced-patches" };
+            targetRepos = new String[] { "lavinhoque33/revanced-patches", "anddea/revanced-patches" };
         } else if (isMusic) {
             targetRepos = new String[] { "MorpheApp/morphe-patches", "sashade8-ship-it/dual-vot-patches" };
         } else {
@@ -1221,15 +1228,16 @@ public class JhcUpdateCheckPatch {
             } catch (Throwable ignored) {}
         }
 
-        // Strict brand-aware fallback: NEVER cross Morphe and anddea
+        // Strict brand-aware fallback: NEVER cross Morphe and RVX
         if (isAnddea) {
             try {
-                Pattern pAnyVer = Pattern.compile("anddea/[^/\\s]+/patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
+                Pattern pAnyVer = Pattern.compile("(lavinhoque33|anddea)/[^/\\s]+/patches-(?:v)?([0-9a-zA-Z._-]+)\\.mpp");
                 Matcher mAnyVer = pAnyVer.matcher(body);
                 if (mAnyVer.find()) {
-                    String ver = mAnyVer.group(1);
+                    String owner = mAnyVer.group(1);
+                    String ver = mAnyVer.group(2);
                     String cleanVer = ver.replaceAll("^[vV]", "");
-                    String ch = "https://github.com/anddea/revanced-patches/releases/tag/v" + cleanVer;
+                    String ch = "https://github.com/" + owner + "/revanced-patches/releases/tag/v" + cleanVer;
                     return new PatchInfo(ver, ch);
                 }
             } catch (Throwable ignored) {}

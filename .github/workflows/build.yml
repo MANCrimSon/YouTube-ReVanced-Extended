@@ -110,17 +110,47 @@ jobs:
               fi
             fi
 
-            # Rate limit scheduled builds to at most once per day
+            # Rate limit scheduled builds independently per brand (at most once per day / 20h cooldown)
             if [ -n "$UPDATE_CFG" ]; then
-              last_rel_time=$(gh api "repos/$GITHUB_REPOSITORY/releases" -q '.[0].published_at // .[0].created_at' 2>/dev/null || :)
-              if [ -n "$last_rel_time" ]; then
-                last_ts=$(date -d "$last_rel_time" +%s 2>/dev/null || echo 0)
+              rel_json=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=15" 2>/dev/null || :)
+              if [ -n "$rel_json" ]; then
                 now_ts=$(date +%s)
-                diff_hours=$(( (now_ts - last_ts) / 3600 ))
-                last_day=$(date -u -d "$last_rel_time" +%Y-%m-%d 2>/dev/null || :)
                 today_day=$(date -u +%Y-%m-%d)
-                if [ "$last_day" = "$today_day" ] || [ "$diff_hours" -lt 20 ]; then
-                  echo "::notice::Scheduled build postponed: release already created recently (${diff_hours}h ago on $last_day). Cron builds are limited to once daily."
+
+                check_brand_cooldown() {
+                  local brand_label="$1"
+                  local asset_pattern="$2"
+                  local last_rel_time
+                  last_rel_time=$(jq -r --arg pat "$asset_pattern" '
+                    [.[] | select(any(.assets[]?; .name | test($pat)))] | .[0] | (.published_at // .created_at // empty)
+                  ' <<<"$rel_json" 2>/dev/null || :)
+                  if [ -n "$last_rel_time" ]; then
+                    local last_ts diff_hours last_day
+                    last_ts=$(date -d "$last_rel_time" +%s 2>/dev/null || echo 0)
+                    diff_hours=$(( (now_ts - last_ts) / 3600 ))
+                    last_day=$(date -u -d "$last_rel_time" +%Y-%m-%d 2>/dev/null || :)
+                    if [ "$last_day" = "$today_day" ] || [ "$diff_hours" -lt 20 ]; then
+                      echo "::notice::Scheduled ${brand_label} build postponed: release already created recently (${diff_hours}h ago on ${last_day}). Cron builds are limited to once daily per brand."
+                      return 0
+                    fi
+                  fi
+                  return 1
+                }
+
+                if jq -e '."YouTube-Extended" // ."YouTube-Music-Extended"' <<<"$UPDATE_CFG" >/dev/null 2>&1; then
+                  if check_brand_cooldown "RVX" "revanced-extended"; then
+                    UPDATE_CFG=$(jq 'del(."YouTube-Extended", ."YouTube-Music-Extended")' <<<"$UPDATE_CFG")
+                  fi
+                fi
+
+                if jq -e '."YouTube-Morphe" // ."YouTube-Music-Morphe"' <<<"$UPDATE_CFG" >/dev/null 2>&1; then
+                  if check_brand_cooldown "Morphe" "morphe"; then
+                    UPDATE_CFG=$(jq 'del(."YouTube-Morphe", ."YouTube-Music-Morphe")' <<<"$UPDATE_CFG")
+                  fi
+                fi
+
+                has_apps=$(jq '[to_entries[] | select(.value | type == "object")] | length' <<<"$UPDATE_CFG")
+                if [ "$has_apps" -eq 0 ]; then
                   UPDATE_CFG=""
                 fi
               fi
