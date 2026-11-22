@@ -14,6 +14,7 @@ patches-version = "latest"
 archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android.youtube"
 # uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 # apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
+excluded-patches = "'Patches update notice'"
 addon-patches = "bin/update-check.mpp"
 
 [YouTube-Music-Extended]
@@ -29,6 +30,7 @@ archive-dlurl = "https://archive.org/download/crimsonman/apks/com.google.android
 # uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 # apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 included-patches = "'Disable music video in album'" 
+excluded-patches = "'Patches update notice'"
 addon-patches = "bin/update-check.mpp"
 
 [YouTube-Morphe]
