@@ -4,7 +4,7 @@ YouTube-Music-Extended (arm-v7a): 9.40.51
 
 Install instructions: [NonRoot](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#nonroot) · [Root](https://github.com/MANCrimSon/YouTube-ReVanced-Extended#root)
   
-CLI: MorpheApp/morphe-desktop/morphe-desktop-2.3.0-all.jar  
+CLI: MorpheApp/morphe-desktop/morphe-desktop-2.4.0-dev.1-all.jar  
   
-Patches: lavinhoque33/revanced-patches/patches-1.47.0.mpp  
-[Changelog](https://github.com/lavinhoque33/revanced-patches/releases/tag/v1.47.0)  
+Patches: lavinhoque33/revanced-patches/patches-1.47.1.mpp  
+[Changelog](https://github.com/lavinhoque33/revanced-patches/releases/tag/v1.47.1)  
