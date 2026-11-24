@@ -1,6 +1,6 @@
 ## YouTube Morphe
-* **Version:** v21.30.216 (p2.4.0-dev.9-dualvot.8.5.4 b509)
-* **Release:** [#509](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/509)
+* **Version:** v21.30.216 (p2.4.0-dev.11-dualvot.8.5.4 b510)
+* **Release:** [#510](https://github.com/MANCrimSon/YouTube-ReVanced-Extended/releases/tag/510)
 
 ### Release Notes:
 YouTube-Extended: 21.39.525  
@@ -14,11 +14,11 @@ Install instructions: [NonRoot](https://github.com/MANCrimSon/YouTube-ReVanced-E
   
 CLI: MorpheApp/morphe-desktop/morphe-desktop-2.4.0-dev.2-all.jar  
   
-Patches: lavinhoque33/revanced-patches/patches-1.49.0.mpp  
-[Changelog](https://github.com/lavinhoque33/revanced-patches/releases/tag/v1.49.0)
+Patches: lavinhoque33/revanced-patches/patches-1.51.0.mpp  
+[Changelog](https://github.com/lavinhoque33/revanced-patches/releases/tag/v1.51.0)
 
-Patches: sashade8-ship-it/dual-vot-patches/patches-2.4.0-dev.9-dualvot.8.5.4.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.4.0-dev.9-dualvot.8.5.4)
+Patches: sashade8-ship-it/dual-vot-patches/patches-2.4.0-dev.11-dualvot.8.5.4.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.4.0-dev.11-dualvot.8.5.4)
 
-Patches: MorpheApp/morphe-patches/patches-2.4.0-dev.9.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.4.0-dev.9)  
+Patches: MorpheApp/morphe-patches/patches-2.4.0-dev.11.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.4.0-dev.11)  
