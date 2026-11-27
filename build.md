@@ -1,7 +1,4 @@
-YouTube-Extended: 21.39.525  
 YouTube-Morphe: 21.30.216  
-YouTube-Music-Extended (arm64-v8a): 9.40.51  
-YouTube-Music-Extended (arm-v7a): 9.40.51  
 YouTube-Music-Morphe (arm64-v8a): 9.30.53  
 YouTube-Music-Morphe (arm-v7a): 9.30.53  
 
@@ -9,11 +6,8 @@ Install instructions: [NonRoot](https://github.com/MANCrimSon/YouTube-ReVanced-E
   
 CLI: MorpheApp/morphe-desktop/morphe-desktop-2.4.0-all.jar  
   
-Patches: lavinhoque33/revanced-patches/patches-1.53.0-dev.2.mpp  
-[Changelog](https://github.com/lavinhoque33/revanced-patches/releases/tag/v1.53.0-dev.2)
+Patches: sashade8-ship-it/dual-vot-patches/patches-2.5.0-dev.2-dualvot.8.5.4.mpp  
+[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.5.0-dev.2-dualvot.8.5.4)
 
-Patches: sashade8-ship-it/dual-vot-patches/patches-2.4.0-dualvot.8.5.4.mpp  
-[Changelog](https://github.com/sashade8-ship-it/dual-vot-patches/releases/tag/v2.4.0-dualvot.8.5.4)
-
-Patches: MorpheApp/morphe-patches/patches-2.4.0.mpp  
-[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.4.0)  
+Patches: MorpheApp/morphe-patches/patches-2.5.0-dev.2.mpp  
+[Changelog](https://github.com/MorpheApp/morphe-patches/releases/tag/v2.5.0-dev.2)  
